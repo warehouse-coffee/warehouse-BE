@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using warehouse_BE.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,9 +22,37 @@ builder.Services.AddCors(options =>
             .AllowCredentials()); // Allows cookies/auth headers
 });
 
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException("SecretKey is null");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+});
+
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Configure the HTTP request pipeline. and protect server using https 
 if (app.Environment.IsDevelopment())
 {
     await app.InitialiseDatabaseAsync();
@@ -33,7 +64,7 @@ else
 }
 
 app.UseHealthChecks("/health");
-app.UseHttpsRedirection();
+app.UseHttpsRedirection(); // conver http to https 
 app.UseStaticFiles();
 app.UseCors("AllowSpecificOrigin");
 app.UseSwaggerUi(settings =>

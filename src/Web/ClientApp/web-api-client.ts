@@ -10,6 +10,96 @@
 
 import followIfLoginRedirect from './api-authorization/followIfLoginRedirect';
 
+export class IdentityUserClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    signUp(command: CreateUserCommand): Promise<number> {
+        let url_ = this.baseUrl + "/api/IdentityUser/signup";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSignUp(_response);
+        });
+    }
+
+    protected processSignUp(response: Response): Promise<number> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<number>(null as any);
+    }
+
+    signIn(query: SignInCommand): Promise<SignInVm> {
+        let url_ = this.baseUrl + "/api/IdentityUser/signin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSignIn(_response);
+        });
+    }
+
+    protected processSignIn(response: Response): Promise<SignInVm> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SignInVm.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SignInVm>(null as any);
+    }
+}
+
 export class ProductsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -54,6 +144,126 @@ export class ProductsClient {
         }
         return Promise.resolve<ProductListVM>(null as any);
     }
+}
+
+export class CreateUserCommand implements ICreateUserCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
+
+    constructor(data?: ICreateUserCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): CreateUserCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUserCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+export interface ICreateUserCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
+}
+
+export class SignInVm implements ISignInVm {
+    token?: string | undefined;
+    statusCode?: number;
+
+    constructor(data?: ISignInVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.token = _data["token"];
+            this.statusCode = _data["statusCode"];
+        }
+    }
+
+    static fromJS(data: any): SignInVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token;
+        data["statusCode"] = this.statusCode;
+        return data;
+    }
+}
+
+export interface ISignInVm {
+    token?: string | undefined;
+    statusCode?: number;
+}
+
+export class SignInCommand implements ISignInCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
+
+    constructor(data?: ISignInCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): SignInCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+export interface ISignInCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
 }
 
 export class ProductListVM implements IProductListVM {
