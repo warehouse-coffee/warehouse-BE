@@ -147,7 +147,7 @@ export class ProductsClient {
 }
 
 export class CreateUserCommand implements ICreateUserCommand {
-    userName?: string | undefined;
+    email?: string | undefined;
     password?: string | undefined;
 
     constructor(data?: ICreateUserCommand) {
@@ -161,7 +161,7 @@ export class CreateUserCommand implements ICreateUserCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.userName = _data["userName"];
+            this.email = _data["email"];
             this.password = _data["password"];
         }
     }
@@ -175,14 +175,14 @@ export class CreateUserCommand implements ICreateUserCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userName"] = this.userName;
+        data["email"] = this.email;
         data["password"] = this.password;
         return data;
     }
 }
 
 export interface ICreateUserCommand {
-    userName?: string | undefined;
+    email?: string | undefined;
     password?: string | undefined;
 }
 
@@ -227,7 +227,7 @@ export interface ISignInVm {
 }
 
 export class SignInCommand implements ISignInCommand {
-    userName?: string | undefined;
+    email?: string | undefined;
     password?: string | undefined;
 
     constructor(data?: ISignInCommand) {
@@ -241,7 +241,7 @@ export class SignInCommand implements ISignInCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.userName = _data["userName"];
+            this.email = _data["email"];
             this.password = _data["password"];
         }
     }
@@ -255,14 +255,14 @@ export class SignInCommand implements ISignInCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userName"] = this.userName;
+        data["email"] = this.email;
         data["password"] = this.password;
         return data;
     }
 }
 
 export interface ISignInCommand {
-    userName?: string | undefined;
+    email?: string | undefined;
     password?: string | undefined;
 }
 

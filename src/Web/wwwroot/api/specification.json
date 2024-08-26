@@ -98,7 +98,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userName": {
+          "email": {
             "type": "string",
             "nullable": true
           },
@@ -126,7 +126,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userName": {
+          "email": {
             "type": "string",
             "nullable": true
           },

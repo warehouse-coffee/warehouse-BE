@@ -5,7 +5,7 @@ namespace warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 
 public record CreateUserCommand : IRequest<int>
 {
-    public string? UserName { get; init; }
+    public string? Email { get; init; }
 
     public string? Password { get; init; }
 }
@@ -22,12 +22,12 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, int>
 
     public async Task<int> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
             return 0; 
         }
 
-        var (result, userId) = await _identityService.CreateUserAsync(request.UserName, request.Password);
+        var (result, userId) = await _identityService.CreateUserAsync(request.Email, request.Password);
 
         return result.Succeeded ? 1 : 0;
     }
