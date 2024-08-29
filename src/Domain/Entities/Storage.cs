@@ -8,5 +8,4 @@ public class Storage : BaseAuditableEntity
 
     // Relationships
     public ICollection<Area> Areas { get; set; } = new List<Area>();
-    public ICollection<User> Manager { get; set; } = new List<User>();
 }

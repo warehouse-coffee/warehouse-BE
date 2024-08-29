@@ -12,8 +12,8 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240826155627_AddBaseWarehouse")]
-    partial class AddBaseWarehouse
+    [Migration("20240828165159_CreateInit0")]
+    partial class CreateInit0
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -411,6 +411,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -436,69 +439,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApplicationUserId");
+
                     b.ToTable("Storage");
-                });
-
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("StorageId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("StorageId");
-
-                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
@@ -507,6 +450,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompanyId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -554,6 +500,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -665,17 +613,20 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.User", b =>
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
+                {
+                    b.HasOne("warehouse_BE.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany("storages")
+                        .HasForeignKey("ApplicationUserId");
+                });
+
+            modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.HasOne("warehouse_BE.Domain.Entities.Company", "Company")
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("warehouse_BE.Domain.Entities.Storage", null)
-                        .WithMany("Manager")
-                        .HasForeignKey("StorageId");
 
                     b.Navigation("Company");
                 });
@@ -700,9 +651,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
+            modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
                 {
-                    b.Navigation("Manager");
+                    b.Navigation("storages");
                 });
 #pragma warning restore 612, 618
         }
