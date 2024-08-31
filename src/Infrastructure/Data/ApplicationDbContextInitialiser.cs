@@ -92,9 +92,7 @@ public class ApplicationDbContextInitialiser
         {
             _context.Products.Add(
 
-                    new Product { Id = 1, Name = "Book"}
-
-                
+            new Product { Id = 1, Name = "Book"}
             );
         }
     }
