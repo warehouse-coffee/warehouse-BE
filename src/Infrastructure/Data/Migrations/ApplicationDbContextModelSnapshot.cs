@@ -239,6 +239,10 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("CompanyName")
                         .HasColumnType("text");
 
@@ -254,8 +258,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<int>("PhoneContact")
-                        .HasColumnType("integer");
+                    b.Property<string>("PhoneContact")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -285,8 +289,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<int>("Total")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -326,8 +330,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Total")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("TotalPice")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -449,8 +453,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("integer");
+                    b.Property<string>("CompanyId")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -613,19 +617,17 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
                 {
                     b.HasOne("warehouse_BE.Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("storages")
+                        .WithMany("Storages")
                         .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
                 {
-                    b.HasOne("warehouse_BE.Domain.Entities.Company", "Company")
+                    b.HasOne("warehouse_BE.Domain.Entities.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
+                        .HasPrincipalKey("CompanyId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Area", b =>
@@ -650,7 +652,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
                 {
-                    b.Navigation("storages");
+                    b.Navigation("Storages");
                 });
 #pragma warning restore 612, 618
         }

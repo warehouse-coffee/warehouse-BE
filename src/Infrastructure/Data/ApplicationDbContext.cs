@@ -16,6 +16,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        builder.Entity<ApplicationUser>()
+           .HasOne<Company>() // Chỉ định kiểu đối tượng liên kết là Company
+           .WithMany() // Chỉ định rằng Company không có thuộc tính điều hướng đến ApplicationUser
+           .HasForeignKey(u => u.CompanyId) // Chỉ định thuộc tính khóa ngoại trong ApplicationUser
+           .HasPrincipalKey(c => c.CompanyId) // Chỉ định thuộc tính khóa chính trong Company
+           .OnDelete(DeleteBehavior.SetNull);
+
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

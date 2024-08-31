@@ -3,10 +3,10 @@
 public class Product : BaseAuditableEntity
 {
     
-    public string Name { get; set; } = string.Empty; // NOT NULL
-    public int? CategoryId { get; set; } // Có thể null
-    public int? AreaId { get; set; } // Có thể null
-    public string Units { get; set; } = null!; // 'Kg, Pounds,...'
+    public string Name { get; set; } = string.Empty; 
+    public int? CategoryId { get; set; } 
+    public int? AreaId { get; set; } 
+    public string Units { get; set; } = null!;
     public int Amount { get; set; }
     public string? Image { get; set; }
     public string Status { get; set; } = null!; // 'Sold or Not Sold,...'
