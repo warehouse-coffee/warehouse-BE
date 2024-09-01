@@ -1,5 +1,6 @@
 ﻿using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.IdentityUser.Commands.SignIn;
+using warehouse_BE.Application.Response;
 
 namespace warehouse_BE.Web.Endpoints;
 
@@ -8,11 +9,11 @@ public class IdentityUser : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(SignUp,"/signup")
+            .MapPost(UserRegister, "/userregister")
             .MapPost(SignIn,"/signin");
     }
 
-    public Task<int> SignUp(ISender sender, CreateUserCommand command)
+    public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)
     {
         return sender.Send(command);
     }

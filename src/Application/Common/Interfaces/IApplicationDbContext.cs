@@ -8,7 +8,7 @@ public interface IApplicationDbContext
 
     //DbSet<TodoItem> TodoItems { get; }
 
-    DbSet<warehouse_BE.Domain.Entities.Product> Products { get; }
+    DbSet<warehouse_BE.Domain.Entities.Product> Product { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

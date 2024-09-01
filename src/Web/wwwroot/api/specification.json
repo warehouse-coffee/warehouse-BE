@@ -6,12 +6,12 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/IdentityUser/signup": {
+    "/api/IdentityUser/userregister": {
       "post": {
         "tags": [
           "IdentityUser"
         ],
-        "operationId": "SignUp",
+        "operationId": "UserRegister",
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -30,8 +30,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int32"
+                  "$ref": "#/components/schemas/ResponseDto"
                 }
               }
             }
@@ -94,15 +93,56 @@
   },
   "components": {
     "schemas": {
+      "ResponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "nullable": true
+          }
+        }
+      },
       "CreateUserCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "email": {
+          "userRegister": {
+            "$ref": "#/components/schemas/UserRegister"
+          }
+        }
+      },
+      "UserRegister": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userName": {
             "type": "string",
             "nullable": true
           },
           "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "roleName": {
             "type": "string",
             "nullable": true
           }

@@ -1,4 +1,5 @@
 ﻿using warehouse_BE.Application.Common.Models;
+using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 
 namespace warehouse_BE.Application.Common.Interfaces;
 
@@ -15,4 +16,6 @@ public interface IIdentityService
     Task<Result> DeleteUserAsync(string userId);
 
     Task<string?> SignIn(string username, string password);
+    Task<(Result Result, string UserId)> RegisterAsync(UserRegister userRegister);
+
 }

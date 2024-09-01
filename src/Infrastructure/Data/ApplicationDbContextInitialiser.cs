@@ -68,32 +68,57 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         // Default roles
-        var administratorRole = new IdentityRole(Roles.Administrator);
+        var superAdminRole = new IdentityRole("Super-Admin");
+        var adminRole = new IdentityRole("Admin");
+        var customerRole = new IdentityRole("Customer");
 
-        if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
+        // Create roles if they don't exist
+        if (_roleManager.Roles.All(r => r.Name != superAdminRole.Name))
         {
-            await _roleManager.CreateAsync(administratorRole);
+            await _roleManager.CreateAsync(superAdminRole);
+        }
+
+        if (_roleManager.Roles.All(r => r.Name != adminRole.Name))
+        {
+            await _roleManager.CreateAsync(adminRole);
+        }
+
+        if (_roleManager.Roles.All(r => r.Name != customerRole.Name))
+        {
+            await _roleManager.CreateAsync(customerRole);
         }
 
         // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
+        var superAdmin = new ApplicationUser { UserName = "superadmin@localhost", Email = "superadmin@localhost" };
+        var admin = new ApplicationUser { UserName = "admin@localhost", Email = "admin@localhost" };
+        var customer = new ApplicationUser { UserName = "customer@localhost", Email = "customer@localhost" };
 
-        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+        // Create users and assign roles
+        if (_userManager.Users.All(u => u.UserName != superAdmin.UserName))
         {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
-            {
-                await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
-            }
+            await _userManager.CreateAsync(superAdmin, "SuperAdmin1!");
+            await _userManager.AddToRolesAsync(superAdmin, new[] { superAdminRole.Name! });
         }
 
-        //Default Product
-        if (!_context.Products.Any())
+        if (_userManager.Users.All(u => u.UserName != admin.UserName))
         {
-            _context.Products.Add(
-
-            new Product { Id = 1, Name = "Book"}
-            );
+            await _userManager.CreateAsync(admin, "Admin1!");
+            await _userManager.AddToRolesAsync(admin, new[] { adminRole.Name! });
         }
+
+        if (_userManager.Users.All(u => u.UserName != customer.UserName))
+        {
+            await _userManager.CreateAsync(customer, "Customer1!");
+            await _userManager.AddToRolesAsync(customer, new[] { customerRole.Name! });
+        }
+
+
+        // Default Product
+        if (!_context.Product.Any())
+        {
+            _context.Product.Add(new Product { Id = 1, Name = "Book" });
+        }
+
+        await _context.SaveChangesAsync(); // Ensure changes are saved to the database
     }
 }

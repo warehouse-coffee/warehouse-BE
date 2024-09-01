@@ -2,7 +2,7 @@
 
 public class Order : BaseAuditableEntity
 {
-    public string Type { get; set; } = string.Empty; 
+    public string? Type { get; set; }
 
     public DateTime Date { get; set; } 
 

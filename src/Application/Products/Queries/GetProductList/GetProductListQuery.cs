@@ -22,7 +22,7 @@ public class GetPrpductListQueryhandler : IRequestHandler<GetProductListQuery, P
 
     public async Task<ProductListVM> Handle(GetProductListQuery request, CancellationToken cancellationToken)
     {
-        var products = await _context.Products
+        var products = await _context.Product
                                  .ToListAsync(cancellationToken);
 
         // Sử dụng AutoMapper để chuyển đổi List<Product> sang List<ProductDto>

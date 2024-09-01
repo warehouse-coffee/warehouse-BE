@@ -3,13 +3,13 @@
 public class Product : BaseAuditableEntity
 {
     
-    public string Name { get; set; } = string.Empty; 
+    public string? Name { get; set; }
     public int? CategoryId { get; set; } 
     public int? AreaId { get; set; } 
-    public string Units { get; set; } = null!;
+    public string? Units { get; set; }
     public int Amount { get; set; }
     public string? Image { get; set; }
-    public string Status { get; set; } = null!; // 'Sold or Not Sold,...'
+    public string? Status { get; set; }  // 'Sold or Not Sold,...'
     public DateTime Expiration { get; set; }
     public DateTime ImportDate { get; set; }
     public DateTime? ExportDate { get; set; }
@@ -17,7 +17,7 @@ public class Product : BaseAuditableEntity
     // Relationships
     public Category? Category { get; set; }
     public Area? Area { get; set; }
-    public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+    public ICollection<OrderDetail>? OrderDetails { get; set; }
 
 }
 

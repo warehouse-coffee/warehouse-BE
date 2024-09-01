@@ -2,7 +2,7 @@
 
 public class Area : BaseAuditableEntity
 {
-    public string Name { get; set; } = string.Empty; // NOT NULL
+    public string? Name { get; set; } 
 
     // Relationships
     public ICollection<Product> Products { get; set; } = new List<Product>();

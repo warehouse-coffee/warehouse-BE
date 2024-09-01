@@ -11,7 +11,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-    public DbSet<Product> Products => Set<Product>();
+    public DbSet<Product> Product => Set<Product>();
+    public DbSet<Company> Company { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

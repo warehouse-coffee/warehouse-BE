@@ -8,6 +8,6 @@ public class OrderDetail : BaseAuditableEntity
     public decimal TotalPice { get; set; }
 
     // Relationships
-    public Order Order { get; set; } = null!;
-    public Product Product { get; set; } = null!;
+    public Order? Order { get; set; }
+    public Product? Product { get; set; }
 }

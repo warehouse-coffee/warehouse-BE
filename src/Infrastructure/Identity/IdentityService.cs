@@ -9,6 +9,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using warehouse_BE.Domain.Entities;
+using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
+using warehouse_BE.Infrastructure.Data;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -18,17 +20,20 @@ public class IdentityService : IIdentityService
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
     private readonly IConfiguration _configuration;
+    private readonly ApplicationDbContext _context;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ApplicationDbContext context)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
         _configuration = configuration;
+        _context = context;
     }
 
     public async Task<string?> GetUserNameAsync(string userId)
@@ -136,4 +141,73 @@ public class IdentityService : IIdentityService
             throw new Exception("error" + ex);
         }
     }
+
+    public async Task<(Result Result, string UserId)> RegisterAsync(UserRegister userRegister)
+    {
+
+        if (string.IsNullOrWhiteSpace(userRegister.UserName))
+        {
+            return (Result.Failure(new[] { "UserName cannot be null or empty." }), string.Empty);
+        }
+
+        if (string.IsNullOrWhiteSpace(userRegister.Password))
+        {
+            return (Result.Failure(new[] { "Password cannot be null or empty." }), string.Empty);
+        }
+
+        if (string.IsNullOrWhiteSpace(userRegister.Email))
+        {
+            return (Result.Failure(new[] { "Email cannot be null or empty." }), string.Empty);
+        }
+
+        if (string.IsNullOrWhiteSpace(userRegister.PhoneNumber))
+        {
+            return (Result.Failure(new[] { "PhoneNumber cannot be null or empty." }), string.Empty);
+        }
+
+        if (string.IsNullOrWhiteSpace(userRegister.CompanyId))
+        {
+            return (Result.Failure(new[] { "CompanyId cannot be null or empty." }), string.Empty);
+        }
+
+        if (string.IsNullOrWhiteSpace(userRegister.RoleName))
+        {
+            return (Result.Failure(new[] { "RoleName cannot be null or empty." }), string.Empty);
+        }
+
+        var companyExists = await _context.Company.AnyAsync(c => c.CompanyId == userRegister.CompanyId);
+        if (!companyExists)
+        {
+            return (Result.Failure(new[] { "CompanyId does not exist." }), string.Empty);
+        }
+
+        var user = new ApplicationUser
+        {
+            UserName = userRegister.UserName,
+            Email = userRegister.Email,
+            PhoneNumber = userRegister.PhoneNumber,
+            CompanyId = userRegister.CompanyId
+        };
+
+        var result = await _userManager.CreateAsync(user, userRegister.Password);
+
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return (Result.Failure(errors), string.Empty);
+        }
+
+        var roleResult = await _userManager.AddToRoleAsync(user, userRegister.RoleName);
+
+        if (!roleResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            var errors = roleResult.Errors.Select(e => e.Description).ToList();
+            return (Result.Failure(errors), string.Empty);
+        }
+
+        return (Result.Success(), user.Id);
+
+    }
+
 }

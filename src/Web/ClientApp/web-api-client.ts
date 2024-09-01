@@ -20,8 +20,8 @@ export class IdentityUserClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    signUp(command: CreateUserCommand): Promise<number> {
-        let url_ = this.baseUrl + "/api/IdentityUser/signup";
+    userRegister(command: CreateUserCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/IdentityUser/userregister";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -36,11 +36,11 @@ export class IdentityUserClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processSignUp(_response);
+            return this.processUserRegister(_response);
         });
     }
 
-    protected processSignUp(response: Response): Promise<number> {
+    protected processUserRegister(response: Response): Promise<ResponseDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -48,8 +48,7 @@ export class IdentityUserClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
+            result200 = ResponseDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -57,7 +56,7 @@ export class IdentityUserClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<number>(null as any);
+        return Promise.resolve<ResponseDto>(null as any);
     }
 
     signIn(query: SignInCommand): Promise<SignInVm> {
@@ -146,9 +145,52 @@ export class ProductsClient {
     }
 }
 
+export class ResponseDto implements IResponseDto {
+    statusCode?: number;
+    message?: string;
+    data?: any | undefined;
+
+    constructor(data?: IResponseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.statusCode = _data["statusCode"];
+            this.message = _data["message"];
+            this.data = _data["data"];
+        }
+    }
+
+    static fromJS(data: any): ResponseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResponseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["statusCode"] = this.statusCode;
+        data["message"] = this.message;
+        data["data"] = this.data;
+        return data;
+    }
+}
+
+export interface IResponseDto {
+    statusCode?: number;
+    message?: string;
+    data?: any | undefined;
+}
+
 export class CreateUserCommand implements ICreateUserCommand {
-    email?: string | undefined;
-    password?: string | undefined;
+    userRegister?: UserRegister;
 
     constructor(data?: ICreateUserCommand) {
         if (data) {
@@ -161,8 +203,7 @@ export class CreateUserCommand implements ICreateUserCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.email = _data["email"];
-            this.password = _data["password"];
+            this.userRegister = _data["userRegister"] ? UserRegister.fromJS(_data["userRegister"]) : <any>undefined;
         }
     }
 
@@ -175,15 +216,69 @@ export class CreateUserCommand implements ICreateUserCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["email"] = this.email;
-        data["password"] = this.password;
+        data["userRegister"] = this.userRegister ? this.userRegister.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface ICreateUserCommand {
-    email?: string | undefined;
+    userRegister?: UserRegister;
+}
+
+export class UserRegister implements IUserRegister {
+    userName?: string | undefined;
     password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    roleName?: string | undefined;
+
+    constructor(data?: IUserRegister) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.companyId = _data["companyId"];
+            this.roleName = _data["roleName"];
+        }
+    }
+
+    static fromJS(data: any): UserRegister {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserRegister();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["companyId"] = this.companyId;
+        data["roleName"] = this.roleName;
+        return data;
+    }
+}
+
+export interface IUserRegister {
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    roleName?: string | undefined;
 }
 
 export class SignInVm implements ISignInVm {
