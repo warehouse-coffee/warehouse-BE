@@ -59,7 +59,7 @@ export class CompaniesClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    getCompanyList(): Promise<ResponseDto> {
+    getCompanyList(): Promise<CompanyListVM> {
         let url_ = this.baseUrl + "/api/Companies";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -75,7 +75,7 @@ export class CompaniesClient {
         });
     }
 
-    protected processGetCompanyList(response: Response): Promise<ResponseDto> {
+    protected processGetCompanyList(response: Response): Promise<CompanyListVM> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -83,7 +83,7 @@ export class CompaniesClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseDto.fromJS(resultData200);
+            result200 = CompanyListVM.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -91,7 +91,7 @@ export class CompaniesClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<ResponseDto>(null as any);
+        return Promise.resolve<CompanyListVM>(null as any);
     }
 }
 
@@ -313,6 +313,94 @@ export class CreateCompanyCommand implements ICreateCompanyCommand {
 }
 
 export interface ICreateCompanyCommand {
+    companyId?: string | undefined;
+    companyName?: string | undefined;
+    phoneContact?: string | undefined;
+}
+
+export class CompanyListVM implements ICompanyListVM {
+    companyList?: CompanyDto[];
+
+    constructor(data?: ICompanyListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["companyList"])) {
+                this.companyList = [] as any;
+                for (let item of _data["companyList"])
+                    this.companyList!.push(CompanyDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CompanyListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompanyListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.companyList)) {
+            data["companyList"] = [];
+            for (let item of this.companyList)
+                data["companyList"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICompanyListVM {
+    companyList?: CompanyDto[];
+}
+
+export class CompanyDto implements ICompanyDto {
+    companyId?: string | undefined;
+    companyName?: string | undefined;
+    phoneContact?: string | undefined;
+
+    constructor(data?: ICompanyDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.companyId = _data["companyId"];
+            this.companyName = _data["companyName"];
+            this.phoneContact = _data["phoneContact"];
+        }
+    }
+
+    static fromJS(data: any): CompanyDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompanyDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["companyId"] = this.companyId;
+        data["companyName"] = this.companyName;
+        data["phoneContact"] = this.phoneContact;
+        return data;
+    }
+}
+
+export interface ICompanyDto {
     companyId?: string | undefined;
     companyName?: string | undefined;
     phoneContact?: string | undefined;

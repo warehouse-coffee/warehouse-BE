@@ -124,6 +124,8 @@ public class IdentityService : IIdentityService
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("userId", user.Id),
+                new Claim("email", user.Email ?? string.Empty),
+
             };
 
             claims.AddRange(roles.Select(role => new Claim("role", role)));
