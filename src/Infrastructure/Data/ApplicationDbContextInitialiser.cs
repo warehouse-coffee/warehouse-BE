@@ -89,9 +89,9 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var superAdmin = new ApplicationUser { UserName = "superadmin@ute.com", Email = "superadmin@ute.com" };
-        var admin = new ApplicationUser { UserName = "admin@ute.com", Email = "admin@ute.com" };
-        var customer = new ApplicationUser { UserName = "customer@ute.com", Email = "customer@ute.com" };
+        var superAdmin = new ApplicationUser { UserName = "SuperAdmin@ute.com", Email = "superadmin@ute.com" };
+        var admin = new ApplicationUser { UserName = "Admin@ute.com", Email = "admin@ute.com" };
+        var customer = new ApplicationUser { UserName = "Customer@ute.com", Email = "customer@ute.com" };
 
         // Create users and assign roles
         if (_userManager.Users.All(u => u.UserName != superAdmin.UserName))
