@@ -22,7 +22,7 @@ public class Companies : EndpointGroupBase
     }
 
     //[Authorize(Roles = "Super-Admin")]
-    public async Task<ResponseDto> GetCompanyList(ISender sender)
+    public async Task<CompanyListVM> GetCompanyList(ISender sender)
     {
         return await sender.Send(new GetCompanyListQuery());
     }

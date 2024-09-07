@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using warehouse_BE.Infrastructure.Service;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -42,6 +43,8 @@ public static class DependencyInjection
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
+
+        services.AddTransient<IEmailService, EmailService>();
 
         return services;
     }

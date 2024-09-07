@@ -93,10 +93,10 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<string?> SignIn(string username, string password)
+    public async Task<string?> SignIn(string email, string password)
     {
 
-        var user = await _userManager.FindByNameAsync(username);
+        var user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)
         {
@@ -124,6 +124,9 @@ public class IdentityService : IIdentityService
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("userId", user.Id),
+                new Claim("email", user.Email ?? string.Empty),
+                new Claim("username", user.UserName ?? string.Empty),
+
             };
 
             claims.AddRange(roles.Select(role => new Claim("role", role)));

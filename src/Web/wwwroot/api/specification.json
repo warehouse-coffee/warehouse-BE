@@ -48,7 +48,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
+                  "$ref": "#/components/schemas/CompanyListVM"
                 }
               }
             }
@@ -160,6 +160,36 @@
         }
       },
       "CreateCompanyCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneContact": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CompanyListVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "companyList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyDto"
+            }
+          }
+        }
+      },
+      "CompanyDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

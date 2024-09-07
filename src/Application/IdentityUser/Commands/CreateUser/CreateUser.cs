@@ -1,4 +1,5 @@
 ﻿
+using System.Net;
 using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
 
@@ -13,11 +14,12 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
-
-    public CreateUserCommandHandler(IApplicationDbContext context, IIdentityService identityService)
+    private readonly IEmailService _emailService;
+    public CreateUserCommandHandler(IApplicationDbContext context, IIdentityService identityService, IEmailService emailService)
     {
         _context = context;
         _identityService = identityService;
+        _emailService = emailService;
     }
 
     public async Task<ResponseDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -41,6 +43,18 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
 
         if (result.Succeeded)
         {
+            var resetLink = $"https://yourapp.com/reset-password?email={userRegister.Email}";
+
+            // Nội dung email
+            var subject = "Welcome to Our Service!";
+            var body = $"<p>Dear {userRegister.UserName},</p>" +
+                       $"<p>Your account has been created successfully. Here are your details:</p>" +
+                       $"<p>Username: {userRegister.UserName}</p>" +
+                       $"<p>Password: {userRegister.Password}</p>" +
+                       $"<p>Please click <a href='{resetLink}'>here</a> to reset your password.</p>";
+
+            // Gửi email
+            await _emailService.SendEmailAsync(userRegister.Email, subject, body);
             return new ResponseDto(200, "User registered successfully.", new { UserId = userId });
         }
 

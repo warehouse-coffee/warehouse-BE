@@ -3,11 +3,11 @@ using warehouse_BE.Application.Response;
 
 namespace warehouse_BE.Application.Companies.Queries.GetCompanyList;
 
-public class GetCompanyListQuery : IRequest<ResponseDto>
+public class GetCompanyListQuery : IRequest<CompanyListVM>
 {
 }
 
-public class GetCompanyListQueryHandler : IRequestHandler<GetCompanyListQuery, ResponseDto>
+public class GetCompanyListQueryHandler : IRequestHandler<GetCompanyListQuery, CompanyListVM>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -18,7 +18,7 @@ public class GetCompanyListQueryHandler : IRequestHandler<GetCompanyListQuery, R
         _mapper = mapper;
     }
 
-    public async Task<ResponseDto> Handle(GetCompanyListQuery request, CancellationToken cancellationToken)
+    public async Task<CompanyListVM> Handle(GetCompanyListQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -28,14 +28,14 @@ public class GetCompanyListQueryHandler : IRequestHandler<GetCompanyListQuery, R
 
             if (companyDtos == null || !companyDtos.Any())
             {
-                return new ResponseDto(404, "No companies found");
+                return new CompanyListVM();
             }
 
             // Create a ResponseDto with the company list
-            var responseDto = new ResponseDto(200, "Companies retrieved successfully", new CompanyListVM
+            var responseDto =  new CompanyListVM()
             {
                 CompanyList = companyDtos
-            });
+            };
 
             return responseDto;
         }
@@ -43,13 +43,13 @@ public class GetCompanyListQueryHandler : IRequestHandler<GetCompanyListQuery, R
         {
             // Log the exception (you can use a logging framework here)
              Console.WriteLine($"AutoMapperMappingException: {ex.Message}");
-            return new ResponseDto(500, "An error occurred while mapping company data.");
+            return new CompanyListVM();
         }
         catch (Exception ex)
         {
             // Handle other exceptions
             Console.WriteLine($"Exception: {ex.Message}");
-            return new ResponseDto(500, "An unexpected error occurred.");
+            return new CompanyListVM();
         }
     }
 }
