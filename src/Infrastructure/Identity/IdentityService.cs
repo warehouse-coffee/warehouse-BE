@@ -21,19 +21,22 @@ public class IdentityService : IIdentityService
     private readonly IAuthorizationService _authorizationService;
     private readonly IConfiguration _configuration;
     private readonly ApplicationDbContext _context;
+    private readonly RoleManager<IdentityRole> _roleManager;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService,
         IConfiguration configuration,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
         _configuration = configuration;
         _context = context;
+        _roleManager = roleManager;
     }
 
     public async Task<string?> GetUserNameAsync(string userId)
@@ -183,7 +186,11 @@ public class IdentityService : IIdentityService
         {
             return (Result.Failure(new[] { "CompanyId does not exist." }), string.Empty);
         }
-
+        var roleExists = await _roleManager.RoleExistsAsync(userRegister.RoleName);
+        if (!roleExists)
+        {
+            return (Result.Failure(new[] { $"Role {userRegister.RoleName} does not exist." }),string.Empty);
+        }
         var user = new ApplicationUser
         {
             UserName = userRegister.UserName,

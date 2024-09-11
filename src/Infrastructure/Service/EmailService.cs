@@ -2,6 +2,7 @@
 using System.Net.Mail;
 using System.Net;
 using warehouse_BE.Application.Common.Interfaces;
+using System.Net.Http;
 
 namespace warehouse_BE.Infrastructure.Service;
 
@@ -40,7 +41,15 @@ public class EmailService : IEmailService
 
             mailMessage.To.Add(to);
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
         }
     }
 }
