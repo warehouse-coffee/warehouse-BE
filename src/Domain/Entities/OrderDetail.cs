@@ -2,12 +2,9 @@
 
 public class OrderDetail : BaseAuditableEntity
 {
-    public int OrderId { get; set; }
-    public int ProductId { get; set; }
     public int Quantity { get; set; }
     public decimal TotalPice { get; set; }
-
+    public string? Note { get; set; }
     // Relationships
-    public Order? Order { get; set; }
-    public Product? Product { get; set; }
+    public ICollection<Product> Products { get; set; } = new List<Product>();
 }

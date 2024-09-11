@@ -12,7 +12,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     public DbSet<Product> Product => Set<Product>();
-    public DbSet<Company> Company { get; set; }
+    public DbSet<Company> Company => Set<Company>();
+    public DbSet<Order> Order => Set<Order>();
+    public DbSet<OrderDetail> OrderDetail => Set<OrderDetail>();
+    public DbSet<Storage> Storage => Set<Storage>();
+    public DbSet<Area> Areas => Set<Area>();
+    public DbSet<Category> Category => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
