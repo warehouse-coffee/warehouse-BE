@@ -7,9 +7,10 @@ namespace warehouse_BE.Application.Companies.Commands.CreateCompany;
 
 public record CreateCompanyCommand : IRequest<ResponseDto>
 {
-    public string? CompanyId { get; init; }
-    public string? CompanyName { get; init; }
-    public string? PhoneContact { get; init; }
+    public required string CompanyId { get; init; }
+    public required string CompanyName { get; init; }
+    public required string Phone { get; init; }
+    public required string Email { get; init;}
 }
 
 public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand, ResponseDto>
@@ -40,7 +41,8 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
             {
                 CompanyId = request.CompanyId,
                 CompanyName = request.CompanyName,
-                PhoneContact = request.PhoneContact,
+                PhoneContact = request.Phone,
+                EmailContact = request.Email,
                 Created = DateTimeOffset.UtcNow,
                 CreatedBy = _currentUser.Id,  
                 LastModified = DateTimeOffset.UtcNow,

@@ -2,7 +2,10 @@
 
 public class Company : BaseAuditableEntity
 {
-    public string? CompanyId { get; set; }
-    public string? CompanyName { get; set; }
-    public string? PhoneContact {  get; set; }
+    public required string CompanyId { get; set; }
+    public required string CompanyName { get; set; }
+    public required string PhoneContact {  get; set; }
+
+    public required string EmailContact { get; set; }
+    public string? Address { get; set; }
 }

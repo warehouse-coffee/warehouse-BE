@@ -12,8 +12,8 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240901095326_CreateInit0")]
-    partial class CreateInit0
+    [Migration("20240911155700_AddOrder1")]
+    partial class AddOrder1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,21 +24,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("AreaStorage", b =>
-                {
-                    b.Property<int>("AreasId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("StoragesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("AreasId", "StoragesId");
-
-                    b.HasIndex("StoragesId");
-
-                    b.ToTable("AreaStorage");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -197,11 +182,17 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int?>("StorageId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Area");
+                    b.HasIndex("StorageId");
+
+                    b.ToTable("Areas");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Category", b =>
@@ -240,17 +231,25 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
                     b.Property<string>("CompanyId")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CompanyName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmailContact")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("LastModified")
@@ -260,6 +259,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneContact")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -290,10 +290,15 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -321,10 +326,10 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Quantity")
@@ -336,8 +341,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetail");
                 });
@@ -368,7 +371,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("ExportDate")
+                    b.Property<DateTime>("ExportDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Image")
@@ -384,12 +387,18 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("OrderDetailId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Units")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -397,6 +406,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasIndex("AreaId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("OrderDetailId");
 
                     b.ToTable("Product");
                 });
@@ -425,13 +436,16 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -509,21 +523,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("AreaStorage", b =>
-                {
-                    b.HasOne("warehouse_BE.Domain.Entities.Area", null)
-                        .WithMany()
-                        .HasForeignKey("AreasId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("warehouse_BE.Domain.Entities.Storage", null)
-                        .WithMany()
-                        .HasForeignKey("StoragesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -575,23 +574,18 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Area", b =>
+                {
+                    b.HasOne("warehouse_BE.Domain.Entities.Storage", null)
+                        .WithMany("Areas")
+                        .HasForeignKey("StorageId");
+                });
+
             modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
                 {
-                    b.HasOne("warehouse_BE.Domain.Entities.Order", "Order")
+                    b.HasOne("warehouse_BE.Domain.Entities.Order", null)
                         .WithMany("OrderDetails")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("warehouse_BE.Domain.Entities.Product", "Product")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
+                        .HasForeignKey("OrderId");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Product", b =>
@@ -603,6 +597,10 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasOne("warehouse_BE.Domain.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId");
+
+                    b.HasOne("warehouse_BE.Domain.Entities.OrderDetail", null)
+                        .WithMany("Products")
+                        .HasForeignKey("OrderDetailId");
 
                     b.Navigation("Area");
 
@@ -640,9 +638,14 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.Product", b =>
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
                 {
-                    b.Navigation("OrderDetails");
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
+                {
+                    b.Navigation("Areas");
                 });
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>

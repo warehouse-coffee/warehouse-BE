@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using warehouse_BE.Infrastructure.Data;
@@ -11,9 +12,11 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240911152952_CreateInit0")]
+    partial class CreateInit0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,7 +192,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     b.HasIndex("StorageId");
 
-                    b.ToTable("Areas");
+                    b.ToTable("Area");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Category", b =>
@@ -264,84 +267,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.ToTable("Company");
                 });
 
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("OrderId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Order");
-                });
-
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalPice")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderDetail");
-                });
-
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -387,9 +312,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("OrderDetailId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -403,8 +325,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasIndex("AreaId");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("OrderDetailId");
 
                     b.ToTable("Product");
                 });
@@ -578,13 +498,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasForeignKey("StorageId");
                 });
 
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
-                {
-                    b.HasOne("warehouse_BE.Domain.Entities.Order", null)
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("OrderId");
-                });
-
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Product", b =>
                 {
                     b.HasOne("warehouse_BE.Domain.Entities.Area", "Area")
@@ -594,10 +507,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasOne("warehouse_BE.Domain.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId");
-
-                    b.HasOne("warehouse_BE.Domain.Entities.OrderDetail", null)
-                        .WithMany("Products")
-                        .HasForeignKey("OrderDetailId");
 
                     b.Navigation("Area");
 
@@ -626,16 +535,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Category", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.Order", b =>
-                {
-                    b.Navigation("OrderDetails");
-                });
-
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
                 {
                     b.Navigation("Products");
                 });

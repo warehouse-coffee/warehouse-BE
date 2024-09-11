@@ -164,16 +164,16 @@
         "additionalProperties": false,
         "properties": {
           "companyId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "companyName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
-          "phoneContact": {
-            "type": "string",
-            "nullable": true
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
           }
         }
       },

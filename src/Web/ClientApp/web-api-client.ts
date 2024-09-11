@@ -275,9 +275,10 @@ export interface IResponseDto {
 }
 
 export class CreateCompanyCommand implements ICreateCompanyCommand {
-    companyId?: string | undefined;
-    companyName?: string | undefined;
-    phoneContact?: string | undefined;
+    companyId?: string;
+    companyName?: string;
+    phone?: string;
+    email?: string;
 
     constructor(data?: ICreateCompanyCommand) {
         if (data) {
@@ -292,7 +293,8 @@ export class CreateCompanyCommand implements ICreateCompanyCommand {
         if (_data) {
             this.companyId = _data["companyId"];
             this.companyName = _data["companyName"];
-            this.phoneContact = _data["phoneContact"];
+            this.phone = _data["phone"];
+            this.email = _data["email"];
         }
     }
 
@@ -307,15 +309,17 @@ export class CreateCompanyCommand implements ICreateCompanyCommand {
         data = typeof data === 'object' ? data : {};
         data["companyId"] = this.companyId;
         data["companyName"] = this.companyName;
-        data["phoneContact"] = this.phoneContact;
+        data["phone"] = this.phone;
+        data["email"] = this.email;
         return data;
     }
 }
 
 export interface ICreateCompanyCommand {
-    companyId?: string | undefined;
-    companyName?: string | undefined;
-    phoneContact?: string | undefined;
+    companyId?: string;
+    companyName?: string;
+    phone?: string;
+    email?: string;
 }
 
 export class CompanyListVM implements ICompanyListVM {

@@ -67,6 +67,23 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
+        // Default company 
+        var existingCompany = await _context.Company
+        .FirstOrDefaultAsync(c => c.CompanyId == "HCMUTE");
+
+        if (existingCompany == null)
+        {
+            var company = new Company
+            {
+                CompanyId = "HCMUTE",
+                CompanyName = "Ho Chi Minh City University of Technology and Education",
+                PhoneContact = "+84 28 3896 8641",
+                EmailContact = "contact@hcmute.edu.vn",
+                Created = DateTimeOffset.UtcNow,
+                LastModified = DateTimeOffset.UtcNow,
+            };
+            _context.Company.Add(company);
+        }
         // Default roles
         var superAdminRole = new IdentityRole("Super-Admin");
         var adminRole = new IdentityRole("Admin");
@@ -89,9 +106,9 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var superAdmin = new ApplicationUser { UserName = "SuperAdmin@ute.com", Email = "superadmin@ute.com" };
-        var admin = new ApplicationUser { UserName = "Admin@ute.com", Email = "admin@ute.com" };
-        var customer = new ApplicationUser { UserName = "Customer@ute.com", Email = "customer@ute.com" };
+        var superAdmin = new ApplicationUser { UserName = "SuperAdmin@ute.com", Email = "superadmin@ute.com", CompanyId = "HCMUTE" };
+        var admin = new ApplicationUser { UserName = "Admin@ute.com", Email = "admin@ute.com", CompanyId = "HCMUTE" };
+        var customer = new ApplicationUser { UserName = "Customer@ute.com", Email = "customer@ute.com" , CompanyId = "HCMUTE" };
 
         // Create users and assign roles
         if (_userManager.Users.All(u => u.UserName != superAdmin.UserName))
@@ -112,13 +129,6 @@ public class ApplicationDbContextInitialiser
             await _userManager.AddToRolesAsync(customer, new[] { customerRole.Name! });
         }
 
-
-        // Default Product
-        if (!_context.Product.Any())
-        {
-            _context.Product.Add(new Product { Id = 1, Name = "Book" });
-        }
-
-        await _context.SaveChangesAsync(); // Ensure changes are saved to the database
+        await _context.SaveChangesAsync(); 
     }
 }
