@@ -10,7 +10,7 @@ public class Companies : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            //.RequireAuthorization()  // Nếu cần xác thực
+            .RequireAuthorization()
             .MapPost(CreateCompany)
             .MapGet(GetCompanyList);
     }
@@ -21,7 +21,6 @@ public class Companies : EndpointGroupBase
 
     }
 
-    //[Authorize(Roles = "Super-Admin")]
     public async Task<CompanyListVM> GetCompanyList(ISender sender)
     {
         return await sender.Send(new GetCompanyListQuery());
