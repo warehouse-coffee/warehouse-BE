@@ -182,6 +182,45 @@ export class IdentityUserClient {
         }
         return Promise.resolve<SignInVm>(null as any);
     }
+
+    resetPassword(command: ResetPasswordCommand): Promise<ResetPasswordVm> {
+        let url_ = this.baseUrl + "/api/IdentityUser/resetpassword";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processResetPassword(_response);
+        });
+    }
+
+    protected processResetPassword(response: Response): Promise<ResetPasswordVm> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResetPasswordVm.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResetPasswordVm>(null as any);
+    }
 }
 
 export class ProductsClient {
@@ -580,6 +619,90 @@ export class SignInCommand implements ISignInCommand {
 export interface ISignInCommand {
     email?: string | undefined;
     password?: string | undefined;
+}
+
+export class ResetPasswordVm implements IResetPasswordVm {
+    token?: string;
+    statusCode?: number;
+
+    constructor(data?: IResetPasswordVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.token = _data["token"];
+            this.statusCode = _data["statusCode"];
+        }
+    }
+
+    static fromJS(data: any): ResetPasswordVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResetPasswordVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["token"] = this.token;
+        data["statusCode"] = this.statusCode;
+        return data;
+    }
+}
+
+export interface IResetPasswordVm {
+    token?: string;
+    statusCode?: number;
+}
+
+export class ResetPasswordCommand implements IResetPasswordCommand {
+    email?: string;
+    currentPassword?: string;
+    newPassword?: string;
+
+    constructor(data?: IResetPasswordCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.email = _data["email"];
+            this.currentPassword = _data["currentPassword"];
+            this.newPassword = _data["newPassword"];
+        }
+    }
+
+    static fromJS(data: any): ResetPasswordCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResetPasswordCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["email"] = this.email;
+        data["currentPassword"] = this.currentPassword;
+        data["newPassword"] = this.newPassword;
+        return data;
+    }
+}
+
+export interface IResetPasswordCommand {
+    email?: string;
+    currentPassword?: string;
+    newPassword?: string;
 }
 
 export class ProductListVM implements IProductListVM {

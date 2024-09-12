@@ -30,6 +30,7 @@ public class EmailService : IEmailService
         {
             client.Credentials = new NetworkCredential(smtpUser, smtpPass);
             client.EnableSsl = true;
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
 
             var mailMessage = new MailMessage
             {

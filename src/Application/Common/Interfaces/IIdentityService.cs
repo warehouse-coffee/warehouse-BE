@@ -17,5 +17,6 @@ public interface IIdentityService
 
     Task<string?> SignIn(string username, string password);
     Task<(Result Result, string UserId)> RegisterAsync(UserRegister userRegister);
+    Task<Result> ResetPasswordAsync(string email, string currentPassword, string newPassword);
 
 }

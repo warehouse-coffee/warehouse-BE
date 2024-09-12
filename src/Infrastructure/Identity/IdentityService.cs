@@ -1,4 +1,4 @@
-using warehouse_BE.Application.Common.Interfaces;
+﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -219,5 +219,34 @@ public class IdentityService : IIdentityService
         return (Result.Success(), user.Id);
 
     }
+    public async Task<Result> ResetPasswordAsync(string email, string currentPassword, string newPassword)
+    {
+        // Tìm kiếm người dùng dựa trên email
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            return Result.Failure(new[] { "User not found." });
+        }
+
+        // Xác thực mật khẩu hiện tại
+        var passwordCheck = await _userManager.CheckPasswordAsync(user, currentPassword);
+        if (!passwordCheck)
+        {
+            return Result.Failure(new[] { "Current password is incorrect." });
+        }
+
+        // Thực hiện reset mật khẩu
+        var resetPasswordResult = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!resetPasswordResult.Succeeded)
+        {
+            return Result.Failure(resetPasswordResult.Errors.Select(e => e.Description));
+        }
+
+        // Nếu mọi thứ thành công
+        return Result.Success();
+    }
+
+
 
 }
