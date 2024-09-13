@@ -15,7 +15,8 @@ public record CreateStorageCommand : IRequest<ResponseDto>
     public required string Name { get; init; }
     public required string Location { get; init; }
     public required string Status { get; init; }
-    public ICollection<Area>? Areas { get; init; }
+    public List<AreaDto>? Areas { get; init; }
+
 }
 
 public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand, ResponseDto>
@@ -35,12 +36,17 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
     {
         try
         {
+            var areas = request.Areas != null && request.Areas.Any()
+            ? _mapper.Map<List<Area>>(request.Areas)
+            : new List<Area>();
+
+
             var entity = new Storage
             {
                 Name = request.Name,
                 Location = request.Location,
                 Status = request.Status,
-                Areas = _mapper.Map<ICollection<Area>>(request.Areas), // Map AreaDto to Area
+                Areas = areas, // Map AreaDto to Area
                 Created = DateTimeOffset.UtcNow,
                 CreatedBy = _currentUser.Id,
                 LastModified = DateTimeOffset.UtcNow,

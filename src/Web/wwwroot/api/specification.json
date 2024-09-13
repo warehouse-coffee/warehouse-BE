@@ -418,209 +418,6 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/Area"
-            }
-          }
-        }
-      },
-      "Area": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseAuditableEntity"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "products": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Product"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "Product": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseAuditableEntity"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "units": {
-                "type": "string"
-              },
-              "amount": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "image": {
-                "type": "string",
-                "nullable": true
-              },
-              "status": {
-                "type": "string"
-              },
-              "expiration": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "importDate": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "exportDate": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "categoryId": {
-                "type": "integer",
-                "format": "int32",
-                "nullable": true
-              },
-              "areaId": {
-                "type": "integer",
-                "format": "int32",
-                "nullable": true
-              },
-              "category": {
-                "nullable": true,
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/Category"
-                  }
-                ]
-              },
-              "area": {
-                "nullable": true,
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/Area"
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      },
-      "Category": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseAuditableEntity"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "type": "string",
-                "nullable": true
-              },
-              "products": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Product"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "BaseAuditableEntity": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseEntity"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false,
-            "properties": {
-              "created": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "createdBy": {
-                "type": "string",
-                "nullable": true
-              },
-              "lastModified": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "lastModifiedBy": {
-                "type": "string",
-                "nullable": true
-              }
-            }
-          }
-        ]
-      },
-      "BaseEntity": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "domainEvents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BaseEvent"
-            }
-          }
-        }
-      },
-      "BaseEvent": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false
-      },
-      "StorageListVM": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "storages": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/StorageDto"
-            }
-          }
-        }
-      },
-      "StorageDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "areas": {
-            "type": "array",
-            "nullable": true,
-            "items": {
               "$ref": "#/components/schemas/AreaDto"
             }
           }
@@ -691,6 +488,44 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          }
+        }
+      },
+      "StorageListVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "storages": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StorageDto"
+            }
+          }
+        }
+      },
+      "StorageDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "areas": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AreaDto"
+            }
           }
         }
       }

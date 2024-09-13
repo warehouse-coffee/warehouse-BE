@@ -868,7 +868,7 @@ export class CreateStorageCommand implements ICreateStorageCommand {
     name?: string;
     location?: string;
     status?: string;
-    areas?: Area[] | undefined;
+    areas?: AreaDto[] | undefined;
 
     constructor(data?: ICreateStorageCommand) {
         if (data) {
@@ -887,7 +887,7 @@ export class CreateStorageCommand implements ICreateStorageCommand {
             if (Array.isArray(_data["areas"])) {
                 this.areas = [] as any;
                 for (let item of _data["areas"])
-                    this.areas!.push(Area.fromJS(item));
+                    this.areas!.push(AreaDto.fromJS(item));
             }
         }
     }
@@ -917,390 +917,6 @@ export interface ICreateStorageCommand {
     name?: string;
     location?: string;
     status?: string;
-    areas?: Area[] | undefined;
-}
-
-export abstract class BaseEntity implements IBaseEntity {
-    id?: number;
-    domainEvents?: BaseEvent[];
-
-    constructor(data?: IBaseEntity) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            if (Array.isArray(_data["domainEvents"])) {
-                this.domainEvents = [] as any;
-                for (let item of _data["domainEvents"])
-                    this.domainEvents!.push(BaseEvent.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): BaseEntity {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'BaseEntity' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        if (Array.isArray(this.domainEvents)) {
-            data["domainEvents"] = [];
-            for (let item of this.domainEvents)
-                data["domainEvents"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IBaseEntity {
-    id?: number;
-    domainEvents?: BaseEvent[];
-}
-
-export abstract class BaseAuditableEntity extends BaseEntity implements IBaseAuditableEntity {
-    created?: Date;
-    createdBy?: string | undefined;
-    lastModified?: Date;
-    lastModifiedBy?: string | undefined;
-
-    constructor(data?: IBaseAuditableEntity) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
-            this.createdBy = _data["createdBy"];
-            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
-            this.lastModifiedBy = _data["lastModifiedBy"];
-        }
-    }
-
-    static override fromJS(data: any): BaseAuditableEntity {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'BaseAuditableEntity' cannot be instantiated.");
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
-        data["createdBy"] = this.createdBy;
-        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
-        data["lastModifiedBy"] = this.lastModifiedBy;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IBaseAuditableEntity extends IBaseEntity {
-    created?: Date;
-    createdBy?: string | undefined;
-    lastModified?: Date;
-    lastModifiedBy?: string | undefined;
-}
-
-export class Area extends BaseAuditableEntity implements IArea {
-    name?: string;
-    products?: Product[];
-
-    constructor(data?: IArea) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.name = _data["name"];
-            if (Array.isArray(_data["products"])) {
-                this.products = [] as any;
-                for (let item of _data["products"])
-                    this.products!.push(Product.fromJS(item));
-            }
-        }
-    }
-
-    static override fromJS(data: any): Area {
-        data = typeof data === 'object' ? data : {};
-        let result = new Area();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        if (Array.isArray(this.products)) {
-            data["products"] = [];
-            for (let item of this.products)
-                data["products"].push(item.toJSON());
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IArea extends IBaseAuditableEntity {
-    name?: string;
-    products?: Product[];
-}
-
-export class Product extends BaseAuditableEntity implements IProduct {
-    name?: string;
-    units?: string;
-    amount?: number;
-    image?: string | undefined;
-    status?: string;
-    expiration?: Date;
-    importDate?: Date;
-    exportDate?: Date;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
-    category?: Category | undefined;
-    area?: Area | undefined;
-
-    constructor(data?: IProduct) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.name = _data["name"];
-            this.units = _data["units"];
-            this.amount = _data["amount"];
-            this.image = _data["image"];
-            this.status = _data["status"];
-            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
-            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
-            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
-            this.categoryId = _data["categoryId"];
-            this.areaId = _data["areaId"];
-            this.category = _data["category"] ? Category.fromJS(_data["category"]) : <any>undefined;
-            this.area = _data["area"] ? Area.fromJS(_data["area"]) : <any>undefined;
-        }
-    }
-
-    static override fromJS(data: any): Product {
-        data = typeof data === 'object' ? data : {};
-        let result = new Product();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["units"] = this.units;
-        data["amount"] = this.amount;
-        data["image"] = this.image;
-        data["status"] = this.status;
-        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
-        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
-        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
-        data["categoryId"] = this.categoryId;
-        data["areaId"] = this.areaId;
-        data["category"] = this.category ? this.category.toJSON() : <any>undefined;
-        data["area"] = this.area ? this.area.toJSON() : <any>undefined;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IProduct extends IBaseAuditableEntity {
-    name?: string;
-    units?: string;
-    amount?: number;
-    image?: string | undefined;
-    status?: string;
-    expiration?: Date;
-    importDate?: Date;
-    exportDate?: Date;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
-    category?: Category | undefined;
-    area?: Area | undefined;
-}
-
-export class Category extends BaseAuditableEntity implements ICategory {
-    name?: string | undefined;
-    products?: Product[];
-
-    constructor(data?: ICategory) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.name = _data["name"];
-            if (Array.isArray(_data["products"])) {
-                this.products = [] as any;
-                for (let item of _data["products"])
-                    this.products!.push(Product.fromJS(item));
-            }
-        }
-    }
-
-    static override fromJS(data: any): Category {
-        data = typeof data === 'object' ? data : {};
-        let result = new Category();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        if (Array.isArray(this.products)) {
-            data["products"] = [];
-            for (let item of this.products)
-                data["products"].push(item.toJSON());
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface ICategory extends IBaseAuditableEntity {
-    name?: string | undefined;
-    products?: Product[];
-}
-
-export abstract class BaseEvent implements IBaseEvent {
-
-    constructor(data?: IBaseEvent) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): BaseEvent {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'BaseEvent' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IBaseEvent {
-}
-
-export class StorageListVM implements IStorageListVM {
-    storages?: StorageDto[] | undefined;
-
-    constructor(data?: IStorageListVM) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["storages"])) {
-                this.storages = [] as any;
-                for (let item of _data["storages"])
-                    this.storages!.push(StorageDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): StorageListVM {
-        data = typeof data === 'object' ? data : {};
-        let result = new StorageListVM();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.storages)) {
-            data["storages"] = [];
-            for (let item of this.storages)
-                data["storages"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IStorageListVM {
-    storages?: StorageDto[] | undefined;
-}
-
-export class StorageDto implements IStorageDto {
-    name?: string | undefined;
-    location?: string | undefined;
-    status?: string | undefined;
-    areas?: AreaDto[] | undefined;
-
-    constructor(data?: IStorageDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.location = _data["location"];
-            this.status = _data["status"];
-            if (Array.isArray(_data["areas"])) {
-                this.areas = [] as any;
-                for (let item of _data["areas"])
-                    this.areas!.push(AreaDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): StorageDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new StorageDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["location"] = this.location;
-        data["status"] = this.status;
-        if (Array.isArray(this.areas)) {
-            data["areas"] = [];
-            for (let item of this.areas)
-                data["areas"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IStorageDto {
-    name?: string | undefined;
-    location?: string | undefined;
-    status?: string | undefined;
     areas?: AreaDto[] | undefined;
 }
 
@@ -1422,6 +1038,106 @@ export interface IProductDto2 {
     exportDate?: Date | undefined;
     categoryId?: number | undefined;
     areaId?: number | undefined;
+}
+
+export class StorageListVM implements IStorageListVM {
+    storages?: StorageDto[] | undefined;
+
+    constructor(data?: IStorageListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(StorageDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StorageListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IStorageListVM {
+    storages?: StorageDto[] | undefined;
+}
+
+export class StorageDto implements IStorageDto {
+    name?: string | undefined;
+    location?: string | undefined;
+    status?: string | undefined;
+    areas?: AreaDto[] | undefined;
+
+    constructor(data?: IStorageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.location = _data["location"];
+            this.status = _data["status"];
+            if (Array.isArray(_data["areas"])) {
+                this.areas = [] as any;
+                for (let item of _data["areas"])
+                    this.areas!.push(AreaDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StorageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["location"] = this.location;
+        data["status"] = this.status;
+        if (Array.isArray(this.areas)) {
+            data["areas"] = [];
+            for (let item of this.areas)
+                data["areas"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IStorageDto {
+    name?: string | undefined;
+    location?: string | undefined;
+    status?: string | undefined;
+    areas?: AreaDto[] | undefined;
 }
 
 export class SwaggerException extends Error {

@@ -36,6 +36,8 @@ public class ProductDto
            .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
            .ForMember(dest => dest.AreaId, opt => opt.MapFrom(src => src.AreaId));
 
+            CreateMap<ProductDto,warehouse_BE.Domain.Entities.Product>().ReverseMap();
+
         }
     }
 }
