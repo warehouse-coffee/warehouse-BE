@@ -22,7 +22,9 @@ public class GetStorageListQueryHandler : IRequestHandler<GetStorageListQuery, S
 
     public async Task<StorageListVM> Handle(GetStorageListQuery request, CancellationToken cancellationToken)
     {
-        var storages = await _context.Storage.ToListAsync(cancellationToken);
+        var storages = await _context.Storage
+            .Include(s => s.Areas) 
+            .ToListAsync(cancellationToken);
 
         var storageDtos = _mapper.Map<List<StorageDto>>(storages); // Map List<Storage> to List<StorageDto>
 

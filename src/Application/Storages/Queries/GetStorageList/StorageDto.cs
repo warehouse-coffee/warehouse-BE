@@ -18,7 +18,8 @@ public class StorageDto
     {
         public Mapping()
         {
-            CreateMap<Storage, StorageDto>();
+            CreateMap<Storage, StorageDto>().ForMember(dest => dest.Areas, opt => opt.MapFrom(src => src.Areas)); // Đảm bảo ánh xạ thuộc tính Areas
+            CreateMap<Area, AreaDto>();
         }
 
     }

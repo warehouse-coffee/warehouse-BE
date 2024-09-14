@@ -10,6 +10,56 @@
 
 import followIfLoginRedirect from './api-authorization/followIfLoginRedirect';
 
+export class CategoriesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createCategory(command: CreateCategoryCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Categories";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCategory(_response);
+        });
+    }
+
+    protected processCreateCategory(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+}
+
 export class CompaniesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -396,6 +446,162 @@ export interface IResponseDto {
     statusCode?: number;
     message?: string;
     data?: any | undefined;
+}
+
+export class CreateCategoryCommand implements ICreateCategoryCommand {
+    category?: CategoryDto;
+
+    constructor(data?: ICreateCategoryCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.category = _data["category"] ? CategoryDto.fromJS(_data["category"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreateCategoryCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCategoryCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["category"] = this.category ? this.category.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICreateCategoryCommand {
+    category?: CategoryDto;
+}
+
+export class CategoryDto implements ICategoryDto {
+    name?: string | undefined;
+    products?: ProductDto[] | undefined;
+
+    constructor(data?: ICategoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(ProductDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICategoryDto {
+    name?: string | undefined;
+    products?: ProductDto[] | undefined;
+}
+
+export class ProductDto implements IProductDto {
+    name?: string | undefined;
+    units?: string | undefined;
+    amount?: number;
+    image?: string | undefined;
+    status?: string | undefined;
+    expiration?: Date | undefined;
+    importDate?: Date | undefined;
+    exportDate?: Date | undefined;
+    categoryId?: number | undefined;
+    areaId?: number | undefined;
+
+    constructor(data?: IProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.units = _data["units"];
+            this.amount = _data["amount"];
+            this.image = _data["image"];
+            this.status = _data["status"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
+            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
+            this.categoryId = _data["categoryId"];
+            this.areaId = _data["areaId"];
+        }
+    }
+
+    static fromJS(data: any): ProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["units"] = this.units;
+        data["amount"] = this.amount;
+        data["image"] = this.image;
+        data["status"] = this.status;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
+        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
+        data["categoryId"] = this.categoryId;
+        data["areaId"] = this.areaId;
+        return data;
+    }
+}
+
+export interface IProductDto {
+    name?: string | undefined;
+    units?: string | undefined;
+    amount?: number;
+    image?: string | undefined;
+    status?: string | undefined;
+    expiration?: Date | undefined;
+    importDate?: Date | undefined;
+    exportDate?: Date | undefined;
+    categoryId?: number | undefined;
+    areaId?: number | undefined;
 }
 
 export class CreateCompanyCommand implements ICreateCompanyCommand {
@@ -832,36 +1038,6 @@ export class ProductListVM implements IProductListVM {
 
 export interface IProductListVM {
     productList?: ProductDto[] | undefined;
-}
-
-export class ProductDto implements IProductDto {
-
-    constructor(data?: IProductDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): ProductDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProductDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IProductDto {
 }
 
 export class CreateStorageCommand implements ICreateStorageCommand {

@@ -25,12 +25,12 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
     private readonly IUser _currentUser;
     private readonly IMapper _mapper;
 
-    public CreateStorageCommandHandler(IApplicationDbContext context, IUser currentUser, IMapper mapper)
-    {
-        _context = context;
-        _currentUser = currentUser;
-        _mapper = mapper;
-    }
+        public CreateStorageCommandHandler(IApplicationDbContext context, IUser currentUser, IMapper mapper)
+        {
+            _context = context;
+            _currentUser = currentUser;
+            _mapper = mapper;
+        }
 
     public async Task<ResponseDto> Handle(CreateStorageCommand request, CancellationToken cancellationToken)
     {
@@ -40,17 +40,49 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
             ? _mapper.Map<List<Area>>(request.Areas)
             : new List<Area>();
 
+            foreach (var area in areas)
+            {
+                foreach (var product in area.Products)
+                {
+                    // Kiểm tra category theo tên
+                    if (product.Category != null)
+                    {
+                        var category = await _context.Category
+                       .FirstOrDefaultAsync(c => c.Name == product.Category.Name, cancellationToken);
 
+                        if (category == null)
+                        {
+                            // Nếu chưa có category trong DB thì tạo mới
+                            category = new Category
+                            {
+                                Name = product.Category.Name,
+                                Created = DateTimeOffset.UtcNow,
+                                CreatedBy = _currentUser.Id,
+                                LastModified = DateTimeOffset.UtcNow,
+                                LastModifiedBy = _currentUser.Id
+                            };
+
+                            // Thêm category vào context
+                            _context.Category.Add(category);
+                            await _context.SaveChangesAsync(cancellationToken);
+                        }
+
+                        // Gán lại CategoryId cho product nếu category vừa được tạo hoặc đã tồn tại
+                        product.CategoryId = category.Id;
+                    }
+                   
+                }
+            }
             var entity = new Storage
             {
                 Name = request.Name,
                 Location = request.Location,
                 Status = request.Status,
-                Areas = areas, // Map AreaDto to Area
-                Created = DateTimeOffset.UtcNow,
-                CreatedBy = _currentUser.Id,
-                LastModified = DateTimeOffset.UtcNow,
-                LastModifiedBy = _currentUser.Id
+                Areas = areas, 
+                //Created = DateTimeOffset.UtcNow,
+                //CreatedBy = _currentUser.Id,
+                //LastModified = DateTimeOffset.UtcNow,
+                //LastModifiedBy = _currentUser.Id
             };
 
             _context.Storage.Add(entity);
