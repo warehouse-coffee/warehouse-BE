@@ -1,4 +1,6 @@
 ﻿using warehouse_BE.Application.Common.Models;
+using warehouse_BE.Application.Customer.Commands.CreateCustomer;
+using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 
 namespace warehouse_BE.Application.Common.Interfaces;
@@ -18,5 +20,7 @@ public interface IIdentityService
     Task<string?> SignIn(string username, string password);
     Task<(Result Result, string UserId)> RegisterAsync(UserRegister userRegister);
     Task<Result> ResetPasswordAsync(string email, string currentPassword, string newPassword);
-
+    Task<(Result Result, string CompanyId)> GetCompanyId(string userId);
+    Task<Result> CreateCustomer(CustomerRequest request);
+    Task<Result> UpdateCustomer(UpdateCustomer request);
 }

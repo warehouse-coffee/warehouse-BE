@@ -1,4 +1,7 @@
-﻿using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
+﻿using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Customer.Commands.CreateCustomer;
+using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
+using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.IdentityUser.Commands.ResetPassword;
 using warehouse_BE.Application.IdentityUser.Commands.SignIn;
 using warehouse_BE.Application.Response;
@@ -12,7 +15,10 @@ public class IdentityUser : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(UserRegister, "/userregister")
             .MapPost(SignIn,"/signin")
-            .MapPost(ResetPassword, "/resetpassword");
+            .MapPost(ResetPassword, "/resetpassword")
+            .MapPost(CreateCustomer,"/customer")
+            .MapPut(UpdateCustomer,"/customer")
+            ;
     }
 
     public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)
@@ -28,5 +34,14 @@ public class IdentityUser : EndpointGroupBase
     {
         return sender.Send(command);
     }
+    public Task<ResponseDto> CreateCustomer(ISender sender, CreateCustomerCommand command)
+    {
+        return sender.Send(command);
+    }
+    public Task<ResponseDto> UpdateCustomer(ISender sender, UpdateCustomerCommand command)
+    {
+        return sender.Send(command);
+    }
+
 
 }

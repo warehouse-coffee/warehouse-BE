@@ -11,6 +11,9 @@ using System.Text;
 using warehouse_BE.Domain.Entities;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Infrastructure.Data;
+using warehouse_BE.Application.Customer.Commands.CreateCustomer;
+using System.ComponentModel.Design;
+using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -246,7 +249,97 @@ public class IdentityService : IIdentityService
         // Nếu mọi thứ thành công
         return Result.Success();
     }
+    public async Task<(Result Result, string CompanyId)> GetCompanyId(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
 
+        if (user == null)
+        {
+            return (Result.Failure(new[] { "User not found." }),string.Empty);
+        }
 
+        var companyId = user.CompanyId;
 
+        if (string.IsNullOrEmpty(companyId))
+        {
+            return (Result.Failure(new[] { "User is not associated with any company." }),string.Empty);
+        }
+
+        return (Result.Success(), companyId);
+    }
+    public async Task<Result> CreateCustomer(CustomerRequest request)
+    {
+        if(string.IsNullOrEmpty(request?.UserName)  || string.IsNullOrEmpty(request?.Password) || string.IsNullOrEmpty(request?.Email))
+        {
+            return (Result.Failure(new[] { "Unaccepted the request!." }));
+
+        }
+        var user = new ApplicationUser
+        {
+            UserName = request.UserName,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            CompanyId = request.CompanyId
+        };
+        try
+        {
+           var result = await _userManager.CreateAsync(user, request.Password);
+           var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+        }
+        catch
+        {
+            var result = await _userManager.CreateAsync(user, request.Password);
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return (Result.Failure(errors));
+        }
+        return (Result.Success());
+    }
+    public async Task<Result> UpdateCustomer(UpdateCustomer request)
+    {
+        if (string.IsNullOrEmpty(request?.UserName) || string.IsNullOrEmpty(request?.Password) || string.IsNullOrEmpty(request?.Email))
+        {
+            return Result.Failure(new[] { "Unaccepted the request! Missing required fields." });
+        }
+
+        var user = await _userManager.FindByIdAsync(request.CustomerId);
+        if (user == null)
+        {
+            return Result.Failure(new[] { "Customer not found." });
+        }
+
+        if (!string.IsNullOrEmpty(request.UserName) && request.UserName != user.UserName)
+        {
+            user.UserName = request.UserName;
+        }
+
+        if (!string.IsNullOrEmpty(request.Email) && request.Email != user.Email)
+        {
+            user.Email = request.Email;
+        }
+
+        if (!string.IsNullOrEmpty(request.PhoneNumber) && request.PhoneNumber != user.PhoneNumber)
+        {
+            user.PhoneNumber = request.PhoneNumber;
+        }
+
+        if (!string.IsNullOrEmpty(request.Password))
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var passwordChangeResult = await _userManager.ResetPasswordAsync(user, token, request.Password);
+
+            if (!passwordChangeResult.Succeeded)
+            {
+                return Result.Failure(passwordChangeResult.Errors.Select(e => e.Description));
+            }
+        }
+
+        var updateResult = await _userManager.UpdateAsync(user);
+
+        if (!updateResult.Succeeded)
+        {
+            return Result.Failure(updateResult.Errors.Select(e => e.Description));
+        }
+
+        return Result.Success();
+    }
 }
