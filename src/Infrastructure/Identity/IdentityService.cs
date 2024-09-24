@@ -8,11 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using warehouse_BE.Domain.Entities;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Infrastructure.Data;
 using warehouse_BE.Application.Customer.Commands.CreateCustomer;
-using System.ComponentModel.Design;
 using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 
 namespace warehouse_BE.Infrastructure.Identity;
@@ -129,10 +127,10 @@ public class IdentityService : IIdentityService
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("userId", user.Id),
                 new Claim("email", user.Email ?? string.Empty),
                 new Claim("username", user.UserName ?? string.Empty),
-
             };
 
             claims.AddRange(roles.Select(role => new Claim("role", role)));
@@ -141,7 +139,7 @@ public class IdentityService : IIdentityService
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
