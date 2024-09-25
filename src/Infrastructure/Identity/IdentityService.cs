@@ -281,8 +281,20 @@ public class IdentityService : IIdentityService
         };
         try
         {
-           var result = await _userManager.CreateAsync(user, request.Password);
-           var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return Result.Failure(errors);
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+            if (!roleResult.Succeeded)
+            {
+                await _userManager.DeleteAsync(user);
+                var roleErrors = roleResult.Errors.Select(e => e.Description).ToList();
+                return Result.Failure(roleErrors);
+            }
         }
         catch
         {

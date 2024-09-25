@@ -52,7 +52,12 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
                 };
 
                 var rs = await _identityService.CreateCustomer(customer);
-                return new ResponseDto(200, "Customer created successfully.");
+                if(rs.Succeeded)
+                {
+                    return new ResponseDto(200, "Customer created successfully.");
+                }
+                var errorMessages = string.Join(", ", rs.Errors);
+                return new ResponseDto(400, $"Customer creation unsuccessful. Errors: {errorMessages}");
             }
             catch (Exception ex)
             {
