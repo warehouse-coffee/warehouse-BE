@@ -12,6 +12,8 @@ using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Infrastructure.Data;
 using warehouse_BE.Application.Customer.Commands.CreateCustomer;
 using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
+using warehouse_BE.Domain.Common;
+using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -352,4 +354,73 @@ public class IdentityService : IIdentityService
 
         return Result.Success();
     }
+    public async Task<List<UserDto>> GetUsersByRoleAsync(string roleName, string companyId)
+    {
+
+        if (!await _roleManager.RoleExistsAsync(roleName))
+        {
+            throw new Exception($"Role '{roleName}' does not exist.");
+        }
+
+        var users = await _userManager.Users
+        .Where(u => u.CompanyId == companyId) 
+        .ToListAsync();
+
+        var usersInRole = new List<UserDto>();
+
+        foreach (var user in users)
+        {
+            if (await _userManager.IsInRoleAsync(user, roleName))
+            {
+                usersInRole.Add(new UserDto
+                {
+                    Id = user.Id,
+                    CompanyId = user.CompanyId, 
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber
+                });
+            }
+        }
+
+        return usersInRole;
+    }
+    public async Task<CustomerDetailVM?> GetUserByIdAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return null; 
+        }
+
+        var customerDetail = new CustomerDetailVM
+        {
+            CustomerId = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            CompanyId = user.CompanyId 
+        };
+
+        return customerDetail;
+    }
+    public async Task<Result> DeleteUserByIdAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return Result.Failure(new[] { $"User with ID '{userId}' not found." });
+        }
+
+        var result = await _userManager.DeleteAsync(user);
+        if (result.Succeeded)
+        {
+            return Result.Success();
+        }
+
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        return Result.Failure(new[] { $"Failed to delete user: {errors}" });
+    }
+
 }

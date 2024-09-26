@@ -145,6 +145,207 @@ export class CompaniesClient {
     }
 }
 
+export class CustomersClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createCustomer(command: CreateCustomerCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Customers";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCustomer(_response);
+        });
+    }
+
+    protected processCreateCustomer(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+
+    updateCustomer(command: UpdateCustomerCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Customers";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCustomer(_response);
+        });
+    }
+
+    protected processUpdateCustomer(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+
+    getListCustomer(): Promise<CustomerListVM> {
+        let url_ = this.baseUrl + "/api/Customers/all";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetListCustomer(_response);
+        });
+    }
+
+    protected processGetListCustomer(response: Response): Promise<CustomerListVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CustomerListVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CustomerListVM>(null as any);
+    }
+
+    getCustomerDetail(id: string): Promise<CustomerDetailVM> {
+        let url_ = this.baseUrl + "/api/Customers/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCustomerDetail(_response);
+        });
+    }
+
+    protected processGetCustomerDetail(response: Response): Promise<CustomerDetailVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CustomerDetailVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CustomerDetailVM>(null as any);
+    }
+
+    deleteCustomer(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Customers/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteCustomer(_response);
+        });
+    }
+
+    protected processDeleteCustomer(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+}
+
 export class IdentityUserClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -270,84 +471,6 @@ export class IdentityUserClient {
             });
         }
         return Promise.resolve<ResetPasswordVm>(null as any);
-    }
-
-    createCustomer(command: CreateCustomerCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/IdentityUser/customer";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCustomer(_response);
-        });
-    }
-
-    protected processCreateCustomer(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ResponseDto>(null as any);
-    }
-
-    updateCustomer(command: UpdateCustomerCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/IdentityUser/customer";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateCustomer(_response);
-        });
-    }
-
-    protected processUpdateCustomer(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ResponseDto>(null as any);
     }
 }
 
@@ -818,6 +941,306 @@ export interface ICompanyDto {
     phoneContact?: string | undefined;
 }
 
+export class CreateCustomerCommand implements ICreateCustomerCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+
+    constructor(data?: ICreateCustomerCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+        }
+    }
+
+    static fromJS(data: any): CreateCustomerCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCustomerCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        return data;
+    }
+}
+
+export interface ICreateCustomerCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+}
+
+export class UpdateCustomerCommand implements IUpdateCustomerCommand {
+    customer?: UpdateCustomer;
+
+    constructor(data?: IUpdateCustomerCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.customer = _data["customer"] ? UpdateCustomer.fromJS(_data["customer"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UpdateCustomerCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCustomerCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["customer"] = this.customer ? this.customer.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUpdateCustomerCommand {
+    customer?: UpdateCustomer;
+}
+
+export class UpdateCustomer implements IUpdateCustomer {
+    customerId?: string;
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+
+    constructor(data?: IUpdateCustomer) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.customerId = _data["customerId"];
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCustomer {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCustomer();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["customerId"] = this.customerId;
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        return data;
+    }
+}
+
+export interface IUpdateCustomer {
+    customerId?: string;
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+}
+
+export class CustomerListVM implements ICustomerListVM {
+    customers?: UserDto[] | undefined;
+
+    constructor(data?: ICustomerListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["customers"])) {
+                this.customers = [] as any;
+                for (let item of _data["customers"])
+                    this.customers!.push(UserDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CustomerListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.customers)) {
+            data["customers"] = [];
+            for (let item of this.customers)
+                data["customers"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICustomerListVM {
+    customers?: UserDto[] | undefined;
+}
+
+export class UserDto implements IUserDto {
+    id?: string | undefined;
+    companyId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+
+    constructor(data?: IUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.companyId = _data["companyId"];
+            this.userName = _data["userName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+        }
+    }
+
+    static fromJS(data: any): UserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["companyId"] = this.companyId;
+        data["userName"] = this.userName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        return data;
+    }
+}
+
+export interface IUserDto {
+    id?: string | undefined;
+    companyId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+}
+
+export class CustomerDetailVM implements ICustomerDetailVM {
+    customerId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    companyName?: string | undefined;
+    companyPhone?: string | undefined;
+    companyEmail?: string | undefined;
+    companyAddress?: string | undefined;
+
+    constructor(data?: ICustomerDetailVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.customerId = _data["customerId"];
+            this.userName = _data["userName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.companyId = _data["companyId"];
+            this.companyName = _data["companyName"];
+            this.companyPhone = _data["companyPhone"];
+            this.companyEmail = _data["companyEmail"];
+            this.companyAddress = _data["companyAddress"];
+        }
+    }
+
+    static fromJS(data: any): CustomerDetailVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerDetailVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["customerId"] = this.customerId;
+        data["userName"] = this.userName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["companyId"] = this.companyId;
+        data["companyName"] = this.companyName;
+        data["companyPhone"] = this.companyPhone;
+        data["companyEmail"] = this.companyEmail;
+        data["companyAddress"] = this.companyAddress;
+        return data;
+    }
+}
+
+export interface ICustomerDetailVM {
+    customerId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    companyName?: string | undefined;
+    companyPhone?: string | undefined;
+    companyEmail?: string | undefined;
+    companyAddress?: string | undefined;
+}
+
 export class CreateUserCommand implements ICreateUserCommand {
     userRegister?: UserRegister;
 
@@ -1072,146 +1495,6 @@ export interface IResetPasswordCommand {
     email?: string;
     currentPassword?: string;
     newPassword?: string;
-}
-
-export class CreateCustomerCommand implements ICreateCustomerCommand {
-    userName?: string | undefined;
-    password?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-
-    constructor(data?: ICreateCustomerCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userName = _data["userName"];
-            this.password = _data["password"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-        }
-    }
-
-    static fromJS(data: any): CreateCustomerCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateCustomerCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userName"] = this.userName;
-        data["password"] = this.password;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        return data;
-    }
-}
-
-export interface ICreateCustomerCommand {
-    userName?: string | undefined;
-    password?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-}
-
-export class UpdateCustomerCommand implements IUpdateCustomerCommand {
-    customer?: UpdateCustomer;
-
-    constructor(data?: IUpdateCustomerCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.customer = _data["customer"] ? UpdateCustomer.fromJS(_data["customer"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): UpdateCustomerCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateCustomerCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["customer"] = this.customer ? this.customer.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IUpdateCustomerCommand {
-    customer?: UpdateCustomer;
-}
-
-export class UpdateCustomer implements IUpdateCustomer {
-    customerId?: string;
-    userName?: string | undefined;
-    password?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    companyId?: string;
-
-    constructor(data?: IUpdateCustomer) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.customerId = _data["customerId"];
-            this.userName = _data["userName"];
-            this.password = _data["password"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.companyId = _data["companyId"];
-        }
-    }
-
-    static fromJS(data: any): UpdateCustomer {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateCustomer();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["customerId"] = this.customerId;
-        data["userName"] = this.userName;
-        data["password"] = this.password;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        data["companyId"] = this.companyId;
-        return data;
-    }
-}
-
-export interface IUpdateCustomer {
-    customerId?: string;
-    userName?: string | undefined;
-    password?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    companyId?: string;
 }
 
 export class ProductListVM implements IProductListVM {

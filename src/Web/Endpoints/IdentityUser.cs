@@ -16,8 +16,6 @@ public class IdentityUser : EndpointGroupBase
             .MapPost(UserRegister, "/userregister")
             .MapPost(SignIn,"/signin")
             .MapPost(ResetPassword, "/resetpassword")
-            .MapPost(CreateCustomer,"/customer")
-            .MapPut(UpdateCustomer,"/customer")
             ;
     }
 
@@ -34,14 +32,5 @@ public class IdentityUser : EndpointGroupBase
     {
         return sender.Send(command);
     }
-    public Task<ResponseDto> CreateCustomer(ISender sender, CreateCustomerCommand command)
-    {
-        return sender.Send(command);
-    }
-    public Task<ResponseDto> UpdateCustomer(ISender sender, UpdateCustomerCommand command)
-    {
-        return sender.Send(command);
-    }
-
-
+   
 }
