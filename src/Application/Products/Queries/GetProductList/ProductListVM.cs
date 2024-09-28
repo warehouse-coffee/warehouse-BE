@@ -1,4 +1,4 @@
-﻿using warehouse_BE.Application.Product.Queries.GetProductList;
+﻿using warehouse_BE.Application.Products.Queries.GetProductList;
 
 namespace warehouse_BE.Application.Products.Queries.GetProductList;
 

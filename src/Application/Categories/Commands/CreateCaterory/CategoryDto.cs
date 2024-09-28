@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using warehouse_BE.Application.Product.Queries.GetProductList;
+using warehouse_BE.Application.Products.Queries.GetProductList;
 using warehouse_BE.Domain.Entities;
 
 namespace warehouse_BE.Application.Categories.Commands.CreateCaterory;

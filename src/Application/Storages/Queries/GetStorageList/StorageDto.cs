@@ -10,6 +10,7 @@ namespace warehouse_BE.Application.Storages.Queries.GetStorageList;
 
 public class StorageDto
 {
+    public int Id { get; set; }
     public string? Name { get; set; }
     public string? Location { get; set; }
     public string? Status { get; set; }
@@ -18,7 +19,7 @@ public class StorageDto
     {
         public Mapping()
         {
-            CreateMap<Storage, StorageDto>().ForMember(dest => dest.Areas, opt => opt.MapFrom(src => src.Areas)); // Đảm bảo ánh xạ thuộc tính Areas
+            CreateMap<Storage, StorageDto>().ForMember(dest => dest.Areas, opt => opt.MapFrom(src => src.Areas)); 
             CreateMap<Area, AreaDto>();
         }
 

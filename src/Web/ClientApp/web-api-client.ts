@@ -145,6 +145,171 @@ export class CompaniesClient {
     }
 }
 
+export class CompanyOwnerClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    create(command: CreateCompanyOwnerCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/CompanyOwner";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreate(_response);
+        });
+    }
+
+    protected processCreate(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+
+    getAll(): Promise<CompanyOwnerListVM> {
+        let url_ = this.baseUrl + "/api/CompanyOwner/all";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAll(_response);
+        });
+    }
+
+    protected processGetAll(response: Response): Promise<CompanyOwnerListVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CompanyOwnerListVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CompanyOwnerListVM>(null as any);
+    }
+
+    getDetail(id: string): Promise<CompanyOwnerDetailDto> {
+        let url_ = this.baseUrl + "/api/CompanyOwner/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDetail(_response);
+        });
+    }
+
+    protected processGetDetail(response: Response): Promise<CompanyOwnerDetailDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CompanyOwnerDetailDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CompanyOwnerDetailDto>(null as any);
+    }
+
+    update(id: string, command: UpdateCompanyOwnerCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/CompanyOwner/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdate(_response);
+        });
+    }
+
+    protected processUpdate(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+}
+
 export class CustomersClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -356,45 +521,6 @@ export class IdentityUserClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    userRegister(command: CreateUserCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/IdentityUser/userregister";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUserRegister(_response);
-        });
-    }
-
-    protected processUserRegister(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ResponseDto>(null as any);
-    }
-
     signIn(query: SignInCommand): Promise<SignInVm> {
         let url_ = this.baseUrl + "/api/IdentityUser/signin";
         url_ = url_.replace(/[?&]$/, "");
@@ -602,6 +728,56 @@ export class StorageClient {
             });
         }
         return Promise.resolve<StorageListVM>(null as any);
+    }
+}
+
+export class SuperAdminClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    userRegister(command: CreateUserCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/SuperAdmin/userregister";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUserRegister(_response);
+        });
+    }
+
+    protected processUserRegister(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
     }
 }
 
@@ -941,6 +1117,482 @@ export interface ICompanyDto {
     phoneContact?: string | undefined;
 }
 
+export class CreateCompanyOwnerCommand implements ICreateCompanyOwnerCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+
+    constructor(data?: ICreateCompanyOwnerCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+        }
+    }
+
+    static fromJS(data: any): CreateCompanyOwnerCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCompanyOwnerCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        return data;
+    }
+}
+
+export interface ICreateCompanyOwnerCommand {
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+}
+
+export class CompanyOwnerListVM implements ICompanyOwnerListVM {
+    companyOwners?: UserDto[];
+
+    constructor(data?: ICompanyOwnerListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["companyOwners"])) {
+                this.companyOwners = [] as any;
+                for (let item of _data["companyOwners"])
+                    this.companyOwners!.push(UserDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CompanyOwnerListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompanyOwnerListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.companyOwners)) {
+            data["companyOwners"] = [];
+            for (let item of this.companyOwners)
+                data["companyOwners"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICompanyOwnerListVM {
+    companyOwners?: UserDto[];
+}
+
+export class UserDto implements IUserDto {
+    id?: string | undefined;
+    companyId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    roleName?: string | undefined;
+
+    constructor(data?: IUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.companyId = _data["companyId"];
+            this.userName = _data["userName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.roleName = _data["roleName"];
+        }
+    }
+
+    static fromJS(data: any): UserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["companyId"] = this.companyId;
+        data["userName"] = this.userName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["roleName"] = this.roleName;
+        return data;
+    }
+}
+
+export interface IUserDto {
+    id?: string | undefined;
+    companyId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    roleName?: string | undefined;
+}
+
+export class CompanyOwnerDetailDto implements ICompanyOwnerDetailDto {
+    compayOwnerId?: string | undefined;
+    name?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
+    companyName?: string | undefined;
+    companyId?: string | undefined;
+    companyPhone?: string | undefined;
+    companyEmail?: string | undefined;
+    companyAddress?: string | undefined;
+    storages?: StorageDto[] | undefined;
+
+    constructor(data?: ICompanyOwnerDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.compayOwnerId = _data["compayOwnerId"];
+            this.name = _data["name"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.companyName = _data["companyName"];
+            this.companyId = _data["companyId"];
+            this.companyPhone = _data["companyPhone"];
+            this.companyEmail = _data["companyEmail"];
+            this.companyAddress = _data["companyAddress"];
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(StorageDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CompanyOwnerDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompanyOwnerDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["compayOwnerId"] = this.compayOwnerId;
+        data["name"] = this.name;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["companyName"] = this.companyName;
+        data["companyId"] = this.companyId;
+        data["companyPhone"] = this.companyPhone;
+        data["companyEmail"] = this.companyEmail;
+        data["companyAddress"] = this.companyAddress;
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICompanyOwnerDetailDto {
+    compayOwnerId?: string | undefined;
+    name?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
+    companyName?: string | undefined;
+    companyId?: string | undefined;
+    companyPhone?: string | undefined;
+    companyEmail?: string | undefined;
+    companyAddress?: string | undefined;
+    storages?: StorageDto[] | undefined;
+}
+
+export class StorageDto implements IStorageDto {
+    id?: number;
+    name?: string | undefined;
+    location?: string | undefined;
+    status?: string | undefined;
+    areas?: AreaDto[] | undefined;
+
+    constructor(data?: IStorageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.location = _data["location"];
+            this.status = _data["status"];
+            if (Array.isArray(_data["areas"])) {
+                this.areas = [] as any;
+                for (let item of _data["areas"])
+                    this.areas!.push(AreaDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StorageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["location"] = this.location;
+        data["status"] = this.status;
+        if (Array.isArray(this.areas)) {
+            data["areas"] = [];
+            for (let item of this.areas)
+                data["areas"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IStorageDto {
+    id?: number;
+    name?: string | undefined;
+    location?: string | undefined;
+    status?: string | undefined;
+    areas?: AreaDto[] | undefined;
+}
+
+export class AreaDto implements IAreaDto {
+    name?: string | undefined;
+    products?: ProductDto2[] | undefined;
+
+    constructor(data?: IAreaDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(ProductDto2.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AreaDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AreaDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IAreaDto {
+    name?: string | undefined;
+    products?: ProductDto2[] | undefined;
+}
+
+export class ProductDto2 implements IProductDto2 {
+    name?: string | undefined;
+    units?: string | undefined;
+    amount?: number;
+    image?: string | undefined;
+    status?: string | undefined;
+    expiration?: Date | undefined;
+    importDate?: Date | undefined;
+    exportDate?: Date | undefined;
+    categoryId?: number | undefined;
+    areaId?: number | undefined;
+
+    constructor(data?: IProductDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.units = _data["units"];
+            this.amount = _data["amount"];
+            this.image = _data["image"];
+            this.status = _data["status"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
+            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
+            this.categoryId = _data["categoryId"];
+            this.areaId = _data["areaId"];
+        }
+    }
+
+    static fromJS(data: any): ProductDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["units"] = this.units;
+        data["amount"] = this.amount;
+        data["image"] = this.image;
+        data["status"] = this.status;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
+        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
+        data["categoryId"] = this.categoryId;
+        data["areaId"] = this.areaId;
+        return data;
+    }
+}
+
+export interface IProductDto2 {
+    name?: string | undefined;
+    units?: string | undefined;
+    amount?: number;
+    image?: string | undefined;
+    status?: string | undefined;
+    expiration?: Date | undefined;
+    importDate?: Date | undefined;
+    exportDate?: Date | undefined;
+    categoryId?: number | undefined;
+    areaId?: number | undefined;
+}
+
+export class UpdateCompanyOwnerCommand implements IUpdateCompanyOwnerCommand {
+    userId?: string;
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    storages?: StorageDto[] | undefined;
+
+    constructor(data?: IUpdateCompanyOwnerCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.companyId = _data["companyId"];
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(StorageDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateCompanyOwnerCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCompanyOwnerCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["companyId"] = this.companyId;
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IUpdateCompanyOwnerCommand {
+    userId?: string;
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    storages?: StorageDto[] | undefined;
+}
+
 export class CreateCustomerCommand implements ICreateCustomerCommand {
     userName?: string | undefined;
     password?: string | undefined;
@@ -1121,58 +1773,6 @@ export interface ICustomerListVM {
     customers?: UserDto[] | undefined;
 }
 
-export class UserDto implements IUserDto {
-    id?: string | undefined;
-    companyId?: string | undefined;
-    userName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-
-    constructor(data?: IUserDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.companyId = _data["companyId"];
-            this.userName = _data["userName"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-        }
-    }
-
-    static fromJS(data: any): UserDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["companyId"] = this.companyId;
-        data["userName"] = this.userName;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        return data;
-    }
-}
-
-export interface IUserDto {
-    id?: string | undefined;
-    companyId?: string | undefined;
-    userName?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-}
-
 export class CustomerDetailVM implements ICustomerDetailVM {
     customerId?: string | undefined;
     userName?: string | undefined;
@@ -1239,98 +1839,6 @@ export interface ICustomerDetailVM {
     companyPhone?: string | undefined;
     companyEmail?: string | undefined;
     companyAddress?: string | undefined;
-}
-
-export class CreateUserCommand implements ICreateUserCommand {
-    userRegister?: UserRegister;
-
-    constructor(data?: ICreateUserCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userRegister = _data["userRegister"] ? UserRegister.fromJS(_data["userRegister"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): CreateUserCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateUserCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userRegister"] = this.userRegister ? this.userRegister.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ICreateUserCommand {
-    userRegister?: UserRegister;
-}
-
-export class UserRegister implements IUserRegister {
-    userName?: string | undefined;
-    password?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    companyId?: string | undefined;
-    roleName?: string | undefined;
-
-    constructor(data?: IUserRegister) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userName = _data["userName"];
-            this.password = _data["password"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.companyId = _data["companyId"];
-            this.roleName = _data["roleName"];
-        }
-    }
-
-    static fromJS(data: any): UserRegister {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserRegister();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userName"] = this.userName;
-        data["password"] = this.password;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        data["companyId"] = this.companyId;
-        data["roleName"] = this.roleName;
-        return data;
-    }
-}
-
-export interface IUserRegister {
-    userName?: string | undefined;
-    password?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
-    companyId?: string | undefined;
-    roleName?: string | undefined;
 }
 
 export class SignInVm implements ISignInVm {
@@ -1597,126 +2105,6 @@ export interface ICreateStorageCommand {
     areas?: AreaDto[] | undefined;
 }
 
-export class AreaDto implements IAreaDto {
-    name?: string | undefined;
-    products?: ProductDto2[] | undefined;
-
-    constructor(data?: IAreaDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            if (Array.isArray(_data["products"])) {
-                this.products = [] as any;
-                for (let item of _data["products"])
-                    this.products!.push(ProductDto2.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): AreaDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new AreaDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        if (Array.isArray(this.products)) {
-            data["products"] = [];
-            for (let item of this.products)
-                data["products"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IAreaDto {
-    name?: string | undefined;
-    products?: ProductDto2[] | undefined;
-}
-
-export class ProductDto2 implements IProductDto2 {
-    name?: string | undefined;
-    units?: string | undefined;
-    amount?: number;
-    image?: string | undefined;
-    status?: string | undefined;
-    expiration?: Date | undefined;
-    importDate?: Date | undefined;
-    exportDate?: Date | undefined;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
-
-    constructor(data?: IProductDto2) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.units = _data["units"];
-            this.amount = _data["amount"];
-            this.image = _data["image"];
-            this.status = _data["status"];
-            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
-            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
-            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
-            this.categoryId = _data["categoryId"];
-            this.areaId = _data["areaId"];
-        }
-    }
-
-    static fromJS(data: any): ProductDto2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProductDto2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["units"] = this.units;
-        data["amount"] = this.amount;
-        data["image"] = this.image;
-        data["status"] = this.status;
-        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
-        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
-        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
-        data["categoryId"] = this.categoryId;
-        data["areaId"] = this.areaId;
-        return data;
-    }
-}
-
-export interface IProductDto2 {
-    name?: string | undefined;
-    units?: string | undefined;
-    amount?: number;
-    image?: string | undefined;
-    status?: string | undefined;
-    expiration?: Date | undefined;
-    importDate?: Date | undefined;
-    exportDate?: Date | undefined;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
-}
-
 export class StorageListVM implements IStorageListVM {
     storages?: StorageDto[] | undefined;
 
@@ -1761,13 +2149,10 @@ export interface IStorageListVM {
     storages?: StorageDto[] | undefined;
 }
 
-export class StorageDto implements IStorageDto {
-    name?: string | undefined;
-    location?: string | undefined;
-    status?: string | undefined;
-    areas?: AreaDto[] | undefined;
+export class CreateUserCommand implements ICreateUserCommand {
+    userRegister?: UserRegister;
 
-    constructor(data?: IStorageDto) {
+    constructor(data?: ICreateUserCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1778,43 +2163,82 @@ export class StorageDto implements IStorageDto {
 
     init(_data?: any) {
         if (_data) {
-            this.name = _data["name"];
-            this.location = _data["location"];
-            this.status = _data["status"];
-            if (Array.isArray(_data["areas"])) {
-                this.areas = [] as any;
-                for (let item of _data["areas"])
-                    this.areas!.push(AreaDto.fromJS(item));
-            }
+            this.userRegister = _data["userRegister"] ? UserRegister.fromJS(_data["userRegister"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): StorageDto {
+    static fromJS(data: any): CreateUserCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new StorageDto();
+        let result = new CreateUserCommand();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["location"] = this.location;
-        data["status"] = this.status;
-        if (Array.isArray(this.areas)) {
-            data["areas"] = [];
-            for (let item of this.areas)
-                data["areas"].push(item.toJSON());
-        }
+        data["userRegister"] = this.userRegister ? this.userRegister.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface IStorageDto {
-    name?: string | undefined;
-    location?: string | undefined;
-    status?: string | undefined;
-    areas?: AreaDto[] | undefined;
+export interface ICreateUserCommand {
+    userRegister?: UserRegister;
+}
+
+export class UserRegister implements IUserRegister {
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    roleName?: string | undefined;
+
+    constructor(data?: IUserRegister) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.companyId = _data["companyId"];
+            this.roleName = _data["roleName"];
+        }
+    }
+
+    static fromJS(data: any): UserRegister {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserRegister();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["companyId"] = this.companyId;
+        data["roleName"] = this.roleName;
+        return data;
+    }
+}
+
+export interface IUserRegister {
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    companyId?: string | undefined;
+    roleName?: string | undefined;
 }
 
 export class SwaggerException extends Error {

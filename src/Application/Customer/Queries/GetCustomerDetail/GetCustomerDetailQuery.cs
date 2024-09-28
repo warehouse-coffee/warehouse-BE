@@ -32,7 +32,7 @@ public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQu
         {
            return new CustomerDetailVM { };
         }
-        var company = await _context.Company
+        var company = await _context.Companies
             .FirstOrDefaultAsync(c => c.CompanyId == rs.CompanyId, cancellationToken);
 
         if (company != null)

@@ -4,14 +4,14 @@ namespace warehouse_BE.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
-    DbSet<warehouse_BE.Domain.Entities.Product> Product { get; }
+    DbSet<Product> Products { get; }
 
-    DbSet<Company> Company { get; }
-    DbSet<Order> Order { get; }
-    DbSet<OrderDetail> OrderDetail { get; }
+    DbSet<Company> Companies { get; }
+    DbSet<Order> Orders { get; }
+    DbSet<OrderDetail> OrderDetails { get; }
 
-    DbSet<Storage> Storage { get; }
+    DbSet<Storage> Storages { get; }
     DbSet<Area> Areas { get; }
-    DbSet<Category> Category { get; }
+    DbSet<Category> Categories { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

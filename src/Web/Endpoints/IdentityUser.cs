@@ -13,17 +13,9 @@ public class IdentityUser : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(UserRegister, "/userregister")
             .MapPost(SignIn,"/signin")
-            .MapPost(ResetPassword, "/resetpassword")
-            ;
+            .MapPost(ResetPassword, "/resetpassword");
     }
-
-    public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)
-    {
-        return sender.Send(command);
-    }
-
     public Task<SignInVm> SignIn(ISender sender, SignInCommand query)
     {
         return sender.Send(query);

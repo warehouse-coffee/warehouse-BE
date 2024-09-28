@@ -28,7 +28,7 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
     {
         try
         {
-            var existingCategory = await _context.Category.FirstOrDefaultAsync(c => c.Name == request.Category.Name, cancellationToken);
+            var existingCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Name == request.Category.Name, cancellationToken);
             if (existingCategory != null)
             {
 
@@ -53,7 +53,7 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
 
             }
 
-            _context.Category.Add(categoryEntity);
+            _context.Categories.Add(categoryEntity);
 
             // Lưu thay đổi vào database
             await _context.SaveChangesAsync(cancellationToken);

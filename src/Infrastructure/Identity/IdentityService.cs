@@ -14,6 +14,9 @@ using warehouse_BE.Application.Customer.Commands.CreateCustomer;
 using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 using warehouse_BE.Domain.Common;
 using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
+using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
+using warehouse_BE.Application.Storages.Queries.GetStorageList;
+using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -184,7 +187,7 @@ public class IdentityService : IIdentityService
             return (Result.Failure(new[] { "RoleName cannot be null or empty." }), string.Empty);
         }
 
-        var companyExists = await _context.Company.AnyAsync(c => c.CompanyId == userRegister.CompanyId);
+        var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == userRegister.CompanyId);
         if (!companyExists)
         {
             return (Result.Failure(new[] { "CompanyId does not exist." }), string.Empty);
@@ -365,6 +368,16 @@ public class IdentityService : IIdentityService
         var users = await _userManager.Users
         .Where(u => u.CompanyId == companyId) 
         .ToListAsync();
+        string RoleDisplay;
+        if (roleName == "Customer")
+        {
+            RoleDisplay = "Employee"; 
+        }
+        else
+        {
+            RoleDisplay = roleName;
+        }
+            
 
         var usersInRole = new List<UserDto>();
 
@@ -375,11 +388,12 @@ public class IdentityService : IIdentityService
                 usersInRole.Add(new UserDto
                 {
                     Id = user.Id,
-                    CompanyId = user.CompanyId, 
+                    CompanyId = user.CompanyId,
                     UserName = user.UserName,
                     Email = user.Email,
-                    PhoneNumber = user.PhoneNumber
-                });
+                    PhoneNumber = user.PhoneNumber,
+                    RoleName = RoleDisplay
+                }); 
             }
         }
 
@@ -422,5 +436,149 @@ public class IdentityService : IIdentityService
         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
         return Result.Failure(new[] { $"Failed to delete user: {errors}" });
     }
+    public async Task<CompanyOwnerDetailDto?> GetCompanyOwnerByIdAsync(string userId)
+    {
+        var user = await _userManager.Users
+                                 .Include(u => u.Storages)
+                                 .FirstOrDefaultAsync(u => u.Id == userId);
 
+        if (user == null)
+        {
+            return null;
+        }
+
+        var customerDetail = new CompanyOwnerDetailDto
+        {
+            CompayOwnerId = user.Id,
+            Name = user.UserName,
+            Email = user.Email,
+            Phone = user.PhoneNumber,
+            CompanyId = user.CompanyId,
+            Storages = user.Storages.Select(s => new StorageDto
+            {
+               Name = s.Name,
+               Location = s.Location,
+               Status = s.Status,
+              
+            }).ToList()
+
+        };
+
+        return customerDetail;
+    }
+    public async Task<string> GetRoleNamebyUserId(string userId)
+    {
+        string rs = "";
+        var user = await _userManager.FindByIdAsync(userId);
+        if(user != null)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles != null && roles.Any())
+            {
+                rs = roles.First();
+            }
+        }
+        return rs;
+    }
+    public async Task<Result> UpdateCompanyOwner(UpdateCompanyOwner request)
+    {
+        var companyOwner = await _userManager.FindByIdAsync(request.UserId);
+        if (companyOwner == null)
+        {
+            return Result.Failure(new List<string> { "User not found." });
+        }
+
+        if (!string.IsNullOrEmpty(request.UserName))
+        {
+            companyOwner.UserName = request.UserName;
+            var userNameResult = await _userManager.UpdateAsync(companyOwner);
+            if (!userNameResult.Succeeded)
+            {
+                return Result.Failure(userNameResult.Errors.Select(e => e.Description).ToList());
+            }
+        }
+        if (!string.IsNullOrEmpty(request.Password))
+        {
+            var passwordResult = await _userManager.RemovePasswordAsync(companyOwner);
+            if (passwordResult.Succeeded)
+            {
+                passwordResult = await _userManager.AddPasswordAsync(companyOwner, request.Password);
+                if (!passwordResult.Succeeded)
+                {
+                    return Result.Failure(passwordResult.Errors.Select(e => e.Description).ToList());
+                }
+            }
+        }
+
+        if (!string.IsNullOrEmpty(request.Email))
+        {
+            companyOwner.Email = request.Email;
+            var emailResult = await _userManager.UpdateAsync(companyOwner);
+            if (!emailResult.Succeeded)
+            {
+                return Result.Failure(emailResult.Errors.Select(e => e.Description).ToList());
+            }
+        }
+        if (!string.IsNullOrEmpty(request.PhoneNumber))
+        {
+            companyOwner.PhoneNumber = request.PhoneNumber;
+            var phoneResult = await _userManager.UpdateAsync(companyOwner);
+            if (!phoneResult.Succeeded)
+            {
+                return Result.Failure(phoneResult.Errors.Select(e => e.Description).ToList());
+            }
+        }
+
+        if (!string.IsNullOrEmpty(request.CompanyId))
+        {
+            companyOwner.CompanyId = request.CompanyId;
+            var companyResult = await _userManager.UpdateAsync(companyOwner);
+            if (!companyResult.Succeeded)
+            {
+                return Result.Failure(companyResult.Errors.Select(e => e.Description).ToList());
+            }
+        }
+
+        return Result.Success();
+    }
+    public async Task<Result> UpdateStoragesForUser(string userId, List<StorageDto> updatedStorages, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if(user != null)
+        {
+            var storagesToRemove = user.Storages.Where(s => !updatedStorages.Any(us => us.Id == s.Id)).ToList();
+            if (storagesToRemove.Any())
+            {
+                _context.Storages.RemoveRange(storagesToRemove);
+            }
+
+            foreach (var storageDto in updatedStorages)
+            {
+                var existingStorage = user.Storages.FirstOrDefault(s => s.Id == storageDto.Id);
+                if (existingStorage != null && !string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && !string.IsNullOrEmpty(storageDto.Status))
+                {
+                    existingStorage.Name = storageDto.Name;
+                    existingStorage.Location = storageDto.Location;
+                    existingStorage.Status = storageDto.Status;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && !string.IsNullOrEmpty(storageDto.Status))
+                    {
+                        var newStorage = new Domain.Entities.Storage
+                        {
+                            Name = storageDto.Name,
+                            Location = storageDto.Location,
+                            Status = storageDto.Status,
+                        };
+                        user.Storages.Add(newStorage);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        return Result.Success();
+    }
 }

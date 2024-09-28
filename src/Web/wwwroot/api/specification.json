@@ -88,6 +88,130 @@
         }
       }
     },
+    "/api/CompanyOwner": {
+      "post": {
+        "tags": [
+          "CompanyOwner"
+        ],
+        "operationId": "Create",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyOwnerCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CompanyOwner/all": {
+      "get": {
+        "tags": [
+          "CompanyOwner"
+        ],
+        "operationId": "GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyOwnerListVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CompanyOwner/{id}": {
+      "get": {
+        "tags": [
+          "CompanyOwner"
+        ],
+        "operationId": "GetDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyOwnerDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CompanyOwner"
+        ],
+        "operationId": "Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyOwnerCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Customers": {
       "post": {
         "tags": [
@@ -230,38 +354,6 @@
         }
       }
     },
-    "/api/IdentityUser/userregister": {
-      "post": {
-        "tags": [
-          "IdentityUser"
-        ],
-        "operationId": "UserRegister",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/IdentityUser/signin": {
       "post": {
         "tags": [
@@ -389,6 +481,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StorageListVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SuperAdmin/userregister": {
+      "post": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "operationId": "UserRegister",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
                 }
               }
             }
@@ -540,6 +664,252 @@
           }
         }
       },
+      "CreateCompanyOwnerCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CompanyOwnerListVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "companyOwners": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDto"
+            }
+          }
+        }
+      },
+      "UserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "roleName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CompanyOwnerDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "compayOwnerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyPhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "storages": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StorageDto"
+            }
+          }
+        }
+      },
+      "StorageDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "areas": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AreaDto"
+            }
+          }
+        }
+      },
+      "AreaDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "products": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ProductDto2"
+            }
+          }
+        }
+      },
+      "ProductDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "units": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiration": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "importDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "exportDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "areaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCompanyOwnerCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "storages": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StorageDto"
+            }
+          }
+        }
+      },
       "CreateCustomerCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -609,32 +979,6 @@
           }
         }
       },
-      "UserDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "companyId": {
-            "type": "string",
-            "nullable": true
-          },
-          "userName": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "phoneNumber": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "CustomerDetailVM": {
         "type": "object",
         "additionalProperties": false,
@@ -672,45 +1016,6 @@
             "nullable": true
           },
           "companyAddress": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreateUserCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userRegister": {
-            "$ref": "#/components/schemas/UserRegister"
-          }
-        }
-      },
-      "UserRegister": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userName": {
-            "type": "string",
-            "nullable": true
-          },
-          "password": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "phoneNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "companyId": {
-            "type": "string",
-            "nullable": true
-          },
-          "roleName": {
             "type": "string",
             "nullable": true
           }
@@ -807,74 +1112,6 @@
           }
         }
       },
-      "AreaDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "products": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/ProductDto2"
-            }
-          }
-        }
-      },
-      "ProductDto2": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "units": {
-            "type": "string",
-            "nullable": true
-          },
-          "amount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "image": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "expiration": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "importDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "exportDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "areaId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
       "StorageListVM": {
         "type": "object",
         "additionalProperties": false,
@@ -888,28 +1125,42 @@
           }
         }
       },
-      "StorageDto": {
+      "CreateUserCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "name": {
+          "userRegister": {
+            "$ref": "#/components/schemas/UserRegister"
+          }
+        }
+      },
+      "UserRegister": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userName": {
             "type": "string",
             "nullable": true
           },
-          "location": {
+          "password": {
             "type": "string",
             "nullable": true
           },
-          "status": {
+          "email": {
             "type": "string",
             "nullable": true
           },
-          "areas": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/AreaDto"
-            }
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "roleName": {
+            "type": "string",
+            "nullable": true
           }
         }
       }

@@ -2,7 +2,7 @@
 using warehouse_BE.Application.Products.Queries.GetProductList;
 
 
-namespace warehouse_BE.Application.Product.Queries.GetProductList;
+namespace warehouse_BE.Application.Products.Queries.GetProductList;
 
 public class GetProductListQuery : IRequest<ProductListVM>
 {
@@ -22,7 +22,7 @@ public class GetPrpductListQueryhandler : IRequestHandler<GetProductListQuery, P
 
     public async Task<ProductListVM> Handle(GetProductListQuery request, CancellationToken cancellationToken)
     {
-        var products = await _context.Product
+        var products = await _context.Products
                                  .ToListAsync(cancellationToken);
 
         // Sử dụng AutoMapper để chuyển đổi List<Product> sang List<ProductDto>

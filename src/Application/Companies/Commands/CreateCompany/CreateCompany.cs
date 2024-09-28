@@ -29,7 +29,7 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
         try
         {
             // Check if the companyId already exists in the database
-            var existingCompany = await _context.Company
+            var existingCompany = await _context.Companies
                 .FirstOrDefaultAsync(c => c.CompanyId == request.CompanyId, cancellationToken);
 
             if (existingCompany != null)
@@ -49,7 +49,7 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
                 LastModifiedBy = _currentUser.Id  
             };
 
-            _context.Company.Add(entity);
+            _context.Companies.Add(entity);
 
             await _context.SaveChangesAsync(cancellationToken);
 

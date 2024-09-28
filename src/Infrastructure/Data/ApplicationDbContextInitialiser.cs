@@ -68,7 +68,7 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         // Default company 
-        var existingCompany = await _context.Company
+        var existingCompany = await _context.Companies
         .FirstOrDefaultAsync(c => c.CompanyId == "HCMUTE");
 
         if (existingCompany == null)
@@ -82,7 +82,7 @@ public class ApplicationDbContextInitialiser
                 Created = DateTimeOffset.UtcNow,
                 LastModified = DateTimeOffset.UtcNow,
             };
-            _context.Company.Add(company);
+            _context.Companies.Add(company);
         }
         // Default roles
         var superAdminRole = new IdentityRole("Super-Admin");

@@ -8,6 +8,9 @@ namespace warehouse_BE.Application.Response;
 
 public class ResponseDto
 {
+    public ResponseDto() { 
+    
+    }
     public int StatusCode { get; set; }
 
     public string Message { get; set; } = string.Empty;

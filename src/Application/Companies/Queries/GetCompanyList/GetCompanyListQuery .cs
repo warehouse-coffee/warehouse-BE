@@ -22,7 +22,7 @@ public class GetCompanyListQueryHandler : IRequestHandler<GetCompanyListQuery, C
     {
         try
         {
-            var companyDtos = await _context.Company
+            var companyDtos = await _context.Companies
                 .ProjectTo<CompanyDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 

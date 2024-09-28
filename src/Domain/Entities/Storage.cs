@@ -4,8 +4,7 @@ public class Storage : BaseAuditableEntity
 {
     public required string Name { get; set; }
     public required string Location { get; set; }
-    public required string Status { get; set; }  // 'Active or Not Active'
+    public required string Status { get; set; } 
 
-    // Relationships
     public ICollection<Area>? Areas { get; set; } = new List<Area>();
 }

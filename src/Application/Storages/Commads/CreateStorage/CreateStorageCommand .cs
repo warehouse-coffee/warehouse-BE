@@ -47,7 +47,7 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
                     // Kiểm tra category theo tên
                     if (product.Category != null)
                     {
-                        var category = await _context.Category
+                        var category = await _context.Categories
                        .FirstOrDefaultAsync(c => c.Name == product.Category.Name, cancellationToken);
 
                         if (category == null)
@@ -63,7 +63,7 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
                             };
 
                             // Thêm category vào context
-                            _context.Category.Add(category);
+                            _context.Categories.Add(category);
                             await _context.SaveChangesAsync(cancellationToken);
                         }
 
@@ -85,7 +85,7 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
                 //LastModifiedBy = _currentUser.Id
             };
 
-            _context.Storage.Add(entity);
+            _context.Storages.Add(entity);
             await _context.SaveChangesAsync(cancellationToken);
 
             var createdStorageDto = _mapper.Map<StorageDto>(entity); // Map Storage to StorageDto

@@ -1,8 +1,11 @@
 ﻿using warehouse_BE.Application.Common.Models;
+using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
+using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Customer.Commands.CreateCustomer;
 using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
+using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Domain.Common;
 
 namespace warehouse_BE.Application.Common.Interfaces;
@@ -28,4 +31,8 @@ public interface IIdentityService
     Task<List<UserDto>> GetUsersByRoleAsync(string roleName, string companyId);
     Task<CustomerDetailVM?> GetUserByIdAsync(string userId);
     Task<Result> DeleteUserByIdAsync(string userId);
+    Task<CompanyOwnerDetailDto?> GetCompanyOwnerByIdAsync(string userId);
+    Task<string> GetRoleNamebyUserId(string userId);
+    Task<Result> UpdateCompanyOwner(UpdateCompanyOwner request);
+    Task<Result> UpdateStoragesForUser(string userId, List<StorageDto> updatedStorages, CancellationToken cancellationToken);
 }

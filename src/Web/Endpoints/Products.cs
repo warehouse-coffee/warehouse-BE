@@ -1,5 +1,4 @@
-﻿using warehouse_BE.Application.Product.Queries.GetProductList;
-using warehouse_BE.Application.Products.Queries.GetProductList;
+﻿using warehouse_BE.Application.Products.Queries.GetProductList;
 using Microsoft.AspNetCore.Authorization;
 
 namespace warehouse_BE.Web.Endpoints;
