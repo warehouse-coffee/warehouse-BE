@@ -17,6 +17,7 @@ using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -366,7 +367,7 @@ public class IdentityService : IIdentityService
         }
 
         var users = await _userManager.Users
-        .Where(u => u.CompanyId == companyId) 
+        .Where(u => u.CompanyId == companyId && !u.isDeleted) 
         .ToListAsync();
         string RoleDisplay;
         if (roleName == "Customer")
@@ -542,7 +543,7 @@ public class IdentityService : IIdentityService
 
         return Result.Success();
     }
-    public async Task<Result> UpdateStoragesForUser(string userId, List<StorageDto> updatedStorages, CancellationToken cancellationToken)
+    public async Task<Result> UpdateStoragesForUser(string userId, List<Application.Storages.Queries.GetStorageList.StorageDto> updatedStorages, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if(user != null)
@@ -578,6 +579,18 @@ public class IdentityService : IIdentityService
             }
 
             await _context.SaveChangesAsync(cancellationToken);
+        }
+        return Result.Success();
+    }
+    public async Task<Result> DeleteUser(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user != null)
+        {
+            user.isDeleted = true;
+            await _userManager.UpdateAsync(user);
+        } else {
+            return Result.Failure(new[] { $"Failed to delete user:" });
         }
         return Result.Success();
     }

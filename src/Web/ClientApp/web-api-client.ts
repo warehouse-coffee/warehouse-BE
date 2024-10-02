@@ -308,6 +308,45 @@ export class CompanyOwnerClient {
         }
         return Promise.resolve<ResponseDto>(null as any);
     }
+
+    delete(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/CompanyOwner/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDelete(_response);
+        });
+    }
+
+    protected processDelete(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
 }
 
 export class CustomersClient {
@@ -1407,7 +1446,6 @@ export interface IStorageDto {
 
 export class AreaDto implements IAreaDto {
     name?: string | undefined;
-    products?: ProductDto2[] | undefined;
 
     constructor(data?: IAreaDto) {
         if (data) {
@@ -1421,11 +1459,6 @@ export class AreaDto implements IAreaDto {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
-            if (Array.isArray(_data["products"])) {
-                this.products = [] as any;
-                for (let item of _data["products"])
-                    this.products!.push(ProductDto2.fromJS(item));
-            }
         }
     }
 
@@ -1439,90 +1472,12 @@ export class AreaDto implements IAreaDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
-        if (Array.isArray(this.products)) {
-            data["products"] = [];
-            for (let item of this.products)
-                data["products"].push(item.toJSON());
-        }
         return data;
     }
 }
 
 export interface IAreaDto {
     name?: string | undefined;
-    products?: ProductDto2[] | undefined;
-}
-
-export class ProductDto2 implements IProductDto2 {
-    name?: string | undefined;
-    units?: string | undefined;
-    amount?: number;
-    image?: string | undefined;
-    status?: string | undefined;
-    expiration?: Date | undefined;
-    importDate?: Date | undefined;
-    exportDate?: Date | undefined;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
-
-    constructor(data?: IProductDto2) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.units = _data["units"];
-            this.amount = _data["amount"];
-            this.image = _data["image"];
-            this.status = _data["status"];
-            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
-            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
-            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
-            this.categoryId = _data["categoryId"];
-            this.areaId = _data["areaId"];
-        }
-    }
-
-    static fromJS(data: any): ProductDto2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProductDto2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["units"] = this.units;
-        data["amount"] = this.amount;
-        data["image"] = this.image;
-        data["status"] = this.status;
-        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
-        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
-        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
-        data["categoryId"] = this.categoryId;
-        data["areaId"] = this.areaId;
-        return data;
-    }
-}
-
-export interface IProductDto2 {
-    name?: string | undefined;
-    units?: string | undefined;
-    amount?: number;
-    image?: string | undefined;
-    status?: string | undefined;
-    expiration?: Date | undefined;
-    importDate?: Date | undefined;
-    exportDate?: Date | undefined;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
 }
 
 export class UpdateCompanyOwnerCommand implements IUpdateCompanyOwnerCommand {

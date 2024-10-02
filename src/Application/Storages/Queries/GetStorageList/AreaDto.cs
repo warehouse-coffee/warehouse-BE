@@ -10,7 +10,6 @@ namespace warehouse_BE.Application.Storages.Queries.GetStorageList;
 public class AreaDto
 {
     public string? Name { get; set; }
-    public List<ProductDto>? Products { get; set; }
 
     private class Mapping : Profile
     {

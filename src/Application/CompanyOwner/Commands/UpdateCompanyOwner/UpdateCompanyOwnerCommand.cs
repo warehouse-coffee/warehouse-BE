@@ -85,7 +85,7 @@ public class UpdateCompanyOwnerCommandHandler : IRequestHandler<UpdateCompanyOwn
             }
             if (role != null && role == "Super-Admin")
             {
-                if (!string.IsNullOrEmpty(request.CompanyId))
+                if (string.IsNullOrEmpty(request.CompanyId))
                 {
                    return new ResponseDto(500, "Company is required.");
                 }

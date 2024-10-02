@@ -210,6 +210,35 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "CompanyOwner"
+        ],
+        "operationId": "Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/Customers": {
@@ -812,64 +841,6 @@
         "properties": {
           "name": {
             "type": "string",
-            "nullable": true
-          },
-          "products": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/ProductDto2"
-            }
-          }
-        }
-      },
-      "ProductDto2": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "units": {
-            "type": "string",
-            "nullable": true
-          },
-          "amount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "image": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "expiration": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "importDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "exportDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "areaId": {
-            "type": "integer",
-            "format": "int32",
             "nullable": true
           }
         }

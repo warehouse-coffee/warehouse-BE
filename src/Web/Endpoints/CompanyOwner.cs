@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using warehouse_BE.Application.CompanyOwner.Commands.CreateCompanyOwner;
+using warehouse_BE.Application.CompanyOwner.Commands.DeleteCompanyOwner;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerList;
@@ -20,6 +21,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapGet(GetAll,"/all")
                 .MapGet(GetDetail,"{id}")
                 .MapPut(Update,"{id}")
+                .MapDelete(Delete, "{id}")
                 ;
         }
         public Task<ResponseDto> Create(ISender sender, CreateCompanyOwnerCommand command)
@@ -39,6 +41,10 @@ namespace warehouse_BE.Web.Endpoints
         {
             command.UserId = id;
             return sender.Send(command);
+        }
+        public Task<bool> Delete(ISender sender, string id)
+        {
+            return sender.Send(new DeleteCompanyOwnerCommand { UserId = id });
         }
     }
 }
