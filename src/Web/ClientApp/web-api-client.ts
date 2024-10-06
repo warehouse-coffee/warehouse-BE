@@ -10,6 +10,56 @@
 
 import followIfLoginRedirect from './api-authorization/followIfLoginRedirect';
 
+export class AreasClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createArea(command: CreateAreaCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Areas";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateArea(_response);
+        });
+    }
+
+    protected processCreateArea(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+}
+
 export class CategoriesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -639,6 +689,95 @@ export class IdentityUserClient {
     }
 }
 
+export class OrdersClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    importProduct(command: ImportStogareCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Orders/import";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processImportProduct(_response);
+        });
+    }
+
+    protected processImportProduct(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+
+    getList(query: GetOrderListQuery): Promise<OrderListVM> {
+        let url_ = this.baseUrl + "/api/Orders/all";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetList(_response);
+        });
+    }
+
+    protected processGetList(response: Response): Promise<OrderListVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = OrderListVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<OrderListVM>(null as any);
+    }
+}
+
 export class ProductsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -862,6 +1001,42 @@ export interface IResponseDto {
     statusCode?: number;
     message?: string;
     data?: any | undefined;
+}
+
+export class CreateAreaCommand implements ICreateAreaCommand {
+    areaName?: string;
+
+    constructor(data?: ICreateAreaCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.areaName = _data["areaName"];
+        }
+    }
+
+    static fromJS(data: any): CreateAreaCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateAreaCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["areaName"] = this.areaName;
+        return data;
+    }
+}
+
+export interface ICreateAreaCommand {
+    areaName?: string;
 }
 
 export class CreateCategoryCommand implements ICreateCategoryCommand {
@@ -1388,7 +1563,7 @@ export class StorageDto implements IStorageDto {
     id?: number;
     name?: string | undefined;
     location?: string | undefined;
-    status?: string | undefined;
+    status?: StorageStatus | undefined;
     areas?: AreaDto[] | undefined;
 
     constructor(data?: IStorageDto) {
@@ -1440,8 +1615,15 @@ export interface IStorageDto {
     id?: number;
     name?: string | undefined;
     location?: string | undefined;
-    status?: string | undefined;
+    status?: StorageStatus | undefined;
     areas?: AreaDto[] | undefined;
+}
+
+export enum StorageStatus {
+    Active = 0,
+    UnderMaintenance = 1,
+    Inactive = 2,
+    Closed = 3,
 }
 
 export class AreaDto implements IAreaDto {
@@ -1960,6 +2142,386 @@ export interface IResetPasswordCommand {
     newPassword?: string;
 }
 
+export class ImportStogareCommand implements IImportStogareCommand {
+    type?: string;
+    totalPrice?: number;
+    products?: ImportProductDto[] | undefined;
+
+    constructor(data?: IImportStogareCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            this.totalPrice = _data["totalPrice"];
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(ImportProductDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ImportStogareCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportStogareCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        data["totalPrice"] = this.totalPrice;
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IImportStogareCommand {
+    type?: string;
+    totalPrice?: number;
+    products?: ImportProductDto[] | undefined;
+}
+
+export class ImportProductDto implements IImportProductDto {
+    name?: string | undefined;
+    unit?: string;
+    quantity?: number;
+    price?: number;
+    note?: string | undefined;
+    expiration?: Date;
+    categoryId?: number;
+    areaId?: number;
+    storageId?: number;
+
+    constructor(data?: IImportProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.unit = _data["unit"];
+            this.quantity = _data["quantity"];
+            this.price = _data["price"];
+            this.note = _data["note"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.categoryId = _data["categoryId"];
+            this.areaId = _data["areaId"];
+            this.storageId = _data["storageId"];
+        }
+    }
+
+    static fromJS(data: any): ImportProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["unit"] = this.unit;
+        data["quantity"] = this.quantity;
+        data["price"] = this.price;
+        data["note"] = this.note;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["categoryId"] = this.categoryId;
+        data["areaId"] = this.areaId;
+        data["storageId"] = this.storageId;
+        return data;
+    }
+}
+
+export interface IImportProductDto {
+    name?: string | undefined;
+    unit?: string;
+    quantity?: number;
+    price?: number;
+    note?: string | undefined;
+    expiration?: Date;
+    categoryId?: number;
+    areaId?: number;
+    storageId?: number;
+}
+
+export class OrderListVM implements IOrderListVM {
+    orders?: OrderDto[];
+    page?: Page;
+
+    constructor(data?: IOrderListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["orders"])) {
+                this.orders = [] as any;
+                for (let item of _data["orders"])
+                    this.orders!.push(OrderDto.fromJS(item));
+            }
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): OrderListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.orders)) {
+            data["orders"] = [];
+            for (let item of this.orders)
+                data["orders"].push(item.toJSON());
+        }
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IOrderListVM {
+    orders?: OrderDto[];
+    page?: Page;
+}
+
+export class OrderDto implements IOrderDto {
+    orderId?: string;
+    type?: string;
+    date?: Date;
+    totalPrice?: number;
+    orderDetailsCount?: number;
+    totalQuantity?: number;
+
+    constructor(data?: IOrderDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderId = _data["orderId"];
+            this.type = _data["type"];
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.totalPrice = _data["totalPrice"];
+            this.orderDetailsCount = _data["orderDetailsCount"];
+            this.totalQuantity = _data["totalQuantity"];
+        }
+    }
+
+    static fromJS(data: any): OrderDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderId"] = this.orderId;
+        data["type"] = this.type;
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["totalPrice"] = this.totalPrice;
+        data["orderDetailsCount"] = this.orderDetailsCount;
+        data["totalQuantity"] = this.totalQuantity;
+        return data;
+    }
+}
+
+export interface IOrderDto {
+    orderId?: string;
+    type?: string;
+    date?: Date;
+    totalPrice?: number;
+    orderDetailsCount?: number;
+    totalQuantity?: number;
+}
+
+export class Page implements IPage {
+    size?: number;
+    pageNumber?: number;
+    totalElements?: number;
+    totalPages?: number;
+    sortBy?: string | undefined;
+    sortAsc?: boolean;
+
+    constructor(data?: IPage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.size = _data["size"];
+            this.pageNumber = _data["pageNumber"];
+            this.totalElements = _data["totalElements"];
+            this.totalPages = _data["totalPages"];
+            this.sortBy = _data["sortBy"];
+            this.sortAsc = _data["sortAsc"];
+        }
+    }
+
+    static fromJS(data: any): Page {
+        data = typeof data === 'object' ? data : {};
+        let result = new Page();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["size"] = this.size;
+        data["pageNumber"] = this.pageNumber;
+        data["totalElements"] = this.totalElements;
+        data["totalPages"] = this.totalPages;
+        data["sortBy"] = this.sortBy;
+        data["sortAsc"] = this.sortAsc;
+        return data;
+    }
+}
+
+export interface IPage {
+    size?: number;
+    pageNumber?: number;
+    totalElements?: number;
+    totalPages?: number;
+    sortBy?: string | undefined;
+    sortAsc?: boolean;
+}
+
+export class GetOrderListQuery implements IGetOrderListQuery {
+    page?: Page | undefined;
+    searchText?: string | undefined;
+    filterData?: FilterData[] | undefined;
+
+    constructor(data?: IGetOrderListQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+            this.searchText = _data["searchText"];
+            if (Array.isArray(_data["filterData"])) {
+                this.filterData = [] as any;
+                for (let item of _data["filterData"])
+                    this.filterData!.push(FilterData.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetOrderListQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetOrderListQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        data["searchText"] = this.searchText;
+        if (Array.isArray(this.filterData)) {
+            data["filterData"] = [];
+            for (let item of this.filterData)
+                data["filterData"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGetOrderListQuery {
+    page?: Page | undefined;
+    searchText?: string | undefined;
+    filterData?: FilterData[] | undefined;
+}
+
+export class FilterData implements IFilterData {
+    prop?: string | undefined;
+    value?: string | undefined;
+    filter?: string | undefined;
+    type?: string | undefined;
+
+    constructor(data?: IFilterData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.prop = _data["prop"];
+            this.value = _data["value"];
+            this.filter = _data["filter"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): FilterData {
+        data = typeof data === 'object' ? data : {};
+        let result = new FilterData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["prop"] = this.prop;
+        data["value"] = this.value;
+        data["filter"] = this.filter;
+        data["type"] = this.type;
+        return data;
+    }
+}
+
+export interface IFilterData {
+    prop?: string | undefined;
+    value?: string | undefined;
+    filter?: string | undefined;
+    type?: string | undefined;
+}
+
 export class ProductListVM implements IProductListVM {
     productList?: ProductDto[] | undefined;
 
@@ -2007,7 +2569,7 @@ export interface IProductListVM {
 export class CreateStorageCommand implements ICreateStorageCommand {
     name?: string;
     location?: string;
-    status?: string;
+    status?: StorageStatus;
     areas?: AreaDto[] | undefined;
 
     constructor(data?: ICreateStorageCommand) {
@@ -2056,7 +2618,7 @@ export class CreateStorageCommand implements ICreateStorageCommand {
 export interface ICreateStorageCommand {
     name?: string;
     location?: string;
-    status?: string;
+    status?: StorageStatus;
     areas?: AreaDto[] | undefined;
 }
 

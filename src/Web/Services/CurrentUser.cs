@@ -16,4 +16,5 @@ public class CurrentUser : IUser
     public string? Id => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
     public string? IP => _httpContextAccessor.HttpContext?.Request.Headers["X-Forwarded-For"].FirstOrDefault() ??
                                 _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+
 }

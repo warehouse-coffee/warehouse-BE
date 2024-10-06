@@ -17,7 +17,6 @@ using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace warehouse_BE.Infrastructure.Identity;
 

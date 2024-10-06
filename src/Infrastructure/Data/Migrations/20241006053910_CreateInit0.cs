@@ -149,7 +149,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
-                    TotalPice = table.Column<decimal>(type: "numeric", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     Note = table.Column<string>(type: "text", nullable: true),
                     OrderId = table.Column<int>(type: "integer", nullable: true),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),

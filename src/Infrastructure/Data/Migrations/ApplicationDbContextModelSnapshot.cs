@@ -347,7 +347,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("TotalPice")
+                    b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");

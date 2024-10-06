@@ -40,7 +40,7 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
             };
             if (request.Category.Products != null && request.Category.Products.Any())
             {
-                var products = _mapper.Map<List<warehouse_BE.Domain.Entities.Product>>(request.Category.Products);
+                var products = _mapper.Map<List<Product>>(request.Category.Products);
 
                 // Gán CategoryId cho từng sản phẩm
                 foreach (var product in products)
@@ -58,7 +58,7 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
             // Lưu thay đổi vào database
             await _context.SaveChangesAsync(cancellationToken);
 
-            return new ResponseDto(201, "Category created successfully", categoryEntity);
+            return new ResponseDto(201, "Category created successfully");
         }
         catch (Exception ex)
         {

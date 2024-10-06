@@ -6,6 +6,38 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Areas": {
+      "post": {
+        "tags": [
+          "Areas"
+        ],
+        "operationId": "CreateArea",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAreaCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Categories": {
       "post": {
         "tags": [
@@ -447,6 +479,70 @@
         }
       }
     },
+    "/api/Orders/import": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "ImportProduct",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportStogareCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Orders/all": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "GetList",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetOrderListQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderListVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Products": {
       "get": {
         "tags": [
@@ -565,6 +661,15 @@
           },
           "data": {
             "nullable": true
+          }
+        }
+      },
+      "CreateAreaCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "areaName": {
+            "type": "string"
           }
         }
       },
@@ -823,8 +928,12 @@
             "nullable": true
           },
           "status": {
-            "type": "string",
-            "nullable": true
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/StorageStatus"
+              }
+            ]
           },
           "areas": {
             "type": "array",
@@ -834,6 +943,22 @@
             }
           }
         }
+      },
+      "StorageStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "UnderMaintenance",
+          "Inactive",
+          "Closed"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
       "AreaDto": {
         "type": "object",
@@ -1048,6 +1173,186 @@
           }
         }
       },
+      "ImportStogareCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "products": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ImportProductDto"
+            }
+          }
+        }
+      },
+      "ImportProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiration": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "areaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "storageId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OrderListVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderDto"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          }
+        }
+      },
+      "OrderDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "orderDetailsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalQuantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortAsc": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetOrderListQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          },
+          "searchText": {
+            "type": "string",
+            "nullable": true
+          },
+          "filterData": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
+            }
+          }
+        }
+      },
+      "FilterData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "prop": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ProductListVM": {
         "type": "object",
         "additionalProperties": false,
@@ -1072,7 +1377,7 @@
             "type": "string"
           },
           "status": {
-            "type": "string"
+            "$ref": "#/components/schemas/StorageStatus"
           },
           "areas": {
             "type": "array",

@@ -12,7 +12,7 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241006044755_CreateInit0")]
+    [Migration("20241006053910_CreateInit0")]
     partial class CreateInit0
     {
         /// <inheritdoc />
@@ -350,7 +350,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("TotalPice")
+                    b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
