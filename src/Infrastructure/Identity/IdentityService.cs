@@ -539,6 +539,15 @@ public class IdentityService : IIdentityService
                 return Result.Failure(companyResult.Errors.Select(e => e.Description).ToList());
             }
         }
+        if (!string.IsNullOrEmpty(request.AvatarImage))
+        {
+            companyOwner.AvatarImage = request.AvatarImage;
+            var companyResult = await _userManager.UpdateAsync(companyOwner);
+            if (!companyResult.Succeeded)
+            {
+                return Result.Failure(companyResult.Errors.Select(e => e.Description).ToList());
+            }
+        }
 
         return Result.Success();
     }

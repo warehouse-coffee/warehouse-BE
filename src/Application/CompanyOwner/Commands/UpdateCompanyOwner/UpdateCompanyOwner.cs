@@ -14,5 +14,6 @@ namespace warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner
         public string? Email { get; set; }               
         public string? PhoneNumber { get; set; }          
         public string? CompanyId { get; set; }
+        public string? AvatarImage { get; set; }
     }
 }

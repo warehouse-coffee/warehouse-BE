@@ -123,9 +123,8 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
                     Quantity = productDto.Quantity,
                     TotalPrice = productDto.Price * productDto.Quantity,
                     Note = productDto.Note,
+                    Product = product
                 };
-
-                orderDetail.Products.Add(product);
                 order.OrderDetails.Add(orderDetail);
             }
 

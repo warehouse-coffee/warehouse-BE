@@ -6,5 +6,5 @@ public class OrderDetail : BaseAuditableEntity
     public decimal TotalPrice { get; set; }
     public string? Note { get; set; }
     // Relationships
-    public ICollection<Product> Products { get; set; } = new List<Product>();
+    public required Product Product { get; set; }
 }

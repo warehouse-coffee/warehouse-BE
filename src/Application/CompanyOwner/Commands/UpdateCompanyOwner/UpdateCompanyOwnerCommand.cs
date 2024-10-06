@@ -1,31 +1,35 @@
 ﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
-using warehouse_BE.Domain.Entities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting; 
 
 namespace warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
 
 public class UpdateCompanyOwnerCommand : IRequest<ResponseDto>
 {
-    public required string UserId { get; set; }
+    public  string? UserId { get; set; }
     public string? UserName { get; set; }
     public string? Password { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
     public string? CompanyId { get; set; }
     public List<StorageDto>? Storages { get; set; }
+
+    public IFormFile? AvatarImage { get; set; }
 }
 public class UpdateCompanyOwnerCommandHandler : IRequestHandler<UpdateCompanyOwnerCommand, ResponseDto>
 {
     public readonly IIdentityService identityService;
     private readonly IUser _currentUser;
     private readonly IApplicationDbContext _context;
-
-    public UpdateCompanyOwnerCommandHandler(IIdentityService identityService, IUser currentUser, IApplicationDbContext context)
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    public UpdateCompanyOwnerCommandHandler(IIdentityService identityService, IUser currentUser, IApplicationDbContext context, IWebHostEnvironment webHost)
     {
         this.identityService = identityService;
         this._currentUser = currentUser;
-        _context = context;
+        this._context = context;
+        this._webHostEnvironment = webHost;
     }
     public async Task<ResponseDto> Handle(UpdateCompanyOwnerCommand request, CancellationToken cancellationToken)
     {
@@ -42,15 +46,36 @@ public class UpdateCompanyOwnerCommandHandler : IRequestHandler<UpdateCompanyOwn
             }
             var role = await identityService.GetRoleNamebyUserId(_currentUser.Id);
             string errorMessages;
-            var customer = new UpdateCompanyOwner
+            if (request.UserId != null)
             {
-                UserId = request.UserId,
-                UserName = request.UserName,
-                Password = request.Password,
-                Email = request.Email,
-                PhoneNumber = request.PhoneNumber,
-                CompanyId = request.CompanyId
-            };
+                string filePath = "";
+                if (request.AvatarImage != null)
+                {
+                    var userId = request.UserId;
+                    var uploadsFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot", "image");
+                    var fileName = $"{userId}{Path.GetExtension(request.AvatarImage.FileName)}"; 
+                     filePath = Path.Combine(uploadsFolder, fileName);
+
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await request.AvatarImage.CopyToAsync(stream);
+                    }
+                }
+                var customer = new UpdateCompanyOwner
+                {
+                    UserId = request.UserId,
+                    UserName = request.UserName,
+                    Password = request.Password,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    CompanyId = request.CompanyId,
+                    AvatarImage = filePath
+                };
             if (role != null && role == "Admin")
             {
                 var companyIdResult = await identityService.GetCompanyId(_currentUser.Id);
@@ -105,6 +130,7 @@ public class UpdateCompanyOwnerCommandHandler : IRequestHandler<UpdateCompanyOwn
                 } catch
                 {
                     return new ResponseDto(400, $"Customer creation unsuccessful");
+                }
                 }
             }
         } catch (Exception ex)

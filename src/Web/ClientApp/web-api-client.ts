@@ -776,6 +776,83 @@ export class OrdersClient {
         }
         return Promise.resolve<OrderListVM>(null as any);
     }
+
+    deleteOrder(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Orders/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteOrder(_response);
+        });
+    }
+
+    protected processDeleteOrder(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    getOrderDetail(id: string): Promise<OrderDetailVM> {
+        let url_ = this.baseUrl + "/api/Orders/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetOrderDetail(_response);
+        });
+    }
+
+    protected processGetOrderDetail(response: Response): Promise<OrderDetailVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = OrderDetailVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<OrderDetailVM>(null as any);
+    }
 }
 
 export class ProductsClient {
@@ -2520,6 +2597,114 @@ export interface IFilterData {
     value?: string | undefined;
     filter?: string | undefined;
     type?: string | undefined;
+}
+
+export class OrderDetailVM implements IOrderDetailVM {
+    type?: string | undefined;
+    date?: Date;
+    totalPrice?: number;
+    orderProductDtos?: OrderProductDto[] | undefined;
+
+    constructor(data?: IOrderDetailVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.totalPrice = _data["totalPrice"];
+            if (Array.isArray(_data["orderProductDtos"])) {
+                this.orderProductDtos = [] as any;
+                for (let item of _data["orderProductDtos"])
+                    this.orderProductDtos!.push(OrderProductDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): OrderDetailVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderDetailVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["totalPrice"] = this.totalPrice;
+        if (Array.isArray(this.orderProductDtos)) {
+            data["orderProductDtos"] = [];
+            for (let item of this.orderProductDtos)
+                data["orderProductDtos"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IOrderDetailVM {
+    type?: string | undefined;
+    date?: Date;
+    totalPrice?: number;
+    orderProductDtos?: OrderProductDto[] | undefined;
+}
+
+export class OrderProductDto implements IOrderProductDto {
+    productName?: string | undefined;
+    quantity?: number;
+    totalPrice?: number;
+    units?: string | undefined;
+    note?: string | undefined;
+
+    constructor(data?: IOrderProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.productName = _data["productName"];
+            this.quantity = _data["quantity"];
+            this.totalPrice = _data["totalPrice"];
+            this.units = _data["units"];
+            this.note = _data["note"];
+        }
+    }
+
+    static fromJS(data: any): OrderProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["productName"] = this.productName;
+        data["quantity"] = this.quantity;
+        data["totalPrice"] = this.totalPrice;
+        data["units"] = this.units;
+        data["note"] = this.note;
+        return data;
+    }
+}
+
+export interface IOrderProductDto {
+    productName?: string | undefined;
+    quantity?: number;
+    totalPrice?: number;
+    units?: string | undefined;
+    note?: string | undefined;
 }
 
 export class ProductListVM implements IProductListVM {

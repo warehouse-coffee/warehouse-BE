@@ -12,7 +12,7 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241006053910_CreateInit0")]
+    [Migration("20241006164836_CreateInit0")]
     partial class CreateInit0
     {
         /// <inheritdoc />
@@ -347,6 +347,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
@@ -356,6 +359,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetails");
                 });
@@ -408,9 +413,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("OrderDetailId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("SafeStock")
                         .HasColumnType("integer");
 
@@ -429,8 +431,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasIndex("AreaId");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("OrderDetailId");
 
                     b.HasIndex("StorageId");
 
@@ -488,6 +488,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("AvatarImage")
+                        .HasColumnType("text");
 
                     b.Property<string>("CompanyId")
                         .HasColumnType("text");
@@ -616,6 +619,14 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasOne("warehouse_BE.Domain.Entities.Order", null)
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId");
+
+                    b.HasOne("warehouse_BE.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Product", b =>
@@ -631,10 +642,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("warehouse_BE.Domain.Entities.OrderDetail", null)
-                        .WithMany("Products")
-                        .HasForeignKey("OrderDetailId");
 
                     b.HasOne("warehouse_BE.Domain.Entities.Storage", "Storage")
                         .WithMany()
@@ -678,11 +685,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
-                });
-
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
