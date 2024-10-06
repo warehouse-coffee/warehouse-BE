@@ -1,7 +1,7 @@
 ﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
 
-namespace warehouse_BE.Application.Order.ImportStorage;
+namespace warehouse_BE.Application.Orders.ImportStorage;
 
 public class ImportStogareCommand : IRequest<ResponseDto>
 {

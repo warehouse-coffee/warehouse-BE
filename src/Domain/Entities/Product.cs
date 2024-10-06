@@ -14,10 +14,12 @@ public class Product : BaseAuditableEntity
     public int SafeStock { get; set; }
 
     // Relationships
-    public required int? CategoryId { get; set; }
-    public required int? AreaId { get; set; }
+    public required int CategoryId { get; set; }
+    public required int AreaId { get; set; }
     public Category? Category { get; set; }
     public Area? Area { get; set; }
+    public required int StorageId { get; set; }
+    public Storage? Storage { get; set; }
 
 }
 

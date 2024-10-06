@@ -368,10 +368,10 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("AreaId")
+                    b.Property<int>("AreaId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("Created")
@@ -414,6 +414,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int>("StorageId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Units")
                         .IsRequired()
                         .HasColumnType("text");
@@ -425,6 +428,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("OrderDetailId");
+
+                    b.HasIndex("StorageId");
 
                     b.ToTable("Products");
                 });
@@ -614,19 +619,31 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 {
                     b.HasOne("warehouse_BE.Domain.Entities.Area", "Area")
                         .WithMany("Products")
-                        .HasForeignKey("AreaId");
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("warehouse_BE.Domain.Entities.Category", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("warehouse_BE.Domain.Entities.OrderDetail", null)
                         .WithMany("Products")
                         .HasForeignKey("OrderDetailId");
 
+                    b.HasOne("warehouse_BE.Domain.Entities.Storage", "Storage")
+                        .WithMany()
+                        .HasForeignKey("StorageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Area");
 
                     b.Navigation("Category");
+
+                    b.Navigation("Storage");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>

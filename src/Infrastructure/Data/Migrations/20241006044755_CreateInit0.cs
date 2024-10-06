@@ -318,8 +318,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     ImportDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExportDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     SafeStock = table.Column<int>(type: "integer", nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: true),
-                    AreaId = table.Column<int>(type: "integer", nullable: true),
+                    CategoryId = table.Column<int>(type: "integer", nullable: false),
+                    AreaId = table.Column<int>(type: "integer", nullable: false),
+                    StorageId = table.Column<int>(type: "integer", nullable: false),
                     OrderDetailId = table.Column<int>(type: "integer", nullable: true),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -334,17 +335,25 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         name: "FK_Products_Areas_AreaId",
                         column: x => x.AreaId,
                         principalTable: "Areas",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Products_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Products_OrderDetails_OrderDetailId",
                         column: x => x.OrderDetailId,
                         principalTable: "OrderDetails",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Products_Storages_StorageId",
+                        column: x => x.StorageId,
+                        principalTable: "Storages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -413,6 +422,11 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 name: "IX_Products_OrderDetailId",
                 table: "Products",
                 column: "OrderDetailId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_StorageId",
+                table: "Products",
+                column: "StorageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Storages_ApplicationUserId",
