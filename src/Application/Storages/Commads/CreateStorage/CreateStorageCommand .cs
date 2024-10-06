@@ -7,6 +7,7 @@ using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Domain.Entities;
+using warehouse_BE.Domain.Enums;
 
 namespace warehouse_BE.Application.Storages.Commads.CreateStorage;
 
@@ -14,7 +15,7 @@ public record CreateStorageCommand : IRequest<ResponseDto>
 {
     public required string Name { get; init; }
     public required string Location { get; init; }
-    public required string Status { get; init; }
+    public required StorageStatus Status { get; init; }
     public List<AreaDto>? Areas { get; init; }
 
 }

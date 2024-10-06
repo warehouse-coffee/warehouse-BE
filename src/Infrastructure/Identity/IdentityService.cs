@@ -459,7 +459,7 @@ public class IdentityService : IIdentityService
             {
                Name = s.Name,
                Location = s.Location,
-               Status = s.Status,
+                Status = s.Status,
               
             }).ToList()
 
@@ -557,21 +557,21 @@ public class IdentityService : IIdentityService
             foreach (var storageDto in updatedStorages)
             {
                 var existingStorage = user.Storages.FirstOrDefault(s => s.Id == storageDto.Id);
-                if (existingStorage != null && !string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && !string.IsNullOrEmpty(storageDto.Status))
+                if (existingStorage != null && !string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && storageDto.Status.HasValue )
                 {
                     existingStorage.Name = storageDto.Name;
                     existingStorage.Location = storageDto.Location;
-                    existingStorage.Status = storageDto.Status;
+                    existingStorage.Status = (Domain.Enums.StorageStatus)storageDto.Status;
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && !string.IsNullOrEmpty(storageDto.Status))
+                    if (!string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && storageDto.Status.HasValue)
                     {
                         var newStorage = new Domain.Entities.Storage
                         {
                             Name = storageDto.Name,
                             Location = storageDto.Location,
-                            Status = storageDto.Status,
+                            Status = (Domain.Enums.StorageStatus)storageDto.Status,
                         };
                         user.Storages.Add(newStorage);
                     }

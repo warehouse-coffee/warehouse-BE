@@ -27,7 +27,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Category",
+                name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -36,15 +36,16 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Category", x => x.Id);
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Company",
+                name: "Companies",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -57,12 +58,34 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Company", x => x.Id);
-                    table.UniqueConstraint("AK_Company_CompanyId", x => x.CompanyId);
+                    table.PrimaryKey("PK_Companies", x => x.Id);
+                    table.UniqueConstraint("AK_Companies_CompanyId", x => x.CompanyId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OrderId = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "numeric", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -92,6 +115,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     CompanyId = table.Column<string>(type: "text", nullable: true),
+                    isDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -111,11 +135,37 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Company_CompanyId",
+                        name: "FK_AspNetUsers_Companies_CompanyId",
                         column: x => x.CompanyId,
-                        principalTable: "Company",
+                        principalTable: "Companies",
                         principalColumn: "CompanyId",
                         onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    TotalPice = table.Column<decimal>(type: "numeric", nullable: false),
+                    Note = table.Column<string>(type: "text", nullable: true),
+                    OrderId = table.Column<int>(type: "integer", nullable: true),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -204,32 +254,33 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Storage",
+                name: "Storages",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Location = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "text", nullable: true),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Storage", x => x.Id);
+                    table.PrimaryKey("PK_Storages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Storage_AspNetUsers_ApplicationUserId",
+                        name: "FK_Storages_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Area",
+                name: "Areas",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -239,20 +290,21 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Area", x => x.Id);
+                    table.PrimaryKey("PK_Areas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Area_Storage_StorageId",
+                        name: "FK_Areas_Storages_StorageId",
                         column: x => x.StorageId,
-                        principalTable: "Storage",
+                        principalTable: "Storages",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Product",
+                name: "Products",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -261,35 +313,43 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     Units = table.Column<string>(type: "text", nullable: false),
                     Amount = table.Column<int>(type: "integer", nullable: false),
                     Image = table.Column<string>(type: "text", nullable: true),
-                    Status = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     Expiration = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ImportDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExportDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SafeStock = table.Column<int>(type: "integer", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: true),
                     AreaId = table.Column<int>(type: "integer", nullable: true),
+                    OrderDetailId = table.Column<int>(type: "integer", nullable: true),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Product", x => x.Id);
+                    table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Product_Area_AreaId",
+                        name: "FK_Products_Areas_AreaId",
                         column: x => x.AreaId,
-                        principalTable: "Area",
+                        principalTable: "Areas",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Product_Category_CategoryId",
+                        name: "FK_Products_Categories_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "Category",
+                        principalTable: "Categories",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Products_OrderDetails_OrderDetailId",
+                        column: x => x.OrderDetailId,
+                        principalTable: "OrderDetails",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Area_StorageId",
-                table: "Area",
+                name: "IX_Areas_StorageId",
+                table: "Areas",
                 column: "StorageId");
 
             migrationBuilder.CreateIndex(
@@ -335,18 +395,28 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_AreaId",
-                table: "Product",
+                name: "IX_OrderDetails_OrderId",
+                table: "OrderDetails",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_AreaId",
+                table: "Products",
                 column: "AreaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_CategoryId",
-                table: "Product",
+                name: "IX_Products_CategoryId",
+                table: "Products",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Storage_ApplicationUserId",
-                table: "Storage",
+                name: "IX_Products_OrderDetailId",
+                table: "Products",
+                column: "OrderDetailId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Storages_ApplicationUserId",
+                table: "Storages",
                 column: "ApplicationUserId");
         }
 
@@ -369,25 +439,31 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Product");
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Area");
+                name: "Areas");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Storage");
+                name: "OrderDetails");
+
+            migrationBuilder.DropTable(
+                name: "Storages");
+
+            migrationBuilder.DropTable(
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Company");
+                name: "Companies");
         }
     }
 }
