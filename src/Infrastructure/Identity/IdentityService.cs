@@ -454,6 +454,7 @@ public class IdentityService : IIdentityService
             Email = user.Email,
             Phone = user.PhoneNumber,
             CompanyId = user.CompanyId,
+            ImageFile = user.AvatarImage,
             Storages = user.Storages.Select(s => new StorageDto
             {
                Name = s.Name,

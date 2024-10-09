@@ -24,7 +24,7 @@ public class FileService : IFileService
         }
 
         var contentPath = _environment.ContentRootPath;
-        var path = Path.Combine(contentPath, "images", "avatars");
+        var path = Path.Combine(contentPath, "wwwroot", "images", "avatars");
 
         if (!Directory.Exists(path))
         {
@@ -41,8 +41,16 @@ public class FileService : IFileService
         // generate a unique filename
         var fileName = $"{Guid.NewGuid().ToString()}{ext}";
         var fileNameWithPath = Path.Combine(path, fileName);
-        using var stream = new FileStream(fileNameWithPath, FileMode.Create);
-        await imageFile.CopyToAsync(stream);
+        try
+        {
+            using var stream = new FileStream(fileNameWithPath, FileMode.Create);
+            await imageFile.CopyToAsync(stream);
+        }
+        catch (Exception ex)
+        {
+            // Ghi log lỗi hoặc xử lý lỗi
+            throw new Exception($"Error saving file: {ex.Message}");
+        }
         return fileName;
     }
 
@@ -54,7 +62,7 @@ public class FileService : IFileService
             throw new ArgumentNullException(nameof(fileNameWithExtension));
         }
         var contentPath = _environment.ContentRootPath;
-        var path = Path.Combine(contentPath, $"Uploads", fileNameWithExtension);
+        var path = Path.Combine(contentPath, $"wwwroot", "images", "avatars", fileNameWithExtension);
 
         if (!File.Exists(path))
         {

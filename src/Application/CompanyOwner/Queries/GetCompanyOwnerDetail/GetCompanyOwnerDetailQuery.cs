@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,12 +18,14 @@ namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GetCompanyOwnerDetailQueryHandler(IApplicationDbContext context, IMapper mapper, IIdentityService identityService)
+        public GetCompanyOwnerDetailQueryHandler(IApplicationDbContext context, IMapper mapper, IIdentityService identityService, IHttpContextAccessor httpContextAccessor)
         {
-            _context = context;
-            _mapper = mapper;
-            _identityService = identityService;
+            this._context = context;
+            this._mapper = mapper;
+            this._identityService = identityService;
+            this._httpContextAccessor = httpContextAccessor;
         }
         public async Task<CompanyOwnerDetailDto> Handle (GetCompanyOwnerDetailQuery request, CancellationToken cancellationToken)
         {
@@ -42,6 +45,17 @@ namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail
                 rs.CompanyEmail = company.EmailContact;
                 rs.CompanyAddress = company.Address;
             }
+            if (_httpContextAccessor.HttpContext != null &&
+                 _httpContextAccessor.HttpContext.Request != null)
+            {
+                var requestContext = _httpContextAccessor.HttpContext.Request;
+                var scheme = requestContext.Scheme;
+                var host = requestContext.Host.Value;
+                rs.ImageFile = $"{scheme}://{host}/Resources/{rs.ImageFile}";
+            }
+           
+
+            
             return rs;
         }
     }

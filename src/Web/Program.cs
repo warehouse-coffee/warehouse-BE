@@ -51,8 +51,6 @@ builder.Services.Configure<FormOptions>(options =>
 });
 // Just setting the name of XSRF token
 builder.Services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
-// Bind the BaseUrl from configuration
-//builder.Services.Configure<BaseUrlOptions>(builder.Configuration.GetSection("BaseUrl"));
 
 var app = builder.Build();
 app.UseAuthentication();
@@ -79,7 +77,7 @@ else
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection(); // conver http to https 
-//app.UseStaticFiles();
+app.UseStaticFiles();
 // File
 app.UseStaticFiles(new StaticFileOptions
 {
