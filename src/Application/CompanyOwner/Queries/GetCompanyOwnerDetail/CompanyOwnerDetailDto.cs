@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,5 +20,6 @@ namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail
         public string? CompanyEmail { get; set; }
         public string? CompanyAddress { get; set; }
         public List<StorageDto>? Storages { get; set; }
+        public string? ImageFile { get; set; }
     }
 }

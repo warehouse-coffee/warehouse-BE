@@ -551,7 +551,7 @@ public class IdentityService : IIdentityService
 
         return Result.Success();
     }
-    public async Task<Result> UpdateStoragesForUser(string userId, List<Application.Storages.Queries.GetStorageList.StorageDto> updatedStorages, CancellationToken cancellationToken)
+    public async Task<Result> UpdateStoragesForUser(string userId, List<StorageDto> updatedStorages, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if(user != null)

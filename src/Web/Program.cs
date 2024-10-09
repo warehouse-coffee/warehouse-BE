@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using warehouse_BE.Infrastructure.Data;
@@ -20,7 +23,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowCredentials()); // Allows cookies/auth headers
 });
-
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
 var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException("SecretKey is null");
@@ -43,11 +45,26 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104857600; // Adjust as needed (100 MB here)
+});
+// Just setting the name of XSRF token
+builder.Services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+// Bind the BaseUrl from configuration
+//builder.Services.Configure<BaseUrlOptions>(builder.Configuration.GetSection("BaseUrl"));
 
 var app = builder.Build();
-
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseAntiforgery();
+//API get Antiforgery token DEF CSRF
+app.MapGet("antiforgery/token", (IAntiforgery forgeryService, HttpContext context) =>
+{
+    var tokens = forgeryService.GetAndStoreTokens(context);
+    var xsrfToken = tokens.RequestToken!;
+    return TypedResults.Content(xsrfToken, "text/plain");
+}).RequireAuthorization();
 
 // Configure the HTTP request pipeline. and protect server using https 
 if (app.Environment.IsDevelopment())
@@ -62,7 +79,14 @@ else
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection(); // conver http to https 
-app.UseStaticFiles();
+//app.UseStaticFiles();
+// File
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "images", "avatars")),
+    RequestPath = "/Resources"
+});
 app.UseCors("AllowSpecificOrigin");
 app.UseSwaggerUi(settings =>
 {

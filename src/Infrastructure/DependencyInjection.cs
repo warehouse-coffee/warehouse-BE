@@ -45,7 +45,7 @@ public static class DependencyInjection
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
 
         services.AddTransient<IEmailService, EmailService>();
-
+        services.AddScoped<IFileService, FileService>();
         return services;
     }
 }

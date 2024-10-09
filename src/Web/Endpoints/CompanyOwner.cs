@@ -15,14 +15,13 @@ namespace warehouse_BE.Web.Endpoints
     {
         public override void Map(WebApplication app)
         {
-            app.MapGroup(this)
-                .RequireAuthorization()
-                .MapPost(Create)
-                .MapGet(GetAll,"/all")
-                .MapGet(GetDetail,"{id}")
-                .MapPut(Update,"{id}")
-                .MapDelete(Delete, "{id}")
-                ;
+            app.MapGroup(this).RequireAuthorization()
+            .MapPost(Create)
+            .MapGet(GetAll, "/all")
+            .MapGet(GetDetail, "{id}")
+            .MapPut(Update, "{id}")
+            .MapDelete(Delete, "{id}")
+            ;
         }
         public Task<ResponseDto> Create(ISender sender, CreateCompanyOwnerCommand command)
         {
@@ -37,7 +36,7 @@ namespace warehouse_BE.Web.Endpoints
             return sender.Send(new GetCompanyOwnerDetailQuery() { UserId = id });
         }
         [Authorize(Roles = "Super-Admin")]
-        public Task<ResponseDto> Update(ISender sender, [FromBody] UpdateCompanyOwnerCommand command, string id)
+        public Task<ResponseDto> Update(ISender sender, [FromForm] UpdateCompanyOwnerCommand command, string id)
         {
             command.UserId = id;
             return sender.Send(command);

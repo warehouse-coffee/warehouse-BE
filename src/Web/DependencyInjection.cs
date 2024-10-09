@@ -27,7 +27,6 @@ public static class DependencyInjection
         // Customise default API behaviour
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
-
         services.AddEndpointsApiExplorer();
 
         services.AddOpenApiDocument((configure, sp) =>
