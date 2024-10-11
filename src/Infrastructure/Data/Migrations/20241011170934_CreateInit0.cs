@@ -51,9 +51,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CompanyId = table.Column<string>(type: "text", nullable: false),
-                    CompanyName = table.Column<string>(type: "text", nullable: false),
-                    PhoneContact = table.Column<string>(type: "text", nullable: false),
-                    EmailContact = table.Column<string>(type: "text", nullable: false),
+                    CompanyName = table.Column<string>(type: "text", nullable: true),
+                    PhoneContact = table.Column<string>(type: "text", nullable: true),
+                    EmailContact = table.Column<string>(type: "text", nullable: true),
                     Address = table.Column<string>(type: "text", nullable: true),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -115,6 +115,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     CompanyId = table.Column<string>(type: "text", nullable: true),
+                    isActived = table.Column<bool>(type: "boolean", nullable: false),
                     isDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     AvatarImage = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),

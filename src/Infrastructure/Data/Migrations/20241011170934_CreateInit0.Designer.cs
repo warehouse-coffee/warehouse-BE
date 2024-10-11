@@ -12,7 +12,7 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241006164836_CreateInit0")]
+    [Migration("20241011170934_CreateInit0")]
     partial class CreateInit0
     {
         /// <inheritdoc />
@@ -245,7 +245,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CompanyName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("Created")
@@ -255,7 +254,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EmailContact")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
@@ -268,7 +266,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneContact")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -538,6 +535,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("isActived")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("isDeleted")
                         .HasColumnType("boolean");

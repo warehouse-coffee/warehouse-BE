@@ -1039,7 +1039,7 @@ export class SuperAdminClient {
     }
 
     userRegister(command: CreateUserCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/SuperAdmin/userregister";
+        let url_ = this.baseUrl + "/api/SuperAdmin/user";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -1075,6 +1075,157 @@ export class SuperAdminClient {
             });
         }
         return Promise.resolve<ResponseDto>(null as any);
+    }
+
+    updateUser(command: UpdateUserCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/SuperAdmin/user";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateUser(_response);
+        });
+    }
+
+    protected processUpdateUser(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+
+    getAllUsers(): Promise<UserListVm> {
+        let url_ = this.baseUrl + "/api/SuperAdmin/user/all";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllUsers(_response);
+        });
+    }
+
+    protected processGetAllUsers(response: Response): Promise<UserListVm> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserListVm.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserListVm>(null as any);
+    }
+
+    getUserDetail(id: string): Promise<UserVM> {
+        let url_ = this.baseUrl + "/api/SuperAdmin/user/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserDetail(_response);
+        });
+    }
+
+    protected processGetUserDetail(response: Response): Promise<UserVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserVM>(null as any);
+    }
+
+    deleteUser(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/SuperAdmin/user/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteUser(_response);
+        });
+    }
+
+    protected processDeleteUser(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
     }
 }
 
@@ -1549,6 +1700,7 @@ export class UserDto implements IUserDto {
     email?: string | undefined;
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
+    isActived?: boolean;
 
     constructor(data?: IUserDto) {
         if (data) {
@@ -1567,6 +1719,7 @@ export class UserDto implements IUserDto {
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.roleName = _data["roleName"];
+            this.isActived = _data["isActived"];
         }
     }
 
@@ -1585,6 +1738,7 @@ export class UserDto implements IUserDto {
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["roleName"] = this.roleName;
+        data["isActived"] = this.isActived;
         return data;
     }
 }
@@ -1596,6 +1750,7 @@ export interface IUserDto {
     email?: string | undefined;
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
+    isActived?: boolean;
 }
 
 export class CompanyOwnerDetailDto implements ICompanyOwnerDetailDto {
@@ -2990,6 +3145,190 @@ export interface IUserRegister {
     email?: string | undefined;
     phoneNumber?: string | undefined;
     companyId?: string | undefined;
+    roleName?: string | undefined;
+}
+
+export class UserListVm implements IUserListVm {
+    users?: UserDto[];
+
+    constructor(data?: IUserListVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["users"])) {
+                this.users = [] as any;
+                for (let item of _data["users"])
+                    this.users!.push(UserDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): UserListVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserListVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.users)) {
+            data["users"] = [];
+            for (let item of this.users)
+                data["users"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IUserListVm {
+    users?: UserDto[];
+}
+
+export class UserVM implements IUserVM {
+    userId?: string | undefined;
+    name?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
+    companyName?: string | undefined;
+    companyId?: string | undefined;
+    companyPhone?: string | undefined;
+    companyEmail?: string | undefined;
+    companyAddress?: string | undefined;
+    storages?: StorageDto[] | undefined;
+    imageFile?: string | undefined;
+
+    constructor(data?: IUserVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.name = _data["name"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.companyName = _data["companyName"];
+            this.companyId = _data["companyId"];
+            this.companyPhone = _data["companyPhone"];
+            this.companyEmail = _data["companyEmail"];
+            this.companyAddress = _data["companyAddress"];
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(StorageDto.fromJS(item));
+            }
+            this.imageFile = _data["imageFile"];
+        }
+    }
+
+    static fromJS(data: any): UserVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["name"] = this.name;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["companyName"] = this.companyName;
+        data["companyId"] = this.companyId;
+        data["companyPhone"] = this.companyPhone;
+        data["companyEmail"] = this.companyEmail;
+        data["companyAddress"] = this.companyAddress;
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
+        data["imageFile"] = this.imageFile;
+        return data;
+    }
+}
+
+export interface IUserVM {
+    userId?: string | undefined;
+    name?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
+    companyName?: string | undefined;
+    companyId?: string | undefined;
+    companyPhone?: string | undefined;
+    companyEmail?: string | undefined;
+    companyAddress?: string | undefined;
+    storages?: StorageDto[] | undefined;
+    imageFile?: string | undefined;
+}
+
+export class UpdateUserCommand implements IUpdateUserCommand {
+    userId?: string | undefined;
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    roleName?: string | undefined;
+
+    constructor(data?: IUpdateUserCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.roleName = _data["roleName"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["roleName"] = this.roleName;
+        return data;
+    }
+}
+
+export interface IUpdateUserCommand {
+    userId?: string | undefined;
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
     roleName?: string | undefined;
 }
 

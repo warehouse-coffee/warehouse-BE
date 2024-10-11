@@ -34,6 +34,8 @@ public interface IIdentityService
     Task<CompanyOwnerDetailDto?> GetCompanyOwnerByIdAsync(string userId);
     Task<string> GetRoleNamebyUserId(string userId);
     Task<Result> UpdateCompanyOwner(UpdateCompanyOwner request);
-    Task<Result> UpdateStoragesForUser(string userId, List<Storages.Queries.GetStorageList.StorageDto> updatedStorages, CancellationToken cancellationToken);
+    Task<Result> UpdateStoragesForUser(string userId, List<StorageDto> updatedStorages, CancellationToken cancellationToken);
     Task<Result> DeleteUser(string userId);
+    Task<List<UserDto>> GetUserList();
+    Task<Result> UpdateUser(UserDto userDto, string? password);
 }

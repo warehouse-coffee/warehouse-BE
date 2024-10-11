@@ -9,5 +9,6 @@ namespace warehouse_BE.Domain.Common
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
         public string? RoleName { get; set; }
+        public bool isActived { get; set; }
     }
 }

@@ -17,6 +17,8 @@ using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
+using warehouse_BE.Application.Users.Queries.GetUserList;
+using warehouse_BE.Application.Users.Queries.GetUserDetail;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -202,7 +204,8 @@ public class IdentityService : IIdentityService
             UserName = userRegister.UserName,
             Email = userRegister.Email,
             PhoneNumber = userRegister.PhoneNumber,
-            CompanyId = userRegister.CompanyId
+            CompanyId = userRegister.CompanyId,
+            isActived = true
         };
 
         var result = await _userManager.CreateAsync(user, userRegister.Password);
@@ -601,6 +604,96 @@ public class IdentityService : IIdentityService
         } else {
             return Result.Failure(new[] { $"Failed to delete user:" });
         }
+        return Result.Success();
+    }
+    public async Task<List<UserDto>> GetUserList()
+    {
+        var rs = new List<UserDto>();
+        try {
+            var users = await _userManager.Users.Where(o => !o.isDeleted).ToListAsync();
+            foreach (var user in users)
+            {
+                
+                var roles = await _userManager.GetRolesAsync(user);
+                var roleName = roles.FirstOrDefault();  
+
+                var userDto = new UserDto
+                {
+                    Id = user.Id,
+                    CompanyId = user.CompanyId, 
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    RoleName = roleName,
+                    isActived = user.isActived
+                };
+
+                rs.Add(userDto);
+            }
+        } catch 
+        {
+           
+        }
+        return rs;
+    }
+    public async Task<Result> UpdateUser(UserDto userDto, string? password)
+    {
+        if(userDto.Id != null)
+        {
+            var user = await _userManager.FindByIdAsync(userDto.Id);
+            if(user != null)
+            {
+                user.UserName = userDto.UserName;
+                user.Email = userDto.Email;
+                user.PhoneNumber = userDto.PhoneNumber;
+                user.CompanyId = userDto.CompanyId;
+
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return Result.Failure(updateResult.Errors.Select(e => e.Description).ToArray());
+                }
+                if (!string.IsNullOrEmpty(password))
+                {
+                    var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+                    if (!removePasswordResult.Succeeded)
+                    {
+                        return Result.Failure(removePasswordResult.Errors.Select(e => e.Description).ToArray());
+                    }
+
+                    var addPasswordResult = await _userManager.AddPasswordAsync(user, password);
+                    if (!addPasswordResult.Succeeded)
+                    {
+                        return Result.Failure(addPasswordResult.Errors.Select(e => e.Description).ToArray());
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(userDto.RoleName))
+                {
+                    var currentRoles = await _userManager.GetRolesAsync(user);
+                    var currentRole = currentRoles.FirstOrDefault();
+
+                    if (currentRole != userDto.RoleName)
+                    {
+                        if (!string.IsNullOrEmpty(currentRole))
+                        {
+                            var removeRoleResult = await _userManager.RemoveFromRoleAsync(user, currentRole);
+                            if (!removeRoleResult.Succeeded)
+                            {
+                                return Result.Failure(removeRoleResult.Errors.Select(e => e.Description).ToArray());
+                            }
+                        }
+
+                        var addRoleResult = await _userManager.AddToRoleAsync(user, userDto.RoleName);
+                        if (!addRoleResult.Succeeded)
+                        {
+                            return Result.Failure(addRoleResult.Errors.Select(e => e.Description).ToArray());
+                        }
+                    }
+                }
+            }
+        }
+        
         return Result.Success();
     }
 }
