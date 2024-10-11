@@ -6,6 +6,16 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/antiforgery/token": {
+      "get": {
+        "operationId": "GetAntiforgeryToken",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/Areas": {
       "post": {
         "tags": [
@@ -209,6 +219,15 @@
         "operationId": "Update",
         "parameters": [
           {
+            "name": "command",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UpdateCompanyOwnerCommand"
+            },
+            "x-position": 1
+          },
+          {
             "name": "id",
             "in": "path",
             "required": true,
@@ -218,18 +237,6 @@
             "x-position": 2
           }
         ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCompanyOwnerCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "200": {
             "description": "",
@@ -968,6 +975,10 @@
             "items": {
               "$ref": "#/components/schemas/StorageDto"
             }
+          },
+          "imageFile": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -1035,7 +1046,8 @@
         "additionalProperties": false,
         "properties": {
           "userId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "userName": {
             "type": "string",
@@ -1063,6 +1075,11 @@
             "items": {
               "$ref": "#/components/schemas/StorageDto"
             }
+          },
+          "avatarImage": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true
           }
         }
       },

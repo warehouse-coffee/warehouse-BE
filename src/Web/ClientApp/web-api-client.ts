@@ -10,13 +10,55 @@
 
 import followIfLoginRedirect from './api-authorization/followIfLoginRedirect';
 
+export class Client {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getAntiforgeryToken(): Promise<void> {
+        let url_ = this.baseUrl + "/antiforgery/token";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAntiforgeryToken(_response);
+        });
+    }
+
+    protected processGetAntiforgeryToken(response: Response): Promise<void> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class AreasClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -66,7 +108,7 @@ export class CategoriesClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -116,7 +158,7 @@ export class CompaniesClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -201,7 +243,7 @@ export class CompanyOwnerClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -317,20 +359,20 @@ export class CompanyOwnerClient {
         return Promise.resolve<CompanyOwnerDetailDto>(null as any);
     }
 
-    update(id: string, command: UpdateCompanyOwnerCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/CompanyOwner/{id}";
+    update(command: UpdateCompanyOwnerCommand, id: string): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/CompanyOwner/{id}?";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (command === undefined || command === null)
+            throw new Error("The parameter 'command' must be defined and cannot be null.");
+        else
+            url_ += "command=" + encodeURIComponent("" + command) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(command);
-
         let options_: RequestInit = {
-            body: content_,
             method: "PUT",
             headers: {
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -405,7 +447,7 @@ export class CustomersClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -606,7 +648,7 @@ export class IdentityUserClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -695,7 +737,7 @@ export class OrdersClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -861,7 +903,7 @@ export class ProductsClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -907,7 +949,7 @@ export class StorageClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -992,7 +1034,7 @@ export class SuperAdminClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
@@ -1567,6 +1609,7 @@ export class CompanyOwnerDetailDto implements ICompanyOwnerDetailDto {
     companyEmail?: string | undefined;
     companyAddress?: string | undefined;
     storages?: StorageDto[] | undefined;
+    imageFile?: string | undefined;
 
     constructor(data?: ICompanyOwnerDetailDto) {
         if (data) {
@@ -1593,6 +1636,7 @@ export class CompanyOwnerDetailDto implements ICompanyOwnerDetailDto {
                 for (let item of _data["storages"])
                     this.storages!.push(StorageDto.fromJS(item));
             }
+            this.imageFile = _data["imageFile"];
         }
     }
 
@@ -1619,6 +1663,7 @@ export class CompanyOwnerDetailDto implements ICompanyOwnerDetailDto {
             for (let item of this.storages)
                 data["storages"].push(item.toJSON());
         }
+        data["imageFile"] = this.imageFile;
         return data;
     }
 }
@@ -1634,6 +1679,7 @@ export interface ICompanyOwnerDetailDto {
     companyEmail?: string | undefined;
     companyAddress?: string | undefined;
     storages?: StorageDto[] | undefined;
+    imageFile?: string | undefined;
 }
 
 export class StorageDto implements IStorageDto {
@@ -1740,13 +1786,14 @@ export interface IAreaDto {
 }
 
 export class UpdateCompanyOwnerCommand implements IUpdateCompanyOwnerCommand {
-    userId?: string;
+    userId?: string | undefined;
     userName?: string | undefined;
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
     companyId?: string | undefined;
     storages?: StorageDto[] | undefined;
+    avatarImage?: string | undefined;
 
     constructor(data?: IUpdateCompanyOwnerCommand) {
         if (data) {
@@ -1770,6 +1817,7 @@ export class UpdateCompanyOwnerCommand implements IUpdateCompanyOwnerCommand {
                 for (let item of _data["storages"])
                     this.storages!.push(StorageDto.fromJS(item));
             }
+            this.avatarImage = _data["avatarImage"];
         }
     }
 
@@ -1793,18 +1841,20 @@ export class UpdateCompanyOwnerCommand implements IUpdateCompanyOwnerCommand {
             for (let item of this.storages)
                 data["storages"].push(item.toJSON());
         }
+        data["avatarImage"] = this.avatarImage;
         return data;
     }
 }
 
 export interface IUpdateCompanyOwnerCommand {
-    userId?: string;
+    userId?: string | undefined;
     userName?: string | undefined;
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
     companyId?: string | undefined;
     storages?: StorageDto[] | undefined;
+    avatarImage?: string | undefined;
 }
 
 export class CreateCustomerCommand implements ICreateCustomerCommand {

@@ -21,7 +21,7 @@
 {%-    if HasBaseClass -%}
         super({% if HasConfigurationClass %}configuration{% endif %});
 {%-    endif -%}
-        this.http = http ? http : window as any;
+         this.http = http || { fetch: fetch as any };
 {%-    if UseGetBaseUrlMethod -%}
         this.baseUrl = this.getBaseUrl("{{ BaseUrl }}", baseUrl);
 {%-    else -%}
