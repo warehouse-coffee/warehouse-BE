@@ -406,11 +406,10 @@ public class IdentityService : IIdentityService
     {
         var user = await _userManager.FindByIdAsync(userId);
 
-        if (user == null)
+        if (user == null || user.isDeleted)
         {
             return null; 
         }
-
         var customerDetail = new CustomerDetailVM
         {
             CustomerId = user.Id,

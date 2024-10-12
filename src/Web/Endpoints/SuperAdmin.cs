@@ -17,7 +17,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapGet(GetAllUsers, "user/all")
                 .MapGet(GetUserDetail,"user/{id}")
                 .MapDelete(DeleteUser, "user/{id}")
-                .MapPut(UpdateUser, "user/{id}")
+                .MapPut(UpdateUser, "user")
                 ;
         }
         public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)
