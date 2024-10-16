@@ -1,12 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using warehouse_BE.Application.Common.Interfaces;
 
-namespace warehouse_BE.Application.SmartPriceService.Queries.GetAllLinks
+namespace warehouse_BE.Application.SmartPriceService.Queries.GetAllLinks;
+
+public class GetAllLinksQuery : IRequest<object>
 {
-    internal class GetAllLinksQuery
+}
+public class GetAllLinksQueryHandler : IRequestHandler<GetAllLinksQuery, object>
+{
+    private readonly IExternalHttpService _externalHttpService;
+
+    public GetAllLinksQueryHandler(IExternalHttpService externalHttpService)
     {
+        _externalHttpService = externalHttpService;
+    }
+
+    public async Task<object> Handle(GetAllLinksQuery request, CancellationToken cancellationToken)
+    {
+        string url = "https://example.com/link";
+        return await _externalHttpService.GetAsync<object>(url);
     }
 }
+
