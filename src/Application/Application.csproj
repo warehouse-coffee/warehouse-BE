@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Categories\Queries\" />
+    <Folder Include="Configurations\Queries\" />
     <Folder Include="IdentityUser\Queries\" />
     <Folder Include="SmartPriceService\Commands\" />
   </ItemGroup>

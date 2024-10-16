@@ -18,7 +18,7 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
-
+        services.AddHttpClient();
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
@@ -46,6 +46,7 @@ public static class DependencyInjection
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IExternalHttpService, ExternalHttpService>();
         return services;
     }
 }
