@@ -280,6 +280,38 @@
         }
       }
     },
+    "/api/Configurations": {
+      "post": {
+        "tags": [
+          "Configurations"
+        ],
+        "operationId": "CreateConfig",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConfigCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Customers": {
       "post": {
         "tags": [
@@ -1192,6 +1224,20 @@
           "avatarImage": {
             "type": "string",
             "format": "binary",
+            "nullable": true
+          }
+        }
+      },
+      "CreateConfigCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "webServiceUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "aiServiceKey": {
+            "type": "string",
             "nullable": true
           }
         }

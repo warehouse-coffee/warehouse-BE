@@ -18,7 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Storage> Storages => Set<Storage>();
     public DbSet<Area> Areas => Set<Area>();
     public DbSet<Category> Categories => Set<Category>();
-
+    public DbSet<Configuration> Configurations => Set<Configuration>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

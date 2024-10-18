@@ -441,6 +441,56 @@ export class CompanyOwnerClient {
     }
 }
 
+export class ConfigurationsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    createConfig(command: CreateConfigCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Configurations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateConfig(_response);
+        });
+    }
+
+    protected processCreateConfig(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+}
+
 export class CustomersClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2010,6 +2060,46 @@ export interface IUpdateCompanyOwnerCommand {
     companyId?: string | undefined;
     storages?: StorageDto[] | undefined;
     avatarImage?: string | undefined;
+}
+
+export class CreateConfigCommand implements ICreateConfigCommand {
+    webServiceUrl?: string | undefined;
+    aiServiceKey?: string | undefined;
+
+    constructor(data?: ICreateConfigCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.webServiceUrl = _data["webServiceUrl"];
+            this.aiServiceKey = _data["aiServiceKey"];
+        }
+    }
+
+    static fromJS(data: any): CreateConfigCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateConfigCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["webServiceUrl"] = this.webServiceUrl;
+        data["aiServiceKey"] = this.aiServiceKey;
+        return data;
+    }
+}
+
+export interface ICreateConfigCommand {
+    webServiceUrl?: string | undefined;
+    aiServiceKey?: string | undefined;
 }
 
 export class CreateCustomerCommand implements ICreateCustomerCommand {
