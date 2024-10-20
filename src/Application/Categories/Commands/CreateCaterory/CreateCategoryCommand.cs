@@ -42,20 +42,17 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
             {
                 var products = _mapper.Map<List<Product>>(request.Category.Products);
 
-                // Gán CategoryId cho từng sản phẩm
                 foreach (var product in products)
                 {
-                    product.Category = categoryEntity; // Gán trực tiếp categoryEntity cho mỗi sản phẩm
+                    product.Category = categoryEntity; 
                 }
 
-                // Thêm danh sách sản phẩm vào Category
                 categoryEntity.Products = products;
 
             }
 
             _context.Categories.Add(categoryEntity);
 
-            // Lưu thay đổi vào database
             await _context.SaveChangesAsync(cancellationToken);
 
             return new ResponseDto(201, "Category created successfully");

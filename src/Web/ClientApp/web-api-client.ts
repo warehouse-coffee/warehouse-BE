@@ -150,6 +150,41 @@ export class CategoriesClient {
         }
         return Promise.resolve<ResponseDto>(null as any);
     }
+
+    getCategoryList(): Promise<CategoryListVM> {
+        let url_ = this.baseUrl + "/api/Categories";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCategoryList(_response);
+        });
+    }
+
+    protected processGetCategoryList(response: Response): Promise<CategoryListVM> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CategoryListVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CategoryListVM>(null as any);
+    }
 }
 
 export class CompaniesClient {
@@ -1515,6 +1550,94 @@ export interface IProductDto {
     areaId?: number | undefined;
 }
 
+export class CategoryListVM implements ICategoryListVM {
+    categories?: CategoryDto2[];
+
+    constructor(data?: ICategoryListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["categories"])) {
+                this.categories = [] as any;
+                for (let item of _data["categories"])
+                    this.categories!.push(CategoryDto2.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CategoryListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.categories)) {
+            data["categories"] = [];
+            for (let item of this.categories)
+                data["categories"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICategoryListVM {
+    categories?: CategoryDto2[];
+}
+
+export class CategoryDto2 implements ICategoryDto2 {
+    id?: number;
+    name?: string | undefined;
+    companyId?: string | undefined;
+
+    constructor(data?: ICategoryDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.companyId = _data["companyId"];
+        }
+    }
+
+    static fromJS(data: any): CategoryDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["companyId"] = this.companyId;
+        return data;
+    }
+}
+
+export interface ICategoryDto2 {
+    id?: number;
+    name?: string | undefined;
+    companyId?: string | undefined;
+}
+
 export class CreateCompanyCommand implements ICreateCompanyCommand {
     companyId?: string;
     companyName?: string;
@@ -1751,6 +1874,7 @@ export class UserDto implements IUserDto {
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
     isActived?: boolean;
+    storages?: Storage[] | undefined;
 
     constructor(data?: IUserDto) {
         if (data) {
@@ -1770,6 +1894,11 @@ export class UserDto implements IUserDto {
             this.phoneNumber = _data["phoneNumber"];
             this.roleName = _data["roleName"];
             this.isActived = _data["isActived"];
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(Storage.fromJS(item));
+            }
         }
     }
 
@@ -1789,6 +1918,11 @@ export class UserDto implements IUserDto {
         data["phoneNumber"] = this.phoneNumber;
         data["roleName"] = this.roleName;
         data["isActived"] = this.isActived;
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -1801,6 +1935,379 @@ export interface IUserDto {
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
     isActived?: boolean;
+    storages?: Storage[] | undefined;
+}
+
+export abstract class BaseEntity implements IBaseEntity {
+    id?: number;
+    domainEvents?: BaseEvent[];
+
+    constructor(data?: IBaseEntity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            if (Array.isArray(_data["domainEvents"])) {
+                this.domainEvents = [] as any;
+                for (let item of _data["domainEvents"])
+                    this.domainEvents!.push(BaseEvent.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): BaseEntity {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'BaseEntity' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        if (Array.isArray(this.domainEvents)) {
+            data["domainEvents"] = [];
+            for (let item of this.domainEvents)
+                data["domainEvents"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IBaseEntity {
+    id?: number;
+    domainEvents?: BaseEvent[];
+}
+
+export abstract class BaseAuditableEntity extends BaseEntity implements IBaseAuditableEntity {
+    created?: Date;
+    createdBy?: string | undefined;
+    lastModified?: Date;
+    lastModifiedBy?: string | undefined;
+    isDeleted?: boolean;
+
+    constructor(data?: IBaseAuditableEntity) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.lastModifiedBy = _data["lastModifiedBy"];
+            this.isDeleted = _data["isDeleted"];
+        }
+    }
+
+    static override fromJS(data: any): BaseAuditableEntity {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'BaseAuditableEntity' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["lastModifiedBy"] = this.lastModifiedBy;
+        data["isDeleted"] = this.isDeleted;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IBaseAuditableEntity extends IBaseEntity {
+    created?: Date;
+    createdBy?: string | undefined;
+    lastModified?: Date;
+    lastModifiedBy?: string | undefined;
+    isDeleted?: boolean;
+}
+
+export class Storage extends BaseAuditableEntity implements IStorage {
+    name?: string;
+    location?: string;
+    status?: StorageStatus;
+    areas?: Area[] | undefined;
+
+    constructor(data?: IStorage) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.name = _data["name"];
+            this.location = _data["location"];
+            this.status = _data["status"];
+            if (Array.isArray(_data["areas"])) {
+                this.areas = [] as any;
+                for (let item of _data["areas"])
+                    this.areas!.push(Area.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): Storage {
+        data = typeof data === 'object' ? data : {};
+        let result = new Storage();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["location"] = this.location;
+        data["status"] = this.status;
+        if (Array.isArray(this.areas)) {
+            data["areas"] = [];
+            for (let item of this.areas)
+                data["areas"].push(item.toJSON());
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IStorage extends IBaseAuditableEntity {
+    name?: string;
+    location?: string;
+    status?: StorageStatus;
+    areas?: Area[] | undefined;
+}
+
+export enum StorageStatus {
+    Active = 0,
+    UnderMaintenance = 1,
+    Inactive = 2,
+    Closed = 3,
+}
+
+export class Area extends BaseAuditableEntity implements IArea {
+    name?: string;
+    products?: Product[];
+
+    constructor(data?: IArea) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.name = _data["name"];
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(Product.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): Area {
+        data = typeof data === 'object' ? data : {};
+        let result = new Area();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IArea extends IBaseAuditableEntity {
+    name?: string;
+    products?: Product[];
+}
+
+export class Product extends BaseAuditableEntity implements IProduct {
+    name?: string;
+    units?: string;
+    amount?: number;
+    image?: string | undefined;
+    status?: ProductStatus;
+    expiration?: Date;
+    importDate?: Date;
+    exportDate?: Date;
+    safeStock?: number;
+    categoryId?: number;
+    areaId?: number;
+    category?: Category | undefined;
+    area?: Area | undefined;
+    storageId?: number;
+    storage?: Storage | undefined;
+
+    constructor(data?: IProduct) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.name = _data["name"];
+            this.units = _data["units"];
+            this.amount = _data["amount"];
+            this.image = _data["image"];
+            this.status = _data["status"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
+            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
+            this.safeStock = _data["safeStock"];
+            this.categoryId = _data["categoryId"];
+            this.areaId = _data["areaId"];
+            this.category = _data["category"] ? Category.fromJS(_data["category"]) : <any>undefined;
+            this.area = _data["area"] ? Area.fromJS(_data["area"]) : <any>undefined;
+            this.storageId = _data["storageId"];
+            this.storage = _data["storage"] ? Storage.fromJS(_data["storage"]) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): Product {
+        data = typeof data === 'object' ? data : {};
+        let result = new Product();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["units"] = this.units;
+        data["amount"] = this.amount;
+        data["image"] = this.image;
+        data["status"] = this.status;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
+        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
+        data["safeStock"] = this.safeStock;
+        data["categoryId"] = this.categoryId;
+        data["areaId"] = this.areaId;
+        data["category"] = this.category ? this.category.toJSON() : <any>undefined;
+        data["area"] = this.area ? this.area.toJSON() : <any>undefined;
+        data["storageId"] = this.storageId;
+        data["storage"] = this.storage ? this.storage.toJSON() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IProduct extends IBaseAuditableEntity {
+    name?: string;
+    units?: string;
+    amount?: number;
+    image?: string | undefined;
+    status?: ProductStatus;
+    expiration?: Date;
+    importDate?: Date;
+    exportDate?: Date;
+    safeStock?: number;
+    categoryId?: number;
+    areaId?: number;
+    category?: Category | undefined;
+    area?: Area | undefined;
+    storageId?: number;
+    storage?: Storage | undefined;
+}
+
+export enum ProductStatus {
+    Available = 0,
+    Sold = 1,
+    Reserved = 2,
+    Damaged = 3,
+    Expired = 4,
+}
+
+export class Category extends BaseAuditableEntity implements ICategory {
+    name?: string | undefined;
+    companyId?: string | undefined;
+    products?: Product[];
+
+    constructor(data?: ICategory) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.name = _data["name"];
+            this.companyId = _data["companyId"];
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(Product.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): Category {
+        data = typeof data === 'object' ? data : {};
+        let result = new Category();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["companyId"] = this.companyId;
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface ICategory extends IBaseAuditableEntity {
+    name?: string | undefined;
+    companyId?: string | undefined;
+    products?: Product[];
+}
+
+export abstract class BaseEvent implements IBaseEvent {
+
+    constructor(data?: IBaseEvent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): BaseEvent {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'BaseEvent' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IBaseEvent {
 }
 
 export class CompanyOwnerDetailDto implements ICompanyOwnerDetailDto {
@@ -1945,13 +2452,6 @@ export interface IStorageDto {
     location?: string | undefined;
     status?: StorageStatus | undefined;
     areas?: AreaDto[] | undefined;
-}
-
-export enum StorageStatus {
-    Active = 0,
-    UnderMaintenance = 1,
-    Inactive = 2,
-    Closed = 3,
 }
 
 export class AreaDto implements IAreaDto {

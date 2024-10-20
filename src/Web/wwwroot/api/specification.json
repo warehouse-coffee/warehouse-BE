@@ -78,6 +78,24 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "GetCategoryList",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListVM"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/Companies": {
@@ -959,6 +977,36 @@
           }
         }
       },
+      "CategoryListVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryDto2"
+            }
+          }
+        }
+      },
+      "CategoryDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "CreateCompanyCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -1071,8 +1119,264 @@
           },
           "isActived": {
             "type": "boolean"
+          },
+          "storages": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/Storage"
+            }
           }
         }
+      },
+      "Storage": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "status": {
+                "$ref": "#/components/schemas/StorageStatus"
+              },
+              "areas": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Area"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "StorageStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "UnderMaintenance",
+          "Inactive",
+          "Closed"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "Area": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "products": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Product": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "units": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "image": {
+                "type": "string",
+                "nullable": true
+              },
+              "status": {
+                "$ref": "#/components/schemas/ProductStatus"
+              },
+              "expiration": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "importDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "exportDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "safeStock": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "categoryId": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "areaId": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "category": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                ]
+              },
+              "area": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Area"
+                  }
+                ]
+              },
+              "storageId": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "storage": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Storage"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "ProductStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Available",
+          "Sold",
+          "Reserved",
+          "Damaged",
+          "Expired"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Category": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "nullable": true
+              },
+              "companyId": {
+                "type": "string",
+                "nullable": true
+              },
+              "products": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "BaseAuditableEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseEntity"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false,
+            "properties": {
+              "created": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdBy": {
+                "type": "string",
+                "nullable": true
+              },
+              "lastModified": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "lastModifiedBy": {
+                "type": "string",
+                "nullable": true
+              },
+              "isDeleted": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "BaseEntity": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "domainEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseEvent"
+            }
+          }
+        }
+      },
+      "BaseEvent": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false
       },
       "CompanyOwnerDetailDto": {
         "type": "object",
@@ -1159,22 +1463,6 @@
             }
           }
         }
-      },
-      "StorageStatus": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Active",
-          "UnderMaintenance",
-          "Inactive",
-          "Closed"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
       },
       "AreaDto": {
         "type": "object",

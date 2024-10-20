@@ -695,4 +695,30 @@ public class IdentityService : IIdentityService
         
         return Result.Success();
     }
+    public async Task<UserDto> GetUserById(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return new UserDto();
+        }
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var userDto = new UserDto
+        {
+            Id = user.Id,
+            CompanyId = user.CompanyId,   
+            UserName = user.UserName,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            RoleName = roles.FirstOrDefault(),  
+            isActived = user.isActived,
+            Storages = user.Storages,
+            
+        };
+
+        return userDto;
+    }
 }

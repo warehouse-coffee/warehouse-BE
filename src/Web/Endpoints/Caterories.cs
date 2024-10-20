@@ -1,4 +1,5 @@
 ﻿using warehouse_BE.Application.Categories.Commands.CreateCaterory;
+using warehouse_BE.Application.Categories.Queries.GetListCategory;
 using warehouse_BE.Application.Response;
 
 namespace warehouse_BE.Web.Endpoints;
@@ -9,8 +10,8 @@ public class Categories : EndpointGroupBase
     {
         app.MapGroup(this)
             .RequireAuthorization()
-            .MapPost(CreateCategory);
-            //.MapGet(GetCategoryList); 
+            .MapPost(CreateCategory)
+            .MapGet(GetCategoryList);
     }
 
 
@@ -20,8 +21,8 @@ public class Categories : EndpointGroupBase
     }
 
 
-    //public async Task<CategoryListVM> GetCategoryList(ISender sender)
-    //{
-    //    return await sender.Send(new GetCategoryListQuery());
-    //}
+    public async Task<CategoryListVM> GetCategoryList(ISender sender)
+    {
+        return await sender.Send(new GetCategoryListQuery());
+    }
 }

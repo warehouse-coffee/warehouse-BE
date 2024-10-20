@@ -10,5 +10,7 @@ namespace warehouse_BE.Domain.Common
         public string? PhoneNumber { get; set; }
         public string? RoleName { get; set; }
         public bool isActived { get; set; }
+
+        public List<Storage>? Storages { get; set; }
     }
 }
