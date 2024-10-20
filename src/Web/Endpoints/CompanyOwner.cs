@@ -35,7 +35,7 @@ namespace warehouse_BE.Web.Endpoints
         {
             return sender.Send(new GetCompanyOwnerDetailQuery() { UserId = id });
         }
-        [Authorize(Roles = "Super-Admin")]
+        
         public Task<ResponseDto> Update(ISender sender, [FromForm] UpdateCompanyOwnerCommand command, string id)
         {
             command.UserId = id;

@@ -17,8 +17,7 @@ using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
-using warehouse_BE.Application.Users.Queries.GetUserList;
-using warehouse_BE.Application.Users.Queries.GetUserDetail;
+
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -53,7 +52,6 @@ public class IdentityService : IIdentityService
 
         return user?.UserName;
     }
-
     public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password)
     {
         var user = new ApplicationUser
@@ -93,8 +91,13 @@ public class IdentityService : IIdentityService
     public async Task<Result> DeleteUserAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
+        if(user == null)
+        {
+            return Result.Success();
+        }
+        var result = await _userManager.DeleteAsync(user);
+        return result.ToApplicationResult();
 
-        return user != null ? await DeleteUserAsync(user) : Result.Success();
     }
 
     public async Task<Result> DeleteUserAsync(ApplicationUser user)
@@ -104,52 +107,54 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<string?> SignIn(string email, string password)
+    public async Task<string?> SignIn(string email, string password, string sourcePath)
     {
-
-        var user = await _userManager.FindByEmailAsync(email);
-
-        if (user == null)
-        {
-            return null; 
-        }
-
-        var passwordValid = await _userManager.CheckPasswordAsync(user, password);
-
-        if (!passwordValid)
-        {
-            return null; 
-        }
         try
         {
-            var roles = await _userManager.GetRolesAsync(user);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && !u.isDeleted);
 
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var issuer = jwtSettings["Issuer"];
-            var audience = jwtSettings["Audience"];
-            var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException("SecretKey is null");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            if (user == null)
+            {
+                return null;
+            }
 
-            var claims = new List<Claim>
+            var passwordValid = await _userManager.CheckPasswordAsync(user, password);
+
+            if (!passwordValid)
+            {
+                return null;
+            }
+           
+                var roles = await _userManager.GetRolesAsync(user);
+
+                var jwtSettings = _configuration.GetSection("JwtSettings");
+                var issuer = jwtSettings["Issuer"];
+                var audience = jwtSettings["Audience"];
+                var secretKey = jwtSettings["SecretKey"] ?? throw new ArgumentNullException("SecretKey is null");
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("userId", user.Id),
                 new Claim("email", user.Email ?? string.Empty),
                 new Claim("username", user.UserName ?? string.Empty),
+                new Claim("avatar", sourcePath+user.AvatarImage ?? string.Empty)
             };
 
-            claims.AddRange(roles.Select(role => new Claim("role", role)));
+                claims.AddRange(roles.Select(role => new Claim("role", role)));
 
-            var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: creds);
+                var token = new JwtSecurityToken(
+                    issuer: issuer,
+                    audience: audience,
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddHours(1),
+                    signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+                return new JwtSecurityTokenHandler().WriteToken(token);
+            
         } catch (Exception ex)
         {
             throw new Exception("error" + ex);
@@ -173,7 +178,11 @@ public class IdentityService : IIdentityService
         {
             return (Result.Failure(new[] { "Email cannot be null or empty." }), string.Empty);
         }
-
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userRegister.Email && !u.isDeleted);
+        if (existingUser != null)
+        {
+            return (Result.Failure(new[] { "Email is already in use." }), string.Empty);
+        }
         if (string.IsNullOrWhiteSpace(userRegister.PhoneNumber))
         {
             return (Result.Failure(new[] { "PhoneNumber cannot be null or empty." }), string.Empty);
@@ -189,15 +198,18 @@ public class IdentityService : IIdentityService
             return (Result.Failure(new[] { "RoleName cannot be null or empty." }), string.Empty);
         }
 
-        var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == userRegister.CompanyId);
-        if (!companyExists)
+        var companyExistsTask = _context.Companies.AnyAsync(c => c.CompanyId == userRegister.CompanyId);
+        var roleExistsTask = _roleManager.RoleExistsAsync(userRegister.RoleName);
+
+        await Task.WhenAll(companyExistsTask, roleExistsTask);
+        if (!await companyExistsTask)
         {
             return (Result.Failure(new[] { "CompanyId does not exist." }), string.Empty);
         }
-        var roleExists = await _roleManager.RoleExistsAsync(userRegister.RoleName);
-        if (!roleExists)
+
+        if (!await roleExistsTask)
         {
-            return (Result.Failure(new[] { $"Role {userRegister.RoleName} does not exist." }),string.Empty);
+            return (Result.Failure(new[] { $"Role {userRegister.RoleName} does not exist." }), string.Empty);
         }
         var user = new ApplicationUser
         {
@@ -642,11 +654,21 @@ public class IdentityService : IIdentityService
             var user = await _userManager.FindByIdAsync(userDto.Id);
             if(user != null)
             {
+                var company = _context.Companies.Where(o => o.CompanyId == userDto.CompanyId).FirstOrDefault();
+                if(company == null)
+                {
+                    _context.Companies.Add(new Domain.Entities.Company
+                    {
+                        CompanyId = userDto.CompanyId
+                    });
+                    await _context.SaveChangesAsync();
+                }
                 user.UserName = userDto.UserName;
                 user.Email = userDto.Email;
                 user.PhoneNumber = userDto.PhoneNumber;
                 user.CompanyId = userDto.CompanyId;
-
+                user.isActived = userDto.isActived;
+                user.AvatarImage = userDto.AvatarImage;
                 var updateResult = await _userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
                 {
@@ -671,8 +693,12 @@ public class IdentityService : IIdentityService
                 {
                     var currentRoles = await _userManager.GetRolesAsync(user);
                     var currentRole = currentRoles.FirstOrDefault();
-
-                    if (currentRole != userDto.RoleName)
+                    var roleExists = await _roleManager.RoleExistsAsync(userDto.RoleName);
+                    if (!roleExists)
+                    {
+                        return Result.Failure(new[] { "Role does not exist." });
+                    }
+                        if (currentRole != userDto.RoleName)
                     {
                         if (!string.IsNullOrEmpty(currentRole))
                         {
@@ -699,7 +725,7 @@ public class IdentityService : IIdentityService
     {
         var user = await _userManager.FindByIdAsync(userId);
 
-        if (user == null)
+        if (user == null || user.isDeleted)
         {
             return new UserDto();
         }
@@ -716,7 +742,7 @@ public class IdentityService : IIdentityService
             RoleName = roles.FirstOrDefault(),  
             isActived = user.isActived,
             Storages = user.Storages,
-            
+            AvatarImage = user.AvatarImage,
         };
 
         return userDto;

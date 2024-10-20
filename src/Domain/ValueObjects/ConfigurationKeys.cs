@@ -10,6 +10,7 @@ public class ConfigurationKeys : ValueObject
 {
     public const string WebServiceUrl = "WebServiceUrl";
     public const string AIServiceKey = "AIServiceKey";
+    public const string EmailServiceKey = "EmailServiceKey";
 
     public static ConfigurationKeys From(string key)
     {

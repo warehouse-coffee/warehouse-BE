@@ -13,11 +13,15 @@ import followIfLoginRedirect from './api-authorization/followIfLoginRedirect';
 export class Client {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     getAntiforgeryToken(): Promise<void> {
@@ -27,6 +31,8 @@ export class Client {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -55,11 +61,15 @@ export class Client {
 export class AreasClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     createArea(command: CreateAreaCommand): Promise<ResponseDto> {
@@ -73,7 +83,9 @@ export class AreasClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -105,11 +117,15 @@ export class AreasClient {
 export class CategoriesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     createCategory(command: CreateCategoryCommand): Promise<ResponseDto> {
@@ -123,7 +139,9 @@ export class CategoriesClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -158,7 +176,9 @@ export class CategoriesClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -190,11 +210,15 @@ export class CategoriesClient {
 export class CompaniesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     createCompany(command: CreateCompanyCommand): Promise<ResponseDto> {
@@ -208,7 +232,9 @@ export class CompaniesClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -243,7 +269,9 @@ export class CompaniesClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -275,11 +303,15 @@ export class CompaniesClient {
 export class CompanyOwnerClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     create(command: CreateCompanyOwnerCommand): Promise<ResponseDto> {
@@ -293,7 +325,9 @@ export class CompanyOwnerClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -328,7 +362,9 @@ export class CompanyOwnerClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -366,7 +402,9 @@ export class CompanyOwnerClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -408,7 +446,9 @@ export class CompanyOwnerClient {
         let options_: RequestInit = {
             method: "PUT",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -446,7 +486,9 @@ export class CompanyOwnerClient {
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -479,11 +521,15 @@ export class CompanyOwnerClient {
 export class ConfigurationsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     createConfig(command: CreateConfigCommand): Promise<ResponseDto> {
@@ -497,7 +543,9 @@ export class ConfigurationsClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -529,11 +577,15 @@ export class ConfigurationsClient {
 export class CustomersClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     createCustomer(command: CreateCustomerCommand): Promise<ResponseDto> {
@@ -547,7 +599,9 @@ export class CustomersClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -586,7 +640,9 @@ export class CustomersClient {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -621,7 +677,9 @@ export class CustomersClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -659,7 +717,9 @@ export class CustomersClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -697,7 +757,9 @@ export class CustomersClient {
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -730,11 +792,15 @@ export class CustomersClient {
 export class IdentityUserClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     signIn(query: SignInCommand): Promise<SignInVm> {
@@ -748,7 +814,9 @@ export class IdentityUserClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -787,7 +855,9 @@ export class IdentityUserClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -819,11 +889,15 @@ export class IdentityUserClient {
 export class OrdersClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     importProduct(command: ImportStogareCommand): Promise<ResponseDto> {
@@ -837,7 +911,9 @@ export class OrdersClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -876,7 +952,9 @@ export class OrdersClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -914,7 +992,9 @@ export class OrdersClient {
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -953,7 +1033,9 @@ export class OrdersClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -985,11 +1067,15 @@ export class OrdersClient {
 export class ProductsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     getProductList(): Promise<ProductListVM> {
@@ -999,7 +1085,9 @@ export class ProductsClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -1031,11 +1119,15 @@ export class ProductsClient {
 export class StorageClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     createStorage(command: CreateStorageCommand): Promise<ResponseDto> {
@@ -1049,7 +1141,9 @@ export class StorageClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -1084,7 +1178,9 @@ export class StorageClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -1116,11 +1212,15 @@ export class StorageClient {
 export class SuperAdminClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
+    private token: string;
+    private XSRF: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
          this.http = http || { fetch: fetch as any };
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
     }
 
     userRegister(command: CreateUserCommand): Promise<ResponseDto> {
@@ -1134,7 +1234,9 @@ export class SuperAdminClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -1162,45 +1264,6 @@ export class SuperAdminClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    updateUser(command: UpdateUserCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/SuperAdmin/user";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateUser(_response);
-        });
-    }
-
-    protected processUpdateUser(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ResponseDto.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ResponseDto>(null as any);
-    }
-
     getAllUsers(): Promise<UserListVm> {
         let url_ = this.baseUrl + "/api/SuperAdmin/user/all";
         url_ = url_.replace(/[?&]$/, "");
@@ -1208,7 +1271,9 @@ export class SuperAdminClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -1246,7 +1311,9 @@ export class SuperAdminClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -1284,7 +1351,9 @@ export class SuperAdminClient {
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
             }
         };
 
@@ -1311,6 +1380,50 @@ export class SuperAdminClient {
             });
         }
         return Promise.resolve<boolean>(null as any);
+    }
+
+    updateUser(command: UpdateUserCommand, id: string): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/SuperAdmin/user/{id}?";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (command === undefined || command === null)
+            throw new Error("The parameter 'command' must be defined and cannot be null.");
+        else
+            url_ += "command=" + encodeURIComponent("" + command) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateUser(_response);
+        });
+    }
+
+    protected processUpdateUser(response: Response): Promise<ResponseDto> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
     }
 }
 
@@ -1874,6 +1987,7 @@ export class UserDto implements IUserDto {
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
     isActived?: boolean;
+    avatarImage?: string | undefined;
     storages?: Storage[] | undefined;
 
     constructor(data?: IUserDto) {
@@ -1894,6 +2008,7 @@ export class UserDto implements IUserDto {
             this.phoneNumber = _data["phoneNumber"];
             this.roleName = _data["roleName"];
             this.isActived = _data["isActived"];
+            this.avatarImage = _data["avatarImage"];
             if (Array.isArray(_data["storages"])) {
                 this.storages = [] as any;
                 for (let item of _data["storages"])
@@ -1918,6 +2033,7 @@ export class UserDto implements IUserDto {
         data["phoneNumber"] = this.phoneNumber;
         data["roleName"] = this.roleName;
         data["isActived"] = this.isActived;
+        data["avatarImage"] = this.avatarImage;
         if (Array.isArray(this.storages)) {
             data["storages"] = [];
             for (let item of this.storages)
@@ -1935,6 +2051,7 @@ export interface IUserDto {
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
     isActived?: boolean;
+    avatarImage?: string | undefined;
     storages?: Storage[] | undefined;
 }
 
@@ -2565,6 +2682,7 @@ export interface IUpdateCompanyOwnerCommand {
 export class CreateConfigCommand implements ICreateConfigCommand {
     webServiceUrl?: string | undefined;
     aiServiceKey?: string | undefined;
+    emailServiceKey?: string | undefined;
 
     constructor(data?: ICreateConfigCommand) {
         if (data) {
@@ -2579,6 +2697,7 @@ export class CreateConfigCommand implements ICreateConfigCommand {
         if (_data) {
             this.webServiceUrl = _data["webServiceUrl"];
             this.aiServiceKey = _data["aiServiceKey"];
+            this.emailServiceKey = _data["emailServiceKey"];
         }
     }
 
@@ -2593,6 +2712,7 @@ export class CreateConfigCommand implements ICreateConfigCommand {
         data = typeof data === 'object' ? data : {};
         data["webServiceUrl"] = this.webServiceUrl;
         data["aiServiceKey"] = this.aiServiceKey;
+        data["emailServiceKey"] = this.emailServiceKey;
         return data;
     }
 }
@@ -2600,6 +2720,7 @@ export class CreateConfigCommand implements ICreateConfigCommand {
 export interface ICreateConfigCommand {
     webServiceUrl?: string | undefined;
     aiServiceKey?: string | undefined;
+    emailServiceKey?: string | undefined;
 }
 
 export class CreateCustomerCommand implements ICreateCustomerCommand {
@@ -3783,7 +3904,7 @@ export interface IUserListVm {
 }
 
 export class UserVM implements IUserVM {
-    userId?: string | undefined;
+    id?: string | undefined;
     name?: string | undefined;
     email?: string | undefined;
     phone?: string | undefined;
@@ -3793,7 +3914,7 @@ export class UserVM implements IUserVM {
     companyEmail?: string | undefined;
     companyAddress?: string | undefined;
     storages?: StorageDto[] | undefined;
-    imageFile?: string | undefined;
+    avatarImage?: string | undefined;
 
     constructor(data?: IUserVM) {
         if (data) {
@@ -3806,7 +3927,7 @@ export class UserVM implements IUserVM {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
+            this.id = _data["id"];
             this.name = _data["name"];
             this.email = _data["email"];
             this.phone = _data["phone"];
@@ -3820,7 +3941,7 @@ export class UserVM implements IUserVM {
                 for (let item of _data["storages"])
                     this.storages!.push(StorageDto.fromJS(item));
             }
-            this.imageFile = _data["imageFile"];
+            this.avatarImage = _data["avatarImage"];
         }
     }
 
@@ -3833,7 +3954,7 @@ export class UserVM implements IUserVM {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
+        data["id"] = this.id;
         data["name"] = this.name;
         data["email"] = this.email;
         data["phone"] = this.phone;
@@ -3847,13 +3968,13 @@ export class UserVM implements IUserVM {
             for (let item of this.storages)
                 data["storages"].push(item.toJSON());
         }
-        data["imageFile"] = this.imageFile;
+        data["avatarImage"] = this.avatarImage;
         return data;
     }
 }
 
 export interface IUserVM {
-    userId?: string | undefined;
+    id?: string | undefined;
     name?: string | undefined;
     email?: string | undefined;
     phone?: string | undefined;
@@ -3863,16 +3984,19 @@ export interface IUserVM {
     companyEmail?: string | undefined;
     companyAddress?: string | undefined;
     storages?: StorageDto[] | undefined;
-    imageFile?: string | undefined;
+    avatarImage?: string | undefined;
 }
 
 export class UpdateUserCommand implements IUpdateUserCommand {
-    userId?: string | undefined;
+    id?: string | undefined;
     userName?: string | undefined;
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
+    companyId?: string | undefined;
+    isActived?: boolean;
+    avatarImage?: string | undefined;
 
     constructor(data?: IUpdateUserCommand) {
         if (data) {
@@ -3885,12 +4009,15 @@ export class UpdateUserCommand implements IUpdateUserCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
+            this.id = _data["id"];
             this.userName = _data["userName"];
             this.password = _data["password"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.roleName = _data["roleName"];
+            this.companyId = _data["companyId"];
+            this.isActived = _data["isActived"];
+            this.avatarImage = _data["avatarImage"];
         }
     }
 
@@ -3903,23 +4030,29 @@ export class UpdateUserCommand implements IUpdateUserCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
+        data["id"] = this.id;
         data["userName"] = this.userName;
         data["password"] = this.password;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["roleName"] = this.roleName;
+        data["companyId"] = this.companyId;
+        data["isActived"] = this.isActived;
+        data["avatarImage"] = this.avatarImage;
         return data;
     }
 }
 
 export interface IUpdateUserCommand {
-    userId?: string | undefined;
+    id?: string | undefined;
     userName?: string | undefined;
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
     roleName?: string | undefined;
+    companyId?: string | undefined;
+    isActived?: boolean;
+    avatarImage?: string | undefined;
 }
 
 export class SwaggerException extends Error {

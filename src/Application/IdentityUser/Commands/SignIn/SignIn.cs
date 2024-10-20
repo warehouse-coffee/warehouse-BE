@@ -29,30 +29,28 @@ public class SignInCommandHandler : IRequestHandler<SignInCommand, SignInVm>
     {
         if (!string.IsNullOrEmpty(request?.Email) && !string.IsNullOrEmpty(request?.Password))
         {
-            var token = await _identityService.SignIn(request.Email, request.Password);
+            var sourcePath = string.Empty;
+            if (_httpContextAccessor.HttpContext != null &&
+                 _httpContextAccessor.HttpContext.Request != null)
+            {
+                var requestContext = _httpContextAccessor.HttpContext.Request;
+                var scheme = requestContext.Scheme;
+                var host = requestContext.Host.Value;
+                sourcePath = $"{scheme}://{host}/Resources/";
+            }
+            var token = await _identityService.SignIn(request.Email, request.Password, sourcePath);
             if (!string.IsNullOrEmpty(token))
             {
-                //var xsrfToken = "";
-                //var context = _httpContextAccessor.HttpContext; 
-                //if (context != null)
-                //{
-                //    var tokens = _forgeryService.GetAndStoreTokens(context);
-                //    xsrfToken = tokens.RequestToken;
-                //}
                 return new SignInVm
                 {
                     Token = token,
-                    //xsrfToken = xsrfToken, 
                     StatusCode = 200
                 };
             }
         }
-
-        
         return new SignInVm
         {
             Token = string.Empty,
-            //xsrfToken = string.Empty,
             StatusCode = 400
         };
 

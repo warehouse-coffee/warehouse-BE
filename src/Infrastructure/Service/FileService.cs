@@ -31,14 +31,12 @@ public class FileService : IFileService
             Directory.CreateDirectory(path);
         }
 
-        // Check the allowed extenstions
         var ext = Path.GetExtension(imageFile.FileName);
         if (!allowedFileExtensions.Contains(ext))
         {
             throw new ArgumentException($"Only {string.Join(",", allowedFileExtensions)} are allowed.");
         }
 
-        // generate a unique filename
         var fileName = $"{Guid.NewGuid().ToString()}{ext}";
         var fileNameWithPath = Path.Combine(path, fileName);
         try
@@ -48,7 +46,7 @@ public class FileService : IFileService
         }
         catch (Exception ex)
         {
-            // Ghi log lỗi hoặc xử lý lỗi
+            
             throw new Exception($"Error saving file: {ex.Message}");
         }
         return fileName;
@@ -59,14 +57,16 @@ public class FileService : IFileService
     {
         if (string.IsNullOrEmpty(fileNameWithExtension))
         {
-            throw new ArgumentNullException(nameof(fileNameWithExtension));
+            Console.WriteLine($"File name cannot be null or empty: {nameof(fileNameWithExtension)}");
+            return; 
         }
         var contentPath = _environment.ContentRootPath;
         var path = Path.Combine(contentPath, $"wwwroot", "images", "avatars", fileNameWithExtension);
 
         if (!File.Exists(path))
         {
-            throw new FileNotFoundException($"Invalid file path");
+            Console.WriteLine($"File not found at path: {path}. Unable to delete.");
+            return; 
         }
         File.Delete(path);
     }

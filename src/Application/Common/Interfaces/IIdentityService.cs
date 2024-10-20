@@ -22,7 +22,7 @@ public interface IIdentityService
 
     Task<Result> DeleteUserAsync(string userId);
 
-    Task<string?> SignIn(string username, string password);
+    Task<string?> SignIn(string username, string password, string sourcePath);
     Task<(Result Result, string UserId)> RegisterAsync(UserRegister userRegister);
     Task<Result> ResetPasswordAsync(string email, string currentPassword, string newPassword);
     Task<(Result Result, string CompanyId)> GetCompanyId(string userId);

@@ -26,10 +26,10 @@ public class GetUserDetailQueryHandler : IRequestHandler<GetUserDetailQuery, Use
     public async Task<UserVM> Handle(GetUserDetailQuery request,CancellationToken cancellationToken)
     {
         var rs = new UserVM();
-        var data = await _identityService.GetUserByIdAsync(request.userId);
+        var data = await _identityService.GetUserById(request.userId);
         if (data != null)
         {
-            rs.UserId = data.CustomerId;
+            rs.Id = data.Id;
             rs.Name = data.UserName;
             rs.Email = data.Email;
             rs.Phone = data.PhoneNumber;
@@ -51,7 +51,7 @@ public class GetUserDetailQueryHandler : IRequestHandler<GetUserDetailQuery, Use
                 var requestContext = _httpContextAccessor.HttpContext.Request;
                 var scheme = requestContext.Scheme;
                 var host = requestContext.Host.Value;
-                rs.ImageFile = $"{scheme}://{host}/Resources/{rs.ImageFile}";
+                rs.AvatarImage = $"{scheme}://{host}/Resources/{data.AvatarImage}";
             }
 
         }

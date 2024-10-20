@@ -760,36 +760,6 @@
             }
           }
         }
-      },
-      "put": {
-        "tags": [
-          "SuperAdmin"
-        ],
-        "operationId": "UpdateUser",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/SuperAdmin/user/all": {
@@ -865,6 +835,44 @@
               "application/json": {
                 "schema": {
                   "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "name": "command",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UpdateUserCommand"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
                 }
               }
             }
@@ -1119,6 +1127,10 @@
           },
           "isActived": {
             "type": "boolean"
+          },
+          "avatarImage": {
+            "type": "string",
+            "nullable": true
           },
           "storages": {
             "type": "array",
@@ -1525,6 +1537,10 @@
             "nullable": true
           },
           "aiServiceKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailServiceKey": {
             "type": "string",
             "nullable": true
           }
@@ -2031,7 +2047,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userId": {
+          "id": {
             "type": "string",
             "nullable": true
           },
@@ -2074,7 +2090,7 @@
               "$ref": "#/components/schemas/StorageDto"
             }
           },
-          "imageFile": {
+          "avatarImage": {
             "type": "string",
             "nullable": true
           }
@@ -2084,7 +2100,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userId": {
+          "id": {
             "type": "string",
             "nullable": true
           },
@@ -2106,6 +2122,18 @@
           },
           "roleName": {
             "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActived": {
+            "type": "boolean"
+          },
+          "avatarImage": {
+            "type": "string",
+            "format": "binary",
             "nullable": true
           }
         }

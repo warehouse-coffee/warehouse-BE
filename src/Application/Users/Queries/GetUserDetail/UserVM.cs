@@ -9,7 +9,7 @@ namespace warehouse_BE.Application.Users.Queries.GetUserDetail;
 
 public class UserVM
 {
-    public string? UserId { get; set; }
+    public string? Id { get; set; }
     public string? Name { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
@@ -19,5 +19,5 @@ public class UserVM
     public string? CompanyEmail { get; set; }
     public string? CompanyAddress { get; set; }
     public List<StorageDto>? Storages { get; set; }
-    public string? ImageFile { get; set; }
+    public string? AvatarImage { get; set; }
 }

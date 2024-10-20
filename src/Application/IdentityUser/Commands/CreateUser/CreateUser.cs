@@ -54,13 +54,11 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
         var registerResult = await _identityService.RegisterAsync(userRegister);
         var result = registerResult.Result;
         var userId = registerResult.UserId;
-
+        var user = await _identityService.GetUserById(userId);
         if (result.Succeeded)
         {
             try
             {
-
-
                 var resetLink = $"https://yourapp.com/reset-password?email={userRegister.Email}";
 
                 // Nội dung email
@@ -73,15 +71,14 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
 
                 // Gửi email
                 await _emailService.SendEmailAsync(userRegister.Email, subject, body);
-                return new ResponseDto(200, "User registered successfully.", new { UserId = userId });
+                return new ResponseDto(200, "User registered successfully.", user);
             }
             catch
             {
-                return new ResponseDto(400, "Send mail Fail.");
+                return new ResponseDto(400, "Send mail Fail.", user);
             }
         }
 
-        // Kiểm tra kiểu dữ liệu của result.Errors
         if (result.Errors != null && result.Errors.Any())
         {
             var errors = result.Errors.ToList();

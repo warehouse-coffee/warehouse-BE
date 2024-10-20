@@ -1,4 +1,6 @@
-﻿using warehouse_BE.Application.CompanyOwner.Commands.DeleteCompanyOwner;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using warehouse_BE.Application.CompanyOwner.Commands.DeleteCompanyOwner;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Users.Commands.UpdateUser;
@@ -17,7 +19,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapGet(GetAllUsers, "user/all")
                 .MapGet(GetUserDetail,"user/{id}")
                 .MapDelete(DeleteUser, "user/{id}")
-                .MapPut(UpdateUser, "user")
+                .MapPut(UpdateUser, "user/{id}")
                 ;
         }
         public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)
@@ -36,8 +38,10 @@ namespace warehouse_BE.Web.Endpoints
         public Task<bool> DeleteUser(ISender sender, string id) {
             return sender.Send(new DeleteCompanyOwnerCommand { UserId = id});
         }
-        public Task<ResponseDto> UpdateUser(ISender sender, UpdateUserCommand command)
+        [Authorize(Roles = "Super-Admin")]
+        public Task<ResponseDto> UpdateUser(ISender sender, [FromForm] UpdateUserCommand command, string id)
         {
+            command.Id = id;
             return sender.Send(command);
         }
     }
