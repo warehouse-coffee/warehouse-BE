@@ -198,16 +198,15 @@ public class IdentityService : IIdentityService
             return (Result.Failure(new[] { "RoleName cannot be null or empty." }), string.Empty);
         }
 
-        var companyExistsTask = _context.Companies.AnyAsync(c => c.CompanyId == userRegister.CompanyId);
-        var roleExistsTask = _roleManager.RoleExistsAsync(userRegister.RoleName);
+        var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == userRegister.CompanyId);
+        var roleExists = await _roleManager.RoleExistsAsync(userRegister.RoleName);
 
-        await Task.WhenAll(companyExistsTask, roleExistsTask);
-        if (!await companyExistsTask)
+        if (!companyExists)
         {
             return (Result.Failure(new[] { "CompanyId does not exist." }), string.Empty);
         }
 
-        if (!await roleExistsTask)
+        if (!roleExists)
         {
             return (Result.Failure(new[] { $"Role {userRegister.RoleName} does not exist." }), string.Empty);
         }
