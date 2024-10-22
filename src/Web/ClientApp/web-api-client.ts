@@ -24,13 +24,14 @@ export class Client {
         this.XSRF = XSRF || "";
     }
 
-    getAntiforgeryToken(): Promise<void> {
+    getAntiforgeryToken(): Promise<string> {
         let url_ = this.baseUrl + "/antiforgery/token";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                "Accept": "application/json",
                 "Authorization": `Bearer ${this.token}`,
                 "X-XSRF-TOKEN": `${this.XSRF}`,
             }
@@ -41,20 +42,23 @@ export class Client {
         });
     }
 
-    protected processGetAntiforgeryToken(response: Response): Promise<void> {
-        followIfLoginRedirect(response);
+    protected processGetAntiforgeryToken(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<string>(null as any);
     }
 }
 
@@ -95,7 +99,6 @@ export class AreasClient {
     }
 
     protected processCreateArea(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -151,7 +154,6 @@ export class CategoriesClient {
     }
 
     protected processCreateCategory(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -188,7 +190,6 @@ export class CategoriesClient {
     }
 
     protected processGetCategoryList(response: Response): Promise<CategoryListVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -244,7 +245,6 @@ export class CompaniesClient {
     }
 
     protected processCreateCompany(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -281,7 +281,6 @@ export class CompaniesClient {
     }
 
     protected processGetCompanyList(response: Response): Promise<CompanyListVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -337,7 +336,6 @@ export class CompanyOwnerClient {
     }
 
     protected processCreate(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -374,7 +372,6 @@ export class CompanyOwnerClient {
     }
 
     protected processGetAll(response: Response): Promise<CompanyOwnerListVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -414,7 +411,6 @@ export class CompanyOwnerClient {
     }
 
     protected processGetDetail(response: Response): Promise<CompanyOwnerDetailDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -458,7 +454,6 @@ export class CompanyOwnerClient {
     }
 
     protected processUpdate(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -498,7 +493,6 @@ export class CompanyOwnerClient {
     }
 
     protected processDelete(response: Response): Promise<boolean> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -555,7 +549,6 @@ export class ConfigurationsClient {
     }
 
     protected processCreateConfig(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -611,7 +604,6 @@ export class CustomersClient {
     }
 
     protected processCreateCustomer(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -652,7 +644,6 @@ export class CustomersClient {
     }
 
     protected processUpdateCustomer(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -689,7 +680,6 @@ export class CustomersClient {
     }
 
     protected processGetListCustomer(response: Response): Promise<CustomerListVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -729,7 +719,6 @@ export class CustomersClient {
     }
 
     protected processGetCustomerDetail(response: Response): Promise<CustomerDetailVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -769,7 +758,6 @@ export class CustomersClient {
     }
 
     protected processDeleteCustomer(response: Response): Promise<boolean> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -826,7 +814,6 @@ export class IdentityUserClient {
     }
 
     protected processSignIn(response: Response): Promise<SignInVm> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -867,7 +854,6 @@ export class IdentityUserClient {
     }
 
     protected processResetPassword(response: Response): Promise<ResetPasswordVm> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -923,7 +909,6 @@ export class OrdersClient {
     }
 
     protected processImportProduct(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -964,7 +949,6 @@ export class OrdersClient {
     }
 
     protected processGetList(response: Response): Promise<OrderListVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1004,7 +988,6 @@ export class OrdersClient {
     }
 
     protected processDeleteOrder(response: Response): Promise<boolean> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1045,7 +1028,6 @@ export class OrdersClient {
     }
 
     protected processGetOrderDetail(response: Response): Promise<OrderDetailVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1097,7 +1079,6 @@ export class ProductsClient {
     }
 
     protected processGetProductList(response: Response): Promise<ProductListVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1153,7 +1134,6 @@ export class StorageClient {
     }
 
     protected processCreateStorage(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1190,7 +1170,6 @@ export class StorageClient {
     }
 
     protected processGetStorageList(response: Response): Promise<StorageListVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1246,7 +1225,6 @@ export class SuperAdminClient {
     }
 
     protected processUserRegister(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1283,7 +1261,6 @@ export class SuperAdminClient {
     }
 
     protected processGetAllUsers(response: Response): Promise<UserListVm> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1323,7 +1300,6 @@ export class SuperAdminClient {
     }
 
     protected processGetUserDetail(response: Response): Promise<UserVM> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1363,7 +1339,6 @@ export class SuperAdminClient {
     }
 
     protected processDeleteUser(response: Response): Promise<boolean> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1408,7 +1383,6 @@ export class SuperAdminClient {
     }
 
     protected processUpdateUser(response: Response): Promise<ResponseDto> {
-        followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -3364,8 +3338,6 @@ export class Page implements IPage {
     pageNumber?: number;
     totalElements?: number;
     totalPages?: number;
-    sortBy?: string | undefined;
-    sortAsc?: boolean;
 
     constructor(data?: IPage) {
         if (data) {
@@ -3382,8 +3354,6 @@ export class Page implements IPage {
             this.pageNumber = _data["pageNumber"];
             this.totalElements = _data["totalElements"];
             this.totalPages = _data["totalPages"];
-            this.sortBy = _data["sortBy"];
-            this.sortAsc = _data["sortAsc"];
         }
     }
 
@@ -3400,8 +3370,6 @@ export class Page implements IPage {
         data["pageNumber"] = this.pageNumber;
         data["totalElements"] = this.totalElements;
         data["totalPages"] = this.totalPages;
-        data["sortBy"] = this.sortBy;
-        data["sortAsc"] = this.sortAsc;
         return data;
     }
 }
@@ -3411,14 +3379,10 @@ export interface IPage {
     pageNumber?: number;
     totalElements?: number;
     totalPages?: number;
-    sortBy?: string | undefined;
-    sortAsc?: boolean;
 }
 
 export class GetOrderListQuery implements IGetOrderListQuery {
     page?: Page | undefined;
-    searchText?: string | undefined;
-    filterData?: FilterData[] | undefined;
 
     constructor(data?: IGetOrderListQuery) {
         if (data) {
@@ -3432,12 +3396,6 @@ export class GetOrderListQuery implements IGetOrderListQuery {
     init(_data?: any) {
         if (_data) {
             this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
-            this.searchText = _data["searchText"];
-            if (Array.isArray(_data["filterData"])) {
-                this.filterData = [] as any;
-                for (let item of _data["filterData"])
-                    this.filterData!.push(FilterData.fromJS(item));
-            }
         }
     }
 
@@ -3451,68 +3409,12 @@ export class GetOrderListQuery implements IGetOrderListQuery {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["page"] = this.page ? this.page.toJSON() : <any>undefined;
-        data["searchText"] = this.searchText;
-        if (Array.isArray(this.filterData)) {
-            data["filterData"] = [];
-            for (let item of this.filterData)
-                data["filterData"].push(item.toJSON());
-        }
         return data;
     }
 }
 
 export interface IGetOrderListQuery {
     page?: Page | undefined;
-    searchText?: string | undefined;
-    filterData?: FilterData[] | undefined;
-}
-
-export class FilterData implements IFilterData {
-    prop?: string | undefined;
-    value?: string | undefined;
-    filter?: string | undefined;
-    type?: string | undefined;
-
-    constructor(data?: IFilterData) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.prop = _data["prop"];
-            this.value = _data["value"];
-            this.filter = _data["filter"];
-            this.type = _data["type"];
-        }
-    }
-
-    static fromJS(data: any): FilterData {
-        data = typeof data === 'object' ? data : {};
-        let result = new FilterData();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["prop"] = this.prop;
-        data["value"] = this.value;
-        data["filter"] = this.filter;
-        data["type"] = this.type;
-        return data;
-    }
-}
-
-export interface IFilterData {
-    prop?: string | undefined;
-    value?: string | undefined;
-    filter?: string | undefined;
-    type?: string | undefined;
 }
 
 export class OrderDetailVM implements IOrderDetailVM {

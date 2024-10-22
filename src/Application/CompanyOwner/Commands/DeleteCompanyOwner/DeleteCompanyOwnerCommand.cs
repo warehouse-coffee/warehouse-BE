@@ -13,29 +13,38 @@ public class DeleteCompanyOwnerCommand : IRequest<bool>
 }
 public class DeleteCompanyOwnerCommandHandler : IRequestHandler<DeleteCompanyOwnerCommand, bool>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUser _currentUser;
     private readonly IIdentityService _identityService;
-
     private readonly IFileService _fileService;
-    public DeleteCompanyOwnerCommandHandler(IApplicationDbContext context, IIdentityService identityService, IFileService fileService)
+    public DeleteCompanyOwnerCommandHandler(IUser currentUser, IIdentityService identityService, IFileService fileService)
     {
-        this._context = context;
+        this._currentUser = currentUser;
         this._identityService = identityService;
         this._fileService = fileService;
     }
     public async Task<bool> Handle (DeleteCompanyOwnerCommand request, CancellationToken cancellationToken)
     {
         var rs = false;
-       var user = await _identityService.GetCompanyOwnerByIdAsync(request.UserId);
-        if (user != null && user?.ImageFile != null)
+        if(_currentUser.Id == null)
         {
-            _fileService.DeleteFile(user.ImageFile);
+            return rs;
         }
-        var data = await _identityService.DeleteUser(request.UserId);
-        if (data.Succeeded)
+        var role = await _identityService.GetRoleNamebyUserId(request.UserId);
+        var currentRole = await _identityService.GetRoleNamebyUserId(_currentUser.Id);
+        if (role != null && role != currentRole)
         {
-            rs = true;
+            var user = await _identityService.GetCompanyOwnerByIdAsync(request.UserId);
+            if (user != null && user?.ImageFile != null)
+            {
+                _fileService.DeleteFile(user.ImageFile);
+            }
+            var data = await _identityService.DeleteUser(request.UserId);
+            if (data.Succeeded)
+            {
+                rs = true;
+            }
         }
+      
         return rs;
     }
 }

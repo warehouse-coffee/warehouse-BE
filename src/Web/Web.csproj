@@ -29,6 +29,10 @@
 		<PackageReference Include="FluentValidation.AspNetCore" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\images\avatars\" />
+	</ItemGroup>
+
 	<PropertyGroup>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 		<UserSecretsId>9e723c4f-7255-4d9f-93d0-f6117653e833</UserSecretsId>

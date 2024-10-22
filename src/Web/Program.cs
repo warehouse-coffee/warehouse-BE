@@ -22,6 +22,12 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()); // Allows cookies/auth headers
+    //options.AddPolicy("AllowAllLocalhost",
+    //builder => builder
+    //        .WithOrigins("http://localhost") // Allow all ports on localhost
+    //        .AllowAnyHeader()
+    //        .AllowAnyMethod()
+    //        .AllowCredentials());
 });
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
@@ -61,7 +67,7 @@ app.MapGet("antiforgery/token", (IAntiforgery forgeryService, HttpContext contex
 {
     var tokens = forgeryService.GetAndStoreTokens(context);
     var xsrfToken = tokens.RequestToken!;
-    return TypedResults.Content(xsrfToken, "text/plain");
+    return xsrfToken; 
 }).RequireAuthorization();
 
 // Configure the HTTP request pipeline. and protect server using https 

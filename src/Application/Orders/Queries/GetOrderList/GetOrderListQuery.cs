@@ -10,8 +10,6 @@ namespace warehouse_BE.Application.Orders.Queries.GetOrderList;
 public class GetOrderListQuery : IRequest<OrderListVM>
 {
     public Page? Page { get; set; } 
-    public string? SearchText { get; set; } 
-    public List<FilterData>? FilterData { get; set; } 
 }
 public class GetOrderListQueryHandler : IRequestHandler<GetOrderListQuery, OrderListVM>
 {
@@ -28,67 +26,6 @@ public class GetOrderListQueryHandler : IRequestHandler<GetOrderListQuery, Order
         try
         {
             var query = _context.Orders.AsQueryable();
-
-            // Search
-            if (!string.IsNullOrWhiteSpace(request.SearchText))
-            {
-                query = query.Where(o => o.Type.Contains(request.SearchText));
-            }
-
-            // Filter
-            if (request.FilterData != null)
-            {
-
-                foreach (var filter in request.FilterData)
-                {
-                    if (!string.IsNullOrEmpty(filter.Prop) && filter.Value != null)
-                    {
-                        var propertyInfo = typeof(Order).GetProperty(filter.Prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                        if (propertyInfo == null)
-                        {
-                            return rs;
-                        }
-
-                        if (!string.IsNullOrEmpty(filter.Prop) && filter.Value != null)
-                        {
-                            switch (filter.Filter)
-                            {
-                                case "Equals":
-                                    if (propertyInfo.PropertyType == typeof(string))
-                                    {
-                                        query = query.Where(o => EF.Property<string>(o, filter.Prop) == filter.Value.ToString());
-                                    }
-                                    break;
-                                case "Contains":
-                                    if (propertyInfo.PropertyType == typeof(string))
-                                    {
-                                        query = query.Where(o => EF.Property<string>(o, filter.Prop).Contains(filter.Value.ToString()));
-                                    }
-                                    break;
-                                case "GreaterThan":
-                                    if (propertyInfo.PropertyType == typeof(decimal) && decimal.TryParse(filter.Value.ToString(), out var decimalValue))
-                                    {
-                                        query = query.Where(o => EF.Property<decimal>(o, filter.Prop) > decimalValue);
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-            // Sort
-            if (request.Page != null && !string.IsNullOrWhiteSpace(request.Page.SortBy))
-            {
-                var sortPropertyInfo = typeof(Order).GetProperty(request.Page.SortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (sortPropertyInfo != null) 
-                {
-                    query = request.Page.SortAsc ?
-                        query.OrderBy(o => EF.Property<object>(o, request.Page.SortBy)) :
-                        query.OrderByDescending(o => EF.Property<object>(o, request.Page.SortBy));
-                }
-            }
 
             //Page
             var totalElements = await query.CountAsync(cancellationToken);
