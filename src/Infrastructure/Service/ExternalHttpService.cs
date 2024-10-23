@@ -1,11 +1,5 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
+using Newtonsoft.Json; 
 using warehouse_BE.Application.Common.Interfaces;
 
 namespace warehouse_BE.Infrastructure.Service;
@@ -14,48 +8,44 @@ public class ExternalHttpService : IExternalHttpService
 {
     private readonly HttpClient _httpClient;
 
-    public ExternalHttpService(HttpClient httpClient)
+    public ExternalHttpService()
     {
-        _httpClient = httpClient;
+        _httpClient = new HttpClient();
     }
 
-    public async Task<T> GetAsync<T>(string url, IDictionary<string, string>? queryParams = null)
+    public async Task<T?> GetAsync<T>(string endpoint)
     {
-        var fullUrl = queryParams != null
-            ? QueryHelpers.AddQueryString(url, queryParams.ToDictionary(kv => kv.Key, kv => (string?)kv.Value))
-            : url;
-
-        var response = await _httpClient.GetAsync(fullUrl);
+        var response = await _httpClient.GetAsync(endpoint);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<T>();
-
-        return result ?? throw new Exception("Response content is null or cannot be deserialized.");
-
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(jsonResponse);
     }
 
-    public async Task<TResponse> PostAsync<TRequest, TResponse>(string url, TRequest data)
+    public async Task<T?> PostAsync<T>(string endpoint, T data)
     {
-        var response = await _httpClient.PostAsJsonAsync(url, data);
+        var json = JsonConvert.SerializeObject(data); 
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync(endpoint, content);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<TResponse>();
-
-        return result ?? throw new Exception("Response content is null or cannot be deserialized.");
-
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(jsonResponse); 
     }
 
-    public async Task<TResponse> PutAsync<TRequest, TResponse>(string url, TRequest data)
+    public async Task<T?> PutAsync<T>(string endpoint, T data)
     {
-        var response = await _httpClient.PutAsJsonAsync(url, data);
+        var json = JsonConvert.SerializeObject(data);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PutAsync(endpoint, content);
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<TResponse>();
-
-        return result ?? throw new Exception("Response content is null or cannot be deserialized.");
-
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(jsonResponse); 
     }
 
-    public async Task DeleteAsync(string url)
+    public async Task<T?> DeleteAsync<T>(string endpoint)
     {
-        var response = await _httpClient.DeleteAsync(url);
+        var response = await _httpClient.DeleteAsync(endpoint);
         response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(jsonResponse); 
     }
 }

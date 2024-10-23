@@ -567,6 +567,129 @@ export class ConfigurationsClient {
     }
 }
 
+export class CrawClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    private token: string;
+    private XSRF: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
+    }
+
+    getLinks(): Promise<CommodityLinks> {
+        let url_ = this.baseUrl + "/api/Craw/links";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLinks(_response);
+        });
+    }
+
+    protected processGetLinks(response: Response): Promise<CommodityLinks> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CommodityLinks.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CommodityLinks>(null as any);
+    }
+
+    getCraws(): Promise<CrawlResponse> {
+        let url_ = this.baseUrl + "/api/Craw/craws";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCraws(_response);
+        });
+    }
+
+    protected processGetCraws(response: Response): Promise<CrawlResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CrawlResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CrawlResponse>(null as any);
+    }
+
+    getCrawsAll(): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Craw/crawsAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCrawsAll(_response);
+        });
+    }
+
+    protected processGetCrawsAll(response: Response): Promise<ResponseDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+}
+
 export class CustomersClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2714,6 +2837,7 @@ export class CreateConfigCommand implements ICreateConfigCommand {
     webServiceUrl?: string | undefined;
     aiServiceKey?: string | undefined;
     emailServiceKey?: string | undefined;
+    aiDriverServer?: string | undefined;
 
     constructor(data?: ICreateConfigCommand) {
         if (data) {
@@ -2729,6 +2853,7 @@ export class CreateConfigCommand implements ICreateConfigCommand {
             this.webServiceUrl = _data["webServiceUrl"];
             this.aiServiceKey = _data["aiServiceKey"];
             this.emailServiceKey = _data["emailServiceKey"];
+            this.aiDriverServer = _data["aiDriverServer"];
         }
     }
 
@@ -2744,6 +2869,7 @@ export class CreateConfigCommand implements ICreateConfigCommand {
         data["webServiceUrl"] = this.webServiceUrl;
         data["aiServiceKey"] = this.aiServiceKey;
         data["emailServiceKey"] = this.emailServiceKey;
+        data["aiDriverServer"] = this.aiDriverServer;
         return data;
     }
 }
@@ -2752,6 +2878,727 @@ export interface ICreateConfigCommand {
     webServiceUrl?: string | undefined;
     aiServiceKey?: string | undefined;
     emailServiceKey?: string | undefined;
+    aiDriverServer?: string | undefined;
+}
+
+export class CommodityLinks implements ICommodityLinks {
+    crudeOil?: string[];
+    brent?: string[];
+    naturalGas?: string[];
+    gasoline?: string[];
+    heatingOil?: string[];
+    coal?: string[];
+    ttfGas?: string[];
+    ukGas?: string[];
+    ethanol?: string[];
+    naphtha?: string[];
+    propane?: string[];
+    methanol?: string[];
+    uralsOil?: string[];
+    gold?: string[];
+    silver?: string[];
+    copper?: string[];
+    steel?: string[];
+    ironOre?: string[];
+    platinum?: string[];
+    titanium?: string[];
+    hrcSteel?: string[];
+    soybeans?: string[];
+    wheat?: string[];
+    lumber?: string[];
+    palmOil?: string[];
+    cheese?: string[];
+    milk?: string[];
+    rubber?: string[];
+    orangeJuice?: string[];
+    coffee?: string[];
+    cotton?: string[];
+    cocoa?: string[];
+    rice?: string[];
+    canola?: string[];
+    oat?: string[];
+    wool?: string[];
+    sugar?: string[];
+    sunflowerOil?: string[];
+    rapeseed?: string[];
+    butter?: string[];
+    potatoes?: string[];
+    corn?: string[];
+    feederCattle?: string[];
+    liveCattle?: string[];
+    leanHogs?: string[];
+    beef?: string[];
+    poultry?: string[];
+    eggsCH?: string[];
+    salmon?: string[];
+
+    constructor(data?: ICommodityLinks) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["crudeOil"])) {
+                this.crudeOil = [] as any;
+                for (let item of _data["crudeOil"])
+                    this.crudeOil!.push(item);
+            }
+            if (Array.isArray(_data["brent"])) {
+                this.brent = [] as any;
+                for (let item of _data["brent"])
+                    this.brent!.push(item);
+            }
+            if (Array.isArray(_data["naturalGas"])) {
+                this.naturalGas = [] as any;
+                for (let item of _data["naturalGas"])
+                    this.naturalGas!.push(item);
+            }
+            if (Array.isArray(_data["gasoline"])) {
+                this.gasoline = [] as any;
+                for (let item of _data["gasoline"])
+                    this.gasoline!.push(item);
+            }
+            if (Array.isArray(_data["heatingOil"])) {
+                this.heatingOil = [] as any;
+                for (let item of _data["heatingOil"])
+                    this.heatingOil!.push(item);
+            }
+            if (Array.isArray(_data["coal"])) {
+                this.coal = [] as any;
+                for (let item of _data["coal"])
+                    this.coal!.push(item);
+            }
+            if (Array.isArray(_data["ttfGas"])) {
+                this.ttfGas = [] as any;
+                for (let item of _data["ttfGas"])
+                    this.ttfGas!.push(item);
+            }
+            if (Array.isArray(_data["ukGas"])) {
+                this.ukGas = [] as any;
+                for (let item of _data["ukGas"])
+                    this.ukGas!.push(item);
+            }
+            if (Array.isArray(_data["ethanol"])) {
+                this.ethanol = [] as any;
+                for (let item of _data["ethanol"])
+                    this.ethanol!.push(item);
+            }
+            if (Array.isArray(_data["naphtha"])) {
+                this.naphtha = [] as any;
+                for (let item of _data["naphtha"])
+                    this.naphtha!.push(item);
+            }
+            if (Array.isArray(_data["propane"])) {
+                this.propane = [] as any;
+                for (let item of _data["propane"])
+                    this.propane!.push(item);
+            }
+            if (Array.isArray(_data["methanol"])) {
+                this.methanol = [] as any;
+                for (let item of _data["methanol"])
+                    this.methanol!.push(item);
+            }
+            if (Array.isArray(_data["uralsOil"])) {
+                this.uralsOil = [] as any;
+                for (let item of _data["uralsOil"])
+                    this.uralsOil!.push(item);
+            }
+            if (Array.isArray(_data["gold"])) {
+                this.gold = [] as any;
+                for (let item of _data["gold"])
+                    this.gold!.push(item);
+            }
+            if (Array.isArray(_data["silver"])) {
+                this.silver = [] as any;
+                for (let item of _data["silver"])
+                    this.silver!.push(item);
+            }
+            if (Array.isArray(_data["copper"])) {
+                this.copper = [] as any;
+                for (let item of _data["copper"])
+                    this.copper!.push(item);
+            }
+            if (Array.isArray(_data["steel"])) {
+                this.steel = [] as any;
+                for (let item of _data["steel"])
+                    this.steel!.push(item);
+            }
+            if (Array.isArray(_data["ironOre"])) {
+                this.ironOre = [] as any;
+                for (let item of _data["ironOre"])
+                    this.ironOre!.push(item);
+            }
+            if (Array.isArray(_data["platinum"])) {
+                this.platinum = [] as any;
+                for (let item of _data["platinum"])
+                    this.platinum!.push(item);
+            }
+            if (Array.isArray(_data["titanium"])) {
+                this.titanium = [] as any;
+                for (let item of _data["titanium"])
+                    this.titanium!.push(item);
+            }
+            if (Array.isArray(_data["hrcSteel"])) {
+                this.hrcSteel = [] as any;
+                for (let item of _data["hrcSteel"])
+                    this.hrcSteel!.push(item);
+            }
+            if (Array.isArray(_data["soybeans"])) {
+                this.soybeans = [] as any;
+                for (let item of _data["soybeans"])
+                    this.soybeans!.push(item);
+            }
+            if (Array.isArray(_data["wheat"])) {
+                this.wheat = [] as any;
+                for (let item of _data["wheat"])
+                    this.wheat!.push(item);
+            }
+            if (Array.isArray(_data["lumber"])) {
+                this.lumber = [] as any;
+                for (let item of _data["lumber"])
+                    this.lumber!.push(item);
+            }
+            if (Array.isArray(_data["palmOil"])) {
+                this.palmOil = [] as any;
+                for (let item of _data["palmOil"])
+                    this.palmOil!.push(item);
+            }
+            if (Array.isArray(_data["cheese"])) {
+                this.cheese = [] as any;
+                for (let item of _data["cheese"])
+                    this.cheese!.push(item);
+            }
+            if (Array.isArray(_data["milk"])) {
+                this.milk = [] as any;
+                for (let item of _data["milk"])
+                    this.milk!.push(item);
+            }
+            if (Array.isArray(_data["rubber"])) {
+                this.rubber = [] as any;
+                for (let item of _data["rubber"])
+                    this.rubber!.push(item);
+            }
+            if (Array.isArray(_data["orangeJuice"])) {
+                this.orangeJuice = [] as any;
+                for (let item of _data["orangeJuice"])
+                    this.orangeJuice!.push(item);
+            }
+            if (Array.isArray(_data["coffee"])) {
+                this.coffee = [] as any;
+                for (let item of _data["coffee"])
+                    this.coffee!.push(item);
+            }
+            if (Array.isArray(_data["cotton"])) {
+                this.cotton = [] as any;
+                for (let item of _data["cotton"])
+                    this.cotton!.push(item);
+            }
+            if (Array.isArray(_data["cocoa"])) {
+                this.cocoa = [] as any;
+                for (let item of _data["cocoa"])
+                    this.cocoa!.push(item);
+            }
+            if (Array.isArray(_data["rice"])) {
+                this.rice = [] as any;
+                for (let item of _data["rice"])
+                    this.rice!.push(item);
+            }
+            if (Array.isArray(_data["canola"])) {
+                this.canola = [] as any;
+                for (let item of _data["canola"])
+                    this.canola!.push(item);
+            }
+            if (Array.isArray(_data["oat"])) {
+                this.oat = [] as any;
+                for (let item of _data["oat"])
+                    this.oat!.push(item);
+            }
+            if (Array.isArray(_data["wool"])) {
+                this.wool = [] as any;
+                for (let item of _data["wool"])
+                    this.wool!.push(item);
+            }
+            if (Array.isArray(_data["sugar"])) {
+                this.sugar = [] as any;
+                for (let item of _data["sugar"])
+                    this.sugar!.push(item);
+            }
+            if (Array.isArray(_data["sunflowerOil"])) {
+                this.sunflowerOil = [] as any;
+                for (let item of _data["sunflowerOil"])
+                    this.sunflowerOil!.push(item);
+            }
+            if (Array.isArray(_data["rapeseed"])) {
+                this.rapeseed = [] as any;
+                for (let item of _data["rapeseed"])
+                    this.rapeseed!.push(item);
+            }
+            if (Array.isArray(_data["butter"])) {
+                this.butter = [] as any;
+                for (let item of _data["butter"])
+                    this.butter!.push(item);
+            }
+            if (Array.isArray(_data["potatoes"])) {
+                this.potatoes = [] as any;
+                for (let item of _data["potatoes"])
+                    this.potatoes!.push(item);
+            }
+            if (Array.isArray(_data["corn"])) {
+                this.corn = [] as any;
+                for (let item of _data["corn"])
+                    this.corn!.push(item);
+            }
+            if (Array.isArray(_data["feederCattle"])) {
+                this.feederCattle = [] as any;
+                for (let item of _data["feederCattle"])
+                    this.feederCattle!.push(item);
+            }
+            if (Array.isArray(_data["liveCattle"])) {
+                this.liveCattle = [] as any;
+                for (let item of _data["liveCattle"])
+                    this.liveCattle!.push(item);
+            }
+            if (Array.isArray(_data["leanHogs"])) {
+                this.leanHogs = [] as any;
+                for (let item of _data["leanHogs"])
+                    this.leanHogs!.push(item);
+            }
+            if (Array.isArray(_data["beef"])) {
+                this.beef = [] as any;
+                for (let item of _data["beef"])
+                    this.beef!.push(item);
+            }
+            if (Array.isArray(_data["poultry"])) {
+                this.poultry = [] as any;
+                for (let item of _data["poultry"])
+                    this.poultry!.push(item);
+            }
+            if (Array.isArray(_data["eggsCH"])) {
+                this.eggsCH = [] as any;
+                for (let item of _data["eggsCH"])
+                    this.eggsCH!.push(item);
+            }
+            if (Array.isArray(_data["salmon"])) {
+                this.salmon = [] as any;
+                for (let item of _data["salmon"])
+                    this.salmon!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CommodityLinks {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommodityLinks();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.crudeOil)) {
+            data["crudeOil"] = [];
+            for (let item of this.crudeOil)
+                data["crudeOil"].push(item);
+        }
+        if (Array.isArray(this.brent)) {
+            data["brent"] = [];
+            for (let item of this.brent)
+                data["brent"].push(item);
+        }
+        if (Array.isArray(this.naturalGas)) {
+            data["naturalGas"] = [];
+            for (let item of this.naturalGas)
+                data["naturalGas"].push(item);
+        }
+        if (Array.isArray(this.gasoline)) {
+            data["gasoline"] = [];
+            for (let item of this.gasoline)
+                data["gasoline"].push(item);
+        }
+        if (Array.isArray(this.heatingOil)) {
+            data["heatingOil"] = [];
+            for (let item of this.heatingOil)
+                data["heatingOil"].push(item);
+        }
+        if (Array.isArray(this.coal)) {
+            data["coal"] = [];
+            for (let item of this.coal)
+                data["coal"].push(item);
+        }
+        if (Array.isArray(this.ttfGas)) {
+            data["ttfGas"] = [];
+            for (let item of this.ttfGas)
+                data["ttfGas"].push(item);
+        }
+        if (Array.isArray(this.ukGas)) {
+            data["ukGas"] = [];
+            for (let item of this.ukGas)
+                data["ukGas"].push(item);
+        }
+        if (Array.isArray(this.ethanol)) {
+            data["ethanol"] = [];
+            for (let item of this.ethanol)
+                data["ethanol"].push(item);
+        }
+        if (Array.isArray(this.naphtha)) {
+            data["naphtha"] = [];
+            for (let item of this.naphtha)
+                data["naphtha"].push(item);
+        }
+        if (Array.isArray(this.propane)) {
+            data["propane"] = [];
+            for (let item of this.propane)
+                data["propane"].push(item);
+        }
+        if (Array.isArray(this.methanol)) {
+            data["methanol"] = [];
+            for (let item of this.methanol)
+                data["methanol"].push(item);
+        }
+        if (Array.isArray(this.uralsOil)) {
+            data["uralsOil"] = [];
+            for (let item of this.uralsOil)
+                data["uralsOil"].push(item);
+        }
+        if (Array.isArray(this.gold)) {
+            data["gold"] = [];
+            for (let item of this.gold)
+                data["gold"].push(item);
+        }
+        if (Array.isArray(this.silver)) {
+            data["silver"] = [];
+            for (let item of this.silver)
+                data["silver"].push(item);
+        }
+        if (Array.isArray(this.copper)) {
+            data["copper"] = [];
+            for (let item of this.copper)
+                data["copper"].push(item);
+        }
+        if (Array.isArray(this.steel)) {
+            data["steel"] = [];
+            for (let item of this.steel)
+                data["steel"].push(item);
+        }
+        if (Array.isArray(this.ironOre)) {
+            data["ironOre"] = [];
+            for (let item of this.ironOre)
+                data["ironOre"].push(item);
+        }
+        if (Array.isArray(this.platinum)) {
+            data["platinum"] = [];
+            for (let item of this.platinum)
+                data["platinum"].push(item);
+        }
+        if (Array.isArray(this.titanium)) {
+            data["titanium"] = [];
+            for (let item of this.titanium)
+                data["titanium"].push(item);
+        }
+        if (Array.isArray(this.hrcSteel)) {
+            data["hrcSteel"] = [];
+            for (let item of this.hrcSteel)
+                data["hrcSteel"].push(item);
+        }
+        if (Array.isArray(this.soybeans)) {
+            data["soybeans"] = [];
+            for (let item of this.soybeans)
+                data["soybeans"].push(item);
+        }
+        if (Array.isArray(this.wheat)) {
+            data["wheat"] = [];
+            for (let item of this.wheat)
+                data["wheat"].push(item);
+        }
+        if (Array.isArray(this.lumber)) {
+            data["lumber"] = [];
+            for (let item of this.lumber)
+                data["lumber"].push(item);
+        }
+        if (Array.isArray(this.palmOil)) {
+            data["palmOil"] = [];
+            for (let item of this.palmOil)
+                data["palmOil"].push(item);
+        }
+        if (Array.isArray(this.cheese)) {
+            data["cheese"] = [];
+            for (let item of this.cheese)
+                data["cheese"].push(item);
+        }
+        if (Array.isArray(this.milk)) {
+            data["milk"] = [];
+            for (let item of this.milk)
+                data["milk"].push(item);
+        }
+        if (Array.isArray(this.rubber)) {
+            data["rubber"] = [];
+            for (let item of this.rubber)
+                data["rubber"].push(item);
+        }
+        if (Array.isArray(this.orangeJuice)) {
+            data["orangeJuice"] = [];
+            for (let item of this.orangeJuice)
+                data["orangeJuice"].push(item);
+        }
+        if (Array.isArray(this.coffee)) {
+            data["coffee"] = [];
+            for (let item of this.coffee)
+                data["coffee"].push(item);
+        }
+        if (Array.isArray(this.cotton)) {
+            data["cotton"] = [];
+            for (let item of this.cotton)
+                data["cotton"].push(item);
+        }
+        if (Array.isArray(this.cocoa)) {
+            data["cocoa"] = [];
+            for (let item of this.cocoa)
+                data["cocoa"].push(item);
+        }
+        if (Array.isArray(this.rice)) {
+            data["rice"] = [];
+            for (let item of this.rice)
+                data["rice"].push(item);
+        }
+        if (Array.isArray(this.canola)) {
+            data["canola"] = [];
+            for (let item of this.canola)
+                data["canola"].push(item);
+        }
+        if (Array.isArray(this.oat)) {
+            data["oat"] = [];
+            for (let item of this.oat)
+                data["oat"].push(item);
+        }
+        if (Array.isArray(this.wool)) {
+            data["wool"] = [];
+            for (let item of this.wool)
+                data["wool"].push(item);
+        }
+        if (Array.isArray(this.sugar)) {
+            data["sugar"] = [];
+            for (let item of this.sugar)
+                data["sugar"].push(item);
+        }
+        if (Array.isArray(this.sunflowerOil)) {
+            data["sunflowerOil"] = [];
+            for (let item of this.sunflowerOil)
+                data["sunflowerOil"].push(item);
+        }
+        if (Array.isArray(this.rapeseed)) {
+            data["rapeseed"] = [];
+            for (let item of this.rapeseed)
+                data["rapeseed"].push(item);
+        }
+        if (Array.isArray(this.butter)) {
+            data["butter"] = [];
+            for (let item of this.butter)
+                data["butter"].push(item);
+        }
+        if (Array.isArray(this.potatoes)) {
+            data["potatoes"] = [];
+            for (let item of this.potatoes)
+                data["potatoes"].push(item);
+        }
+        if (Array.isArray(this.corn)) {
+            data["corn"] = [];
+            for (let item of this.corn)
+                data["corn"].push(item);
+        }
+        if (Array.isArray(this.feederCattle)) {
+            data["feederCattle"] = [];
+            for (let item of this.feederCattle)
+                data["feederCattle"].push(item);
+        }
+        if (Array.isArray(this.liveCattle)) {
+            data["liveCattle"] = [];
+            for (let item of this.liveCattle)
+                data["liveCattle"].push(item);
+        }
+        if (Array.isArray(this.leanHogs)) {
+            data["leanHogs"] = [];
+            for (let item of this.leanHogs)
+                data["leanHogs"].push(item);
+        }
+        if (Array.isArray(this.beef)) {
+            data["beef"] = [];
+            for (let item of this.beef)
+                data["beef"].push(item);
+        }
+        if (Array.isArray(this.poultry)) {
+            data["poultry"] = [];
+            for (let item of this.poultry)
+                data["poultry"].push(item);
+        }
+        if (Array.isArray(this.eggsCH)) {
+            data["eggsCH"] = [];
+            for (let item of this.eggsCH)
+                data["eggsCH"].push(item);
+        }
+        if (Array.isArray(this.salmon)) {
+            data["salmon"] = [];
+            for (let item of this.salmon)
+                data["salmon"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICommodityLinks {
+    crudeOil?: string[];
+    brent?: string[];
+    naturalGas?: string[];
+    gasoline?: string[];
+    heatingOil?: string[];
+    coal?: string[];
+    ttfGas?: string[];
+    ukGas?: string[];
+    ethanol?: string[];
+    naphtha?: string[];
+    propane?: string[];
+    methanol?: string[];
+    uralsOil?: string[];
+    gold?: string[];
+    silver?: string[];
+    copper?: string[];
+    steel?: string[];
+    ironOre?: string[];
+    platinum?: string[];
+    titanium?: string[];
+    hrcSteel?: string[];
+    soybeans?: string[];
+    wheat?: string[];
+    lumber?: string[];
+    palmOil?: string[];
+    cheese?: string[];
+    milk?: string[];
+    rubber?: string[];
+    orangeJuice?: string[];
+    coffee?: string[];
+    cotton?: string[];
+    cocoa?: string[];
+    rice?: string[];
+    canola?: string[];
+    oat?: string[];
+    wool?: string[];
+    sugar?: string[];
+    sunflowerOil?: string[];
+    rapeseed?: string[];
+    butter?: string[];
+    potatoes?: string[];
+    corn?: string[];
+    feederCattle?: string[];
+    liveCattle?: string[];
+    leanHogs?: string[];
+    beef?: string[];
+    poultry?: string[];
+    eggsCH?: string[];
+    salmon?: string[];
+}
+
+export class CrawlResponse implements ICrawlResponse {
+    unixTimeNow?: number;
+    dateNow?: string | undefined;
+    data?: CrawlData[] | undefined;
+
+    constructor(data?: ICrawlResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.unixTimeNow = _data["unixTimeNow"];
+            this.dateNow = _data["dateNow"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(CrawlData.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CrawlResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CrawlResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["unixTimeNow"] = this.unixTimeNow;
+        data["dateNow"] = this.dateNow;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICrawlResponse {
+    unixTimeNow?: number;
+    dateNow?: string | undefined;
+    data?: CrawlData[] | undefined;
+}
+
+export class CrawlData implements ICrawlData {
+    index?: number;
+    date?: string | undefined;
+    unixDateMs?: number;
+    value?: number;
+
+    constructor(data?: ICrawlData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.index = _data["index"];
+            this.date = _data["date"];
+            this.unixDateMs = _data["unixDateMs"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): CrawlData {
+        data = typeof data === 'object' ? data : {};
+        let result = new CrawlData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["index"] = this.index;
+        data["date"] = this.date;
+        data["unixDateMs"] = this.unixDateMs;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface ICrawlData {
+    index?: number;
+    date?: string | undefined;
+    unixDateMs?: number;
+    value?: number;
 }
 
 export class CreateCustomerCommand implements ICreateCustomerCommand {

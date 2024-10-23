@@ -10,6 +10,7 @@ public class CreateConfigCommand : IRequest<ResponseDto>
     public string? WebServiceUrl { get; set; }
     public string? AIServiceKey { get; set;}
     public string? EmailServiceKey { get; set;}
+    public string? AiDriverServer { get; set; }
 }
 public class CreateConfigCommandHandeler : IRequestHandler<CreateConfigCommand, ResponseDto>
 {
@@ -33,7 +34,7 @@ public class CreateConfigCommandHandeler : IRequestHandler<CreateConfigCommand, 
             return rs;
         }
 
-        var role = _identityService.GetRoleNamebyUserId(_curentuser.Id).ToString();
+        var role = await _identityService.GetRoleNamebyUserId(_curentuser.Id);
 
         if (role == "Super-Admin")
         {
@@ -42,7 +43,8 @@ public class CreateConfigCommandHandeler : IRequestHandler<CreateConfigCommand, 
                 var existingConfigs = await _context.Configurations
                     .Where(c => c.Key == ConfigurationKeys.WebServiceUrl ||
                                  c.Key == ConfigurationKeys.AIServiceKey ||
-                                 c.Key == ConfigurationKeys.EmailServiceKey)
+                                 c.Key == ConfigurationKeys.EmailServiceKey ||
+                                 c.Key == ConfigurationKeys.AiDriverServer)
                     .ToListAsync(cancellationToken);
 
                 if (!string.IsNullOrEmpty(request.WebServiceUrl))
@@ -92,6 +94,22 @@ public class CreateConfigCommandHandeler : IRequestHandler<CreateConfigCommand, 
                         {
                             Key = ConfigurationKeys.EmailServiceKey,
                             Value = request.EmailServiceKey
+                        });
+                    }
+                }
+                if (!string.IsNullOrEmpty(request.AiDriverServer))
+                {
+                    var aiDriverConfig = existingConfigs.FirstOrDefault(c => c.Key == ConfigurationKeys.AiDriverServer);
+                    if (aiDriverConfig != null)
+                    {
+                        aiDriverConfig.Value = request.AiDriverServer;
+                    }
+                    else
+                    {
+                        _context.Configurations.Add(new Configuration
+                        {
+                            Key = ConfigurationKeys.AiDriverServer,
+                            Value = request.AiDriverServer
                         });
                     }
                 }

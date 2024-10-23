@@ -11,7 +11,7 @@ public class ConfigurationKeys : ValueObject
     public const string WebServiceUrl = "WebServiceUrl";
     public const string AIServiceKey = "AIServiceKey";
     public const string EmailServiceKey = "EmailServiceKey";
-
+    public const string AiDriverServer = "AiDriverServer";
     public static ConfigurationKeys From(string key)
     {
         var configurationKey = new ConfigurationKeys(key);
@@ -52,6 +52,8 @@ public class ConfigurationKeys : ValueObject
         {
             yield return new ConfigurationKeys(WebServiceUrl);
             yield return new ConfigurationKeys(AIServiceKey);
+            yield return new ConfigurationKeys(AiDriverServer);
+            yield return new ConfigurationKeys(EmailServiceKey);
         }
     }
 

@@ -337,6 +337,66 @@
         }
       }
     },
+    "/api/Craw/links": {
+      "get": {
+        "tags": [
+          "Craw"
+        ],
+        "operationId": "GetLinks",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommodityLinks"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Craw/craws": {
+      "get": {
+        "tags": [
+          "Craw"
+        ],
+        "operationId": "GetCraws",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrawlResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Craw/crawsAll": {
+      "get": {
+        "tags": [
+          "Craw"
+        ],
+        "operationId": "GetCrawsAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Customers": {
       "post": {
         "tags": [
@@ -1600,6 +1660,353 @@
           "emailServiceKey": {
             "type": "string",
             "nullable": true
+          },
+          "aiDriverServer": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CommodityLinks": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "crudeOil": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "brent": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "naturalGas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gasoline": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "heatingOil": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coal": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ttfGas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ukGas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ethanol": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "naphtha": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "propane": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "methanol": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uralsOil": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gold": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "silver": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "copper": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "steel": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ironOre": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "platinum": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "titanium": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hrcSteel": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "soybeans": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "wheat": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lumber": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "palmOil": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cheese": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "milk": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rubber": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "orangeJuice": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coffee": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cotton": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cocoa": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rice": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "canola": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "oat": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "wool": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sugar": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sunflowerOil": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rapeseed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "butter": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "potatoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "corn": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "feederCattle": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "liveCattle": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "leanHogs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "beef": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "poultry": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "eggsCH": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "salmon": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CrawlResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "unixTimeNow": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dateNow": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CrawlData"
+            }
+          }
+        }
+      },
+      "CrawlData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "unixDateMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
           }
         }
       },

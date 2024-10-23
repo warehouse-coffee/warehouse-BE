@@ -4,31 +4,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Domain.ValueObjects;
 
 namespace warehouse_BE.Application.SmartPriceService.Queries.GetCrawl;
 
-public class GetCrawlQuery : IRequest<object>
+public class GetCrawlQuery : IRequest<CrawlResponse>
 {
-    public string? query;
+    public string? Query;
 }
-public class GetCrawlQueryHandler : IRequestHandler<GetCrawlQuery, object>
+public class GetCrawlQueryHandler : IRequestHandler<GetCrawlQuery, CrawlResponse>
 {
-    private IExternalHttpService _externalHttpService;
-    public GetCrawlQueryHandler(IExternalHttpService externalHttpService)
+    private readonly IExternalHttpService _externalHttpService;
+    private readonly IApplicationDbContext _context;
+
+    public GetCrawlQueryHandler(IExternalHttpService externalHttpService, IApplicationDbContext context)
     {
         _externalHttpService = externalHttpService;
+        _context = context;
     }
-    public async Task<object> Handle(GetCrawlQuery request, CancellationToken cancellationToken)
-    {
 
-        var queryParams = new Dictionary<string, string>();
-        if (!string.IsNullOrEmpty(request.query))
+    public async Task<CrawlResponse> Handle(GetCrawlQuery request, CancellationToken cancellationToken)
+    {
+        const string key = ConfigurationKeys.AiDriverServer;
+
+        var config = await _context.Configurations
+            .FirstOrDefaultAsync(c => c.Key == key, cancellationToken);
+
+        var rs = new CrawlResponse();
+
+        if (config == null)
         {
-            queryParams.Add("q", request.query);
+            return rs; 
         }
 
-        string url = "https://example.com/crawl";
+        var baseUrl = config.Value;
 
-        return await _externalHttpService.GetAsync<object>(url, queryParams);
+        var endpoint = $"{baseUrl}/crawl?q={request.Query}";
+
+        var response = await _externalHttpService.GetAsync<CrawlResponse>(endpoint);
+        if (response != null)
+        {
+           rs = response; 
+        }
+
+        return rs; 
     }
 }
