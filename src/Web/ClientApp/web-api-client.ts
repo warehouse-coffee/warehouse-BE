@@ -872,6 +872,63 @@ export class IdentityUserClient {
     }
 }
 
+export class LogsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    private token: string;
+    private XSRF: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
+    }
+
+    getLogs(date: string | null | undefined, typelog: string | null | undefined, hour: number | null | undefined): Promise<LogList> {
+        let url_ = this.baseUrl + "/api/Logs?";
+        if (date !== undefined && date !== null)
+            url_ += "date=" + encodeURIComponent("" + date) + "&";
+        if (typelog !== undefined && typelog !== null)
+            url_ += "typelog=" + encodeURIComponent("" + typelog) + "&";
+        if (hour !== undefined && hour !== null)
+            url_ += "hour=" + encodeURIComponent("" + hour) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLogs(_response);
+        });
+    }
+
+    protected processGetLogs(response: Response): Promise<LogList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LogList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LogList>(null as any);
+    }
+}
+
 export class OrdersClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -3107,6 +3164,106 @@ export interface IResetPasswordCommand {
     email?: string;
     currentPassword?: string;
     newPassword?: string;
+}
+
+export class LogList implements ILogList {
+    logVMs?: LogVM[];
+    status?: number;
+
+    constructor(data?: ILogList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["logVMs"])) {
+                this.logVMs = [] as any;
+                for (let item of _data["logVMs"])
+                    this.logVMs!.push(LogVM.fromJS(item));
+            }
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): LogList {
+        data = typeof data === 'object' ? data : {};
+        let result = new LogList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.logVMs)) {
+            data["logVMs"] = [];
+            for (let item of this.logVMs)
+                data["logVMs"].push(item.toJSON());
+        }
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface ILogList {
+    logVMs?: LogVM[];
+    status?: number;
+}
+
+export class LogVM implements ILogVM {
+    date?: string | undefined;
+    logLevel?: string | undefined;
+    message?: string | undefined;
+    hour?: string | undefined;
+    type?: string | undefined;
+
+    constructor(data?: ILogVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"];
+            this.logLevel = _data["logLevel"];
+            this.message = _data["message"];
+            this.hour = _data["hour"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): LogVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new LogVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date;
+        data["logLevel"] = this.logLevel;
+        data["message"] = this.message;
+        data["hour"] = this.hour;
+        data["type"] = this.type;
+        return data;
+    }
+}
+
+export interface ILogVM {
+    date?: string | undefined;
+    logLevel?: string | undefined;
+    message?: string | undefined;
+    hour?: string | undefined;
+    type?: string | undefined;
 }
 
 export class ImportStogareCommand implements IImportStogareCommand {

@@ -47,6 +47,7 @@ public static class DependencyInjection
         services.AddTransient<IEmailService, EmailService>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IExternalHttpService, ExternalHttpService>();
+        services.AddSingleton<ILoggerService, LoggerService>();
         return services;
     }
 }

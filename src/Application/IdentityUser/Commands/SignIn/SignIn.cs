@@ -13,16 +13,14 @@ public record SignInCommand : IRequest<SignInVm>
 
 public class SignInCommandHandler : IRequestHandler<SignInCommand, SignInVm>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ILoggerService _logger;
     private readonly IIdentityService _identityService;
-    private readonly IAntiforgery _forgeryService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    public SignInCommandHandler(IApplicationDbContext context, IIdentityService identityService, IAntiforgery antiforgery, IHttpContextAccessor httpContextAccessor)
+    public SignInCommandHandler( IIdentityService identityService, IHttpContextAccessor httpContextAccessor, ILoggerService loggerService)
     {
-        this._context = context;
         this._identityService = identityService;
-        this._forgeryService = antiforgery;
         this._httpContextAccessor = httpContextAccessor;
+        this._logger = loggerService;
     }
 
     public async Task<SignInVm> Handle(SignInCommand request, CancellationToken cancellationToken)
@@ -41,6 +39,7 @@ public class SignInCommandHandler : IRequestHandler<SignInCommand, SignInVm>
             var token = await _identityService.SignIn(request.Email, request.Password, sourcePath);
             if (!string.IsNullOrEmpty(token))
             {
+                _logger.LogInformation("SampleController - Get method called : "+ request.Email );
                 return new SignInVm
                 {
                     Token = token,

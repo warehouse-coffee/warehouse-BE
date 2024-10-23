@@ -543,6 +543,56 @@
         }
       }
     },
+    "/api/Logs": {
+      "get": {
+        "tags": [
+          "Logs"
+        ],
+        "operationId": "GetLogs",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "typelog",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "hour",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Orders/import": {
       "post": {
         "tags": [
@@ -1717,6 +1767,48 @@
           },
           "newPassword": {
             "type": "string"
+          }
+        }
+      },
+      "LogList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "logVMs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogVM"
+            }
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LogVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "logLevel": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "hour": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
