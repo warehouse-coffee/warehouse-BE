@@ -2306,6 +2306,7 @@ export class Storage extends BaseAuditableEntity implements IStorage {
     name?: string;
     location?: string;
     status?: StorageStatus;
+    companyId?: string | undefined;
     areas?: Area[] | undefined;
 
     constructor(data?: IStorage) {
@@ -2318,6 +2319,7 @@ export class Storage extends BaseAuditableEntity implements IStorage {
             this.name = _data["name"];
             this.location = _data["location"];
             this.status = _data["status"];
+            this.companyId = _data["companyId"];
             if (Array.isArray(_data["areas"])) {
                 this.areas = [] as any;
                 for (let item of _data["areas"])
@@ -2338,6 +2340,7 @@ export class Storage extends BaseAuditableEntity implements IStorage {
         data["name"] = this.name;
         data["location"] = this.location;
         data["status"] = this.status;
+        data["companyId"] = this.companyId;
         if (Array.isArray(this.areas)) {
             data["areas"] = [];
             for (let item of this.areas)
@@ -2352,6 +2355,7 @@ export interface IStorage extends IBaseAuditableEntity {
     name?: string;
     location?: string;
     status?: StorageStatus;
+    companyId?: string | undefined;
     areas?: Area[] | undefined;
 }
 

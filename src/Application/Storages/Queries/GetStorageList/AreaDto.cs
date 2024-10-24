@@ -15,7 +15,10 @@ public class AreaDto
     {
         public Mapping()
         {
-            CreateMap<Area, AreaDto>().ReverseMap();
+            CreateMap<Area, AreaDto>()
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForSourceMember(src => src.Products, opt => opt.DoNotValidate())
+               .ReverseMap();
             CreateMap<AreaDto, Area>().ReverseMap();
 
         }

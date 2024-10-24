@@ -482,6 +482,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("text");
 
+                    b.Property<string>("CompanyId")
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
 

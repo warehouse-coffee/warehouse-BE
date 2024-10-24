@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using warehouse_BE.Application.Common.Interfaces;
+﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Domain.Entities;
@@ -25,18 +20,27 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
     private readonly IApplicationDbContext _context;
     private readonly IUser _currentUser;
     private readonly IMapper _mapper;
+    private readonly IIdentityService _identityService;
 
-        public CreateStorageCommandHandler(IApplicationDbContext context, IUser currentUser, IMapper mapper)
+        public CreateStorageCommandHandler(IApplicationDbContext context, IUser currentUser, IMapper mapper, IIdentityService identityService)
         {
             _context = context;
             _currentUser = currentUser;
             _mapper = mapper;
+            _identityService = identityService;
         }
 
     public async Task<ResponseDto> Handle(CreateStorageCommand request, CancellationToken cancellationToken)
     {
         try
         {
+            var companyId = string.Empty;
+            if (_currentUser.Id != null)
+            {
+               var data = await _identityService.GetCompanyId(_currentUser.Id);
+               companyId = data.CompanyId;
+            }
+            
             var areas = request.Areas != null && request.Areas.Any()
             ? _mapper.Map<List<Area>>(request.Areas)
             : new List<Area>();
@@ -45,7 +49,6 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
             {
                 foreach (var product in area.Products)
                 {
-                    // Kiểm tra category theo tên
                     if (product.Category != null)
                     {
                         var category = await _context.Categories
@@ -53,22 +56,20 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
 
                         if (category == null)
                         {
-                            // Nếu chưa có category trong DB thì tạo mới
                             category = new Category
                             {
                                 Name = product.Category.Name,
+                                CompanyId = companyId,
                                 Created = DateTimeOffset.UtcNow,
                                 CreatedBy = _currentUser.Id,
                                 LastModified = DateTimeOffset.UtcNow,
                                 LastModifiedBy = _currentUser.Id
                             };
 
-                            // Thêm category vào context
                             _context.Categories.Add(category);
                             await _context.SaveChangesAsync(cancellationToken);
                         }
 
-                        // Gán lại CategoryId cho product nếu category vừa được tạo hoặc đã tồn tại
                         product.CategoryId = category.Id;
                     }
                    
@@ -79,17 +80,14 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
                 Name = request.Name,
                 Location = request.Location,
                 Status = request.Status,
-                Areas = areas, 
-                //Created = DateTimeOffset.UtcNow,
-                //CreatedBy = _currentUser.Id,
-                //LastModified = DateTimeOffset.UtcNow,
-                //LastModifiedBy = _currentUser.Id
+                Areas = areas,
+                CompanyId = companyId,
             };
 
             _context.Storages.Add(entity);
             await _context.SaveChangesAsync(cancellationToken);
 
-            var createdStorageDto = _mapper.Map<StorageDto>(entity); // Map Storage to StorageDto
+            var createdStorageDto = _mapper.Map<StorageDto>(entity); 
 
             return new ResponseDto(201, "Storage created successfully", createdStorageDto);
         }

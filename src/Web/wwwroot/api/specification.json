@@ -1276,6 +1276,10 @@
               "status": {
                 "$ref": "#/components/schemas/StorageStatus"
               },
+              "companyId": {
+                "type": "string",
+                "nullable": true
+              },
               "areas": {
                 "type": "array",
                 "nullable": true,
