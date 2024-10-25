@@ -993,6 +993,46 @@ export class IdentityUserClient {
         }
         return Promise.resolve<ResetPasswordVm>(null as any);
     }
+
+    logout(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/IdentityUser/logout/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLogout(_response);
+        });
+    }
+
+    protected processLogout(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
 }
 
 export class LogsClient {
@@ -4771,6 +4811,7 @@ export interface IUserRegister {
 
 export class UserListVm implements IUserListVm {
     users?: UserDto[];
+    page?: Page | undefined;
 
     constructor(data?: IUserListVm) {
         if (data) {
@@ -4788,6 +4829,7 @@ export class UserListVm implements IUserListVm {
                 for (let item of _data["users"])
                     this.users!.push(UserDto.fromJS(item));
             }
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
         }
     }
 
@@ -4805,12 +4847,14 @@ export class UserListVm implements IUserListVm {
             for (let item of this.users)
                 data["users"].push(item.toJSON());
         }
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface IUserListVm {
     users?: UserDto[];
+    page?: Page | undefined;
 }
 
 export class UserVM implements IUserVM {

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Common.Models;
 
 namespace warehouse_BE.Application.Users.Queries.GetUserList;
 
 public class GetUserListQuery : IRequest<UserListVm>
 {
+    public Page? Page { get; set; }
 }
 public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, UserListVm>
 {
@@ -19,7 +18,7 @@ public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, UserLis
         this._identityService = identityService;
         this._currentUser = currentUser;
     }
-    public async Task<UserListVm> Handle(GetUserListQuery reques, CancellationToken cancellationToken)
+    public async Task<UserListVm> Handle(GetUserListQuery request, CancellationToken cancellationToken)
     {
         var rs = new UserListVm();
         if (string.IsNullOrEmpty(_currentUser?.Id))
@@ -32,7 +31,14 @@ public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, UserLis
             var data = await _identityService.GetUserList();
             if (data != null)
             {
-                rs.Users = data;
+                rs.Users = data.Skip((request.Page?.PageNumber - 1 ?? 0) * (request.Page?.Size ?? 1))
+               .Take(request.Page?.Size ?? 10).ToList();
+                rs.Page = new Page
+                {
+                    Size = request.Page?.Size ?? 0,
+                    PageNumber = request.Page?.PageNumber ?? 1,
+                    TotalElements = data.Count,
+                };
             }
         }
         return rs;

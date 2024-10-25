@@ -61,6 +61,7 @@ builder.Services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<TokenValidationMiddleware>();
 app.UseAntiforgery();
 //API get Antiforgery token DEF CSRF
 app.MapGet("antiforgery/token", (IAntiforgery forgeryService, HttpContext context) =>

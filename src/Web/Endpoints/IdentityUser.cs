@@ -1,7 +1,11 @@
-﻿using warehouse_BE.Application.Common.Interfaces;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Customer.Commands.CreateCustomer;
 using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
+using warehouse_BE.Application.IdentityUser.Commands.LogOut;
 using warehouse_BE.Application.IdentityUser.Commands.ResetPassword;
 using warehouse_BE.Application.IdentityUser.Commands.SignIn;
 using warehouse_BE.Application.Response;
@@ -13,8 +17,9 @@ public class IdentityUser : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(SignIn,"/signin")
-            .MapPost(ResetPassword, "/resetpassword");
+            .MapPost(SignIn, "/signin")
+            .MapPost(ResetPassword, "/resetpassword")
+            .MapPost(Logout, "/logout/{id}");
     }
     public Task<SignInVm> SignIn(ISender sender, SignInCommand query)
     {
@@ -24,5 +29,9 @@ public class IdentityUser : EndpointGroupBase
     {
         return sender.Send(command);
     }
-   
+    [Authorize]
+    public Task<bool> Logout(ISender sender, string Id)
+    {
+            return sender.Send(new LogoutCommand { UserId = Id });
+    }
 }

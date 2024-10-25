@@ -15,6 +15,7 @@ namespace warehouse_BE.Web.Endpoints
         public override void Map(WebApplication app)
         {
             app.MapGroup(this)
+                .RequireAuthorization()
                 .MapPost(UserRegister, "user")
                 .MapGet(GetAllUsers, "user/all")
                 .MapGet(GetUserDetail,"user/{id}")

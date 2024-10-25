@@ -17,6 +17,7 @@ using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
+using Newtonsoft.Json.Linq;
 
 
 namespace warehouse_BE.Infrastructure.Identity;
@@ -152,15 +153,58 @@ public class IdentityService : IIdentityService
                     claims: claims,
                     expires: DateTime.UtcNow.AddHours(1),
                     signingCredentials: creds);
+            var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-                return new JwtSecurityTokenHandler().WriteToken(token);
             
+            var existingToken = await _userManager.GetAuthenticationTokenAsync(user, "MyApp", "JWT");
+            if (existingToken != null)
+            {
+                jwtToken = existingToken; 
+            } else
+            {
+                await _userManager.SetAuthenticationTokenAsync(user, "MyApp", "JWT", jwtToken);
+            }
+
+            return jwtToken;
+
         } catch (Exception ex)
         {
             throw new Exception("error" + ex);
         }
     }
+    public async Task<bool> Logout(string userId)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
 
+            await _userManager.RemoveAuthenticationTokenAsync(user, "MyApp", "JWT");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("error" + ex);
+        }
+    }
+    public async Task<bool> ValidateTokenAsync(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdClaim == null)
+            return false;
+
+        var user = await _userManager.FindByIdAsync(userIdClaim);
+        if (user == null || await _userManager.GetAuthenticationTokenAsync(user, "MyApp", "JWT") != token)
+            return false;
+
+        return true;
+    }
     public async Task<(Result Result, string UserId)> RegisterAsync(UserRegister userRegister)
     {
 

@@ -39,4 +39,6 @@ public interface IIdentityService
     Task<List<UserDto>> GetUserList();
     Task<Result> UpdateUser(UserDto userDto, string? password);
     Task<UserDto> GetUserById(string userId);
+    Task<bool> Logout(string userId);
+    Task<bool> ValidateTokenAsync(string token);
 }

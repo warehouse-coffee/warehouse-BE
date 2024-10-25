@@ -603,6 +603,38 @@
         }
       }
     },
+    "/api/IdentityUser/logout/{id}": {
+      "post": {
+        "tags": [
+          "IdentityUser"
+        ],
+        "operationId": "Logout",
+        "parameters": [
+          {
+            "name": "id",
+            "x-originalName": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Logs": {
       "get": {
         "tags": [
@@ -2510,6 +2542,14 @@
             "items": {
               "$ref": "#/components/schemas/UserDto"
             }
+          },
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
           }
         }
       },
