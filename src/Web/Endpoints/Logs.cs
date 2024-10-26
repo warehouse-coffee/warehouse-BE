@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Logs.Queries.GetLogList;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace warehouse_BE.Web.Endpoints;
 

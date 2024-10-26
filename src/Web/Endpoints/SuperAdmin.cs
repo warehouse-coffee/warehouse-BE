@@ -17,7 +17,7 @@ namespace warehouse_BE.Web.Endpoints
             app.MapGroup(this)
                 .RequireAuthorization()
                 .MapPost(UserRegister, "user")
-                .MapGet(GetAllUsers, "user/all")
+                .MapPost(GetAllUsers, "user/all")
                 .MapGet(GetUserDetail,"user/{id}")
                 .MapDelete(DeleteUser, "user/{id}")
                 .MapPut(UpdateUser, "user/{id}")
@@ -27,9 +27,9 @@ namespace warehouse_BE.Web.Endpoints
         {
             return sender.Send(command);
         }
-        public Task<UserListVm> GetAllUsers(ISender sender)
+        public Task<UserListVm> GetAllUsers(ISender sender, GetUserListQuery query)
         {
-            return sender.Send(new GetUserListQuery());
+            return sender.Send(query);
         }
         public Task<UserVM> GetUserDetail(ISender sender, string id)
         {

@@ -995,10 +995,11 @@ export class IdentityUserClient {
     }
 
     logout(id: string): Promise<boolean> {
-        let url_ = this.baseUrl + "/api/IdentityUser/logout/{id}";
+        let url_ = this.baseUrl + "/api/IdentityUser/logout?";
         if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+            throw new Error("The parameter 'id' must be defined and cannot be null.");
+        else
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -1462,13 +1463,17 @@ export class SuperAdminClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    getAllUsers(): Promise<UserListVm> {
+    getAllUsers(query: GetUserListQuery): Promise<UserListVm> {
         let url_ = this.baseUrl + "/api/SuperAdmin/user/all";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(query);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json",
                 "Authorization": `Bearer ${this.token}`,
                 "X-XSRF-TOKEN": `${this.XSRF}`,
@@ -4854,6 +4859,42 @@ export class UserListVm implements IUserListVm {
 
 export interface IUserListVm {
     users?: UserDto[];
+    page?: Page | undefined;
+}
+
+export class GetUserListQuery implements IGetUserListQuery {
+    page?: Page | undefined;
+
+    constructor(data?: IGetUserListQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetUserListQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetUserListQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetUserListQuery {
     page?: Page | undefined;
 }
 

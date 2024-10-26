@@ -155,11 +155,17 @@ public class IdentityService : IIdentityService
                     signingCredentials: creds);
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            
             var existingToken = await _userManager.GetAuthenticationTokenAsync(user, "MyApp", "JWT");
+
             if (existingToken != null)
             {
-                jwtToken = existingToken; 
+                var handler = new JwtSecurityTokenHandler();
+                var Token = handler.ReadToken(existingToken) as JwtSecurityToken;
+
+                if (Token != null && Token.ValidTo > DateTime.UtcNow)
+                {
+                    jwtToken = existingToken;
+                }
             } else
             {
                 await _userManager.SetAuthenticationTokenAsync(user, "MyApp", "JWT", jwtToken);
@@ -200,8 +206,14 @@ public class IdentityService : IIdentityService
             return false;
 
         var user = await _userManager.FindByIdAsync(userIdClaim);
-        if (user == null || await _userManager.GetAuthenticationTokenAsync(user, "MyApp", "JWT") != token)
-            return false;
+        if(user != null)
+        {
+            var authToken = await _userManager.GetAuthenticationTokenAsync(user, "MyApp", "JWT");
+
+            if (user == null || authToken != token)
+                return false;
+        }
+      
 
         return true;
     }

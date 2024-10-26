@@ -19,7 +19,7 @@ public class IdentityUser : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(SignIn, "/signin")
             .MapPost(ResetPassword, "/resetpassword")
-            .MapPost(Logout, "/logout/{id}");
+            .MapPost(Logout, "/logout");
     }
     public Task<SignInVm> SignIn(ISender sender, SignInCommand query)
     {
@@ -29,9 +29,8 @@ public class IdentityUser : EndpointGroupBase
     {
         return sender.Send(command);
     }
-    [Authorize]
-    public Task<bool> Logout(ISender sender, string Id)
+    public Task<bool> Logout(ISender sender, [FromQuery] string Id)
     {
-            return sender.Send(new LogoutCommand { UserId = Id });
+        return sender.Send(new LogoutCommand { UserId = Id });
     }
 }

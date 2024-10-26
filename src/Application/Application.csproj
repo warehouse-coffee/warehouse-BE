@@ -23,7 +23,7 @@
   <ItemGroup>
     <Folder Include="Configurations\Queries\" />
     <Folder Include="IdentityUser\Queries\" />
-    <Folder Include="Logs\Commands\" />
+    <Folder Include="LogApp\Commands\" />
     <Folder Include="SmartPriceService\Commands\" />
   </ItemGroup>
 
