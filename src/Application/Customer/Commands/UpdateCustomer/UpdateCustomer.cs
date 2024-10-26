@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,4 +14,7 @@ public class UpdateCustomer
     public string? Password { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
+    public bool IsActived { get; set; }
+    public string? AvatarImage { get; set; }
+    public List<string>? Warehouses { get; set; }
 }

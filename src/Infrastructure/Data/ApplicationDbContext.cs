@@ -23,10 +23,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     {
         base.OnModelCreating(builder);
         builder.Entity<ApplicationUser>()
-           .HasOne<Company>() // Chỉ định kiểu đối tượng liên kết là Company
-           .WithMany() // Chỉ định rằng Company không có thuộc tính điều hướng đến ApplicationUser
-           .HasForeignKey(u => u.CompanyId) // Chỉ định thuộc tính khóa ngoại trong ApplicationUser
-           .HasPrincipalKey(c => c.CompanyId) // Chỉ định thuộc tính khóa chính trong Company
+           .HasOne<Company>() 
+           .WithMany() 
+           .HasForeignKey(u => u.CompanyId) 
+           .HasPrincipalKey(c => c.CompanyId) 
            .OnDelete(DeleteBehavior.SetNull);
 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

@@ -17,8 +17,7 @@ using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
-using Newtonsoft.Json.Linq;
-
+using warehouse_BE.Domain.Entities;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -30,14 +29,15 @@ public class IdentityService : IIdentityService
     private readonly IConfiguration _configuration;
     private readonly ApplicationDbContext _context;
     private readonly RoleManager<IdentityRole> _roleManager;
-
+    private readonly ILoggerService _logger;
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService,
         IConfiguration configuration,
         ApplicationDbContext context,
-        RoleManager<IdentityRole> roleManager)
+        RoleManager<IdentityRole> roleManager,
+        ILoggerService logger)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -45,6 +45,7 @@ public class IdentityService : IIdentityService
         _configuration = configuration;
         _context = context;
         _roleManager = roleManager;
+        _logger = logger;
     }
 
     public async Task<string?> GetUserNameAsync(string userId)
@@ -347,12 +348,21 @@ public class IdentityService : IIdentityService
             return (Result.Failure(new[] { "Unaccepted the request!." }));
 
         }
+
+        var storageIds = request.Warehouses ?? new List<int>();
+
+        var storages = storageIds.Any()
+            ? await _context.Storages
+                .Where(s => storageIds.Contains(s.Id)) 
+                .ToListAsync()
+            : new List<Storage>();
         var user = new ApplicationUser
         {
             UserName = request.UserName,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
-            CompanyId = request.CompanyId
+            CompanyId = request.CompanyId,
+            Storages = storages
         };
         try
         {
@@ -675,18 +685,24 @@ public class IdentityService : IIdentityService
     public async Task<List<UserDto>> GetUserList()
     {
         var rs = new List<UserDto>();
-        try {
-            var users = await _userManager.Users.Where(o => !o.isDeleted).ToListAsync();
+        try
+        {
+            var users = await _userManager.Users
+                .Where(o => !o.isDeleted)
+                .ToListAsync();
+
             foreach (var user in users)
             {
-                
                 var roles = await _userManager.GetRolesAsync(user);
-                var roleName = roles.FirstOrDefault();  
+                var roleName = roles.FirstOrDefault();
+
+                if (roleName == "Super-Admin")
+                    continue;
 
                 var userDto = new UserDto
                 {
                     Id = user.Id,
-                    CompanyId = user.CompanyId, 
+                    CompanyId = user.CompanyId,
                     UserName = user.UserName,
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
@@ -696,12 +712,14 @@ public class IdentityService : IIdentityService
 
                 rs.Add(userDto);
             }
-        } catch 
+        }
+        catch (Exception ex)
         {
-           
+            _logger.LogError("GetUserList - An error occurred while fetching user list.", ex);
         }
         return rs;
     }
+
     public async Task<Result> UpdateUser(UserDto userDto, string? password)
     {
         if(userDto.Id != null)
@@ -802,4 +820,33 @@ public class IdentityService : IIdentityService
 
         return userDto;
     }
+    public async Task<List<Storage>> GetUserStoragesAsync(string userId)
+    {
+        var user = await _context.Users
+        .Include(u => u.Storages) 
+        .FirstOrDefaultAsync(u => u.Id == userId);
+
+        return user?.Storages ?? new List<Storage>();
+    }
+    public async Task<Storage> AddUserStorageAsync(string userId, Storage updatedStorage,CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new Exception("User not found.");
+        }
+
+        var existingStorage = user.Storages.FirstOrDefault(s => s.Name == updatedStorage.Name);
+        if (existingStorage != null)
+        {
+            throw new Exception($"Storage with name '{updatedStorage.Name}' already exists for this user.");
+        }
+
+        user.Storages.Add(updatedStorage);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return updatedStorage;
+    }
+
 }

@@ -1,4 +1,5 @@
-﻿using warehouse_BE.Application.Customer.Commands.CreateCustomer;
+﻿using Microsoft.AspNetCore.Authorization;
+using warehouse_BE.Application.Customer.Commands.CreateCustomer;
 using warehouse_BE.Application.Customer.Commands.DeleteCustomer;
 using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
@@ -19,27 +20,32 @@ namespace warehouse_BE.Web.Endpoints
                 .RequireAuthorization()
                 .MapPost(CreateCustomer)
                 .MapPut(UpdateCustomer,"")
-                .MapGet(GetListCustomer,"/all")
+                .MapPost(GetListCustomer,"/all")
                 .MapGet(GetCustomerDetail,"/{id}")
                 .MapDelete(DeleteCustomer, "/{id}")
                 ;
         }
+        [Authorize(Roles = "Admin")]
         public Task<ResponseDto> CreateCustomer(ISender sender, CreateCustomerCommand command)
         {
             return sender.Send(command);
         }
+        [Authorize(Roles = "Admin")]
         public Task<ResponseDto> UpdateCustomer(ISender sender, UpdateCustomerCommand command)
         {
             return sender.Send(command);
         }
-        public Task<CustomerListVM> GetListCustomer(ISender sender)
+        [Authorize(Roles = "Admin")]
+        public Task<CustomerListVM> GetListCustomer(ISender sender, GetListCustomerQuery query  )
         {
-            return sender.Send(new GetListCustomerQuery());
+            return sender.Send(query);
         }
+        [Authorize(Roles = "Admin")]
         public Task<CustomerDetailVM> GetCustomerDetail(ISender sender, string id) 
         {
             return sender.Send(new GetCustomerDetailQuery { UserId = id });
         }
+        [Authorize(Roles = "Admin")]
         public Task<bool> DeleteCustomer(ISender sender, string id)
         {
             return sender.Send(new DeleteCustomerCommand { UserId = id });

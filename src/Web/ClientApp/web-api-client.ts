@@ -353,13 +353,17 @@ export class CompanyOwnerClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    getAll(): Promise<CompanyOwnerListVM> {
+    getAll(query: GetCompanyOwnerListQuery): Promise<CompanyOwnerListVM> {
         let url_ = this.baseUrl + "/api/CompanyOwner/all";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(query);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json",
                 "Authorization": `Bearer ${this.token}`,
                 "X-XSRF-TOKEN": `${this.XSRF}`,
@@ -784,13 +788,17 @@ export class CustomersClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    getListCustomer(): Promise<CustomerListVM> {
+    getListCustomer(query: GetListCustomerQuery): Promise<CustomerListVM> {
         let url_ = this.baseUrl + "/api/Customers/all";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(query);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json",
                 "Authorization": `Bearer ${this.token}`,
                 "X-XSRF-TOKEN": `${this.XSRF}`,
@@ -1406,6 +1414,46 @@ export class StorageClient {
             });
         }
         return Promise.resolve<StorageListVM>(null as any);
+    }
+
+    getStorageOfUser(query: GetStorageOfUserQuery): Promise<UserStorageList> {
+        let url_ = this.baseUrl + "/api/Storage/user";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetStorageOfUser(_response);
+        });
+    }
+
+    protected processGetStorageOfUser(response: Response): Promise<UserStorageList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserStorageList.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserStorageList>(null as any);
     }
 }
 
@@ -2136,6 +2184,7 @@ export interface ICreateCompanyOwnerCommand {
 
 export class CompanyOwnerListVM implements ICompanyOwnerListVM {
     companyOwners?: UserDto[];
+    page?: Page | undefined;
 
     constructor(data?: ICompanyOwnerListVM) {
         if (data) {
@@ -2153,6 +2202,7 @@ export class CompanyOwnerListVM implements ICompanyOwnerListVM {
                 for (let item of _data["companyOwners"])
                     this.companyOwners!.push(UserDto.fromJS(item));
             }
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
         }
     }
 
@@ -2170,12 +2220,14 @@ export class CompanyOwnerListVM implements ICompanyOwnerListVM {
             for (let item of this.companyOwners)
                 data["companyOwners"].push(item.toJSON());
         }
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface ICompanyOwnerListVM {
     companyOwners?: UserDto[];
+    page?: Page | undefined;
 }
 
 export class UserDto implements IUserDto {
@@ -2628,6 +2680,90 @@ export abstract class BaseEvent implements IBaseEvent {
 }
 
 export interface IBaseEvent {
+}
+
+export class Page implements IPage {
+    size?: number;
+    pageNumber?: number;
+    totalElements?: number;
+    totalPages?: number;
+
+    constructor(data?: IPage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.size = _data["size"];
+            this.pageNumber = _data["pageNumber"];
+            this.totalElements = _data["totalElements"];
+            this.totalPages = _data["totalPages"];
+        }
+    }
+
+    static fromJS(data: any): Page {
+        data = typeof data === 'object' ? data : {};
+        let result = new Page();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["size"] = this.size;
+        data["pageNumber"] = this.pageNumber;
+        data["totalElements"] = this.totalElements;
+        data["totalPages"] = this.totalPages;
+        return data;
+    }
+}
+
+export interface IPage {
+    size?: number;
+    pageNumber?: number;
+    totalElements?: number;
+    totalPages?: number;
+}
+
+export class GetCompanyOwnerListQuery implements IGetCompanyOwnerListQuery {
+    page?: Page | undefined;
+
+    constructor(data?: IGetCompanyOwnerListQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetCompanyOwnerListQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCompanyOwnerListQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetCompanyOwnerListQuery {
+    page?: Page | undefined;
 }
 
 export class CompanyOwnerDetailDto implements ICompanyOwnerDetailDto {
@@ -3655,6 +3791,7 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    warehouses?: number[] | undefined;
 
     constructor(data?: ICreateCustomerCommand) {
         if (data) {
@@ -3671,6 +3808,11 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
             this.password = _data["password"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
+            if (Array.isArray(_data["warehouses"])) {
+                this.warehouses = [] as any;
+                for (let item of _data["warehouses"])
+                    this.warehouses!.push(item);
+            }
         }
     }
 
@@ -3687,6 +3829,11 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
         data["password"] = this.password;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
+        if (Array.isArray(this.warehouses)) {
+            data["warehouses"] = [];
+            for (let item of this.warehouses)
+                data["warehouses"].push(item);
+        }
         return data;
     }
 }
@@ -3696,10 +3843,18 @@ export interface ICreateCustomerCommand {
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
+    warehouses?: number[] | undefined;
 }
 
 export class UpdateCustomerCommand implements IUpdateCustomerCommand {
-    customer?: UpdateCustomer;
+    id?: string;
+    userName?: string | undefined;
+    password?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    isActived?: boolean;
+    avatarImage?: string | undefined;
+    warehouses?: string[] | undefined;
 
     constructor(data?: IUpdateCustomerCommand) {
         if (data) {
@@ -3712,7 +3867,18 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.customer = _data["customer"] ? UpdateCustomer.fromJS(_data["customer"]) : <any>undefined;
+            this.id = _data["id"];
+            this.userName = _data["userName"];
+            this.password = _data["password"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.isActived = _data["isActived"];
+            this.avatarImage = _data["avatarImage"];
+            if (Array.isArray(_data["warehouses"])) {
+                this.warehouses = [] as any;
+                for (let item of _data["warehouses"])
+                    this.warehouses!.push(item);
+            }
         }
     }
 
@@ -3725,69 +3891,36 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["customer"] = this.customer ? this.customer.toJSON() : <any>undefined;
+        data["id"] = this.id;
+        data["userName"] = this.userName;
+        data["password"] = this.password;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["isActived"] = this.isActived;
+        data["avatarImage"] = this.avatarImage;
+        if (Array.isArray(this.warehouses)) {
+            data["warehouses"] = [];
+            for (let item of this.warehouses)
+                data["warehouses"].push(item);
+        }
         return data;
     }
 }
 
 export interface IUpdateCustomerCommand {
-    customer?: UpdateCustomer;
-}
-
-export class UpdateCustomer implements IUpdateCustomer {
-    customerId?: string;
+    id?: string;
     userName?: string | undefined;
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
-
-    constructor(data?: IUpdateCustomer) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.customerId = _data["customerId"];
-            this.userName = _data["userName"];
-            this.password = _data["password"];
-            this.email = _data["email"];
-            this.phoneNumber = _data["phoneNumber"];
-        }
-    }
-
-    static fromJS(data: any): UpdateCustomer {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateCustomer();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["customerId"] = this.customerId;
-        data["userName"] = this.userName;
-        data["password"] = this.password;
-        data["email"] = this.email;
-        data["phoneNumber"] = this.phoneNumber;
-        return data;
-    }
-}
-
-export interface IUpdateCustomer {
-    customerId?: string;
-    userName?: string | undefined;
-    password?: string | undefined;
-    email?: string | undefined;
-    phoneNumber?: string | undefined;
+    isActived?: boolean;
+    avatarImage?: string | undefined;
+    warehouses?: string[] | undefined;
 }
 
 export class CustomerListVM implements ICustomerListVM {
     customers?: UserDto[] | undefined;
+    page?: Page | undefined;
 
     constructor(data?: ICustomerListVM) {
         if (data) {
@@ -3805,6 +3938,7 @@ export class CustomerListVM implements ICustomerListVM {
                 for (let item of _data["customers"])
                     this.customers!.push(UserDto.fromJS(item));
             }
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
         }
     }
 
@@ -3822,12 +3956,50 @@ export class CustomerListVM implements ICustomerListVM {
             for (let item of this.customers)
                 data["customers"].push(item.toJSON());
         }
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface ICustomerListVM {
     customers?: UserDto[] | undefined;
+    page?: Page | undefined;
+}
+
+export class GetListCustomerQuery implements IGetListCustomerQuery {
+    page?: Page | undefined;
+
+    constructor(data?: IGetListCustomerQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetListCustomerQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetListCustomerQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetListCustomerQuery {
+    page?: Page | undefined;
 }
 
 export class CustomerDetailVM implements ICustomerDetailVM {
@@ -4386,54 +4558,6 @@ export interface IOrderDto {
     totalQuantity?: number;
 }
 
-export class Page implements IPage {
-    size?: number;
-    pageNumber?: number;
-    totalElements?: number;
-    totalPages?: number;
-
-    constructor(data?: IPage) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.size = _data["size"];
-            this.pageNumber = _data["pageNumber"];
-            this.totalElements = _data["totalElements"];
-            this.totalPages = _data["totalPages"];
-        }
-    }
-
-    static fromJS(data: any): Page {
-        data = typeof data === 'object' ? data : {};
-        let result = new Page();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["size"] = this.size;
-        data["pageNumber"] = this.pageNumber;
-        data["totalElements"] = this.totalElements;
-        data["totalPages"] = this.totalPages;
-        return data;
-    }
-}
-
-export interface IPage {
-    size?: number;
-    pageNumber?: number;
-    totalElements?: number;
-    totalPages?: number;
-}
-
 export class GetOrderListQuery implements IGetOrderListQuery {
     page?: Page | undefined;
 
@@ -4720,6 +4844,138 @@ export class StorageListVM implements IStorageListVM {
 
 export interface IStorageListVM {
     storages?: StorageDto[] | undefined;
+}
+
+export class UserStorageList implements IUserStorageList {
+    storages?: StorageDto2[] | undefined;
+    page?: Page | undefined;
+
+    constructor(data?: IUserStorageList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(StorageDto2.fromJS(item));
+            }
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UserStorageList {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserStorageList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUserStorageList {
+    storages?: StorageDto2[] | undefined;
+    page?: Page | undefined;
+}
+
+export class StorageDto2 implements IStorageDto2 {
+    id?: number;
+    name?: string | undefined;
+    address?: string | undefined;
+    status?: string | undefined;
+
+    constructor(data?: IStorageDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.address = _data["address"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): StorageDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["address"] = this.address;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IStorageDto2 {
+    id?: number;
+    name?: string | undefined;
+    address?: string | undefined;
+    status?: string | undefined;
+}
+
+export class GetStorageOfUserQuery implements IGetStorageOfUserQuery {
+    page?: Page | undefined;
+
+    constructor(data?: IGetStorageOfUserQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetStorageOfUserQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetStorageOfUserQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetStorageOfUserQuery {
+    page?: Page | undefined;
 }
 
 export class CreateUserCommand implements ICreateUserCommand {

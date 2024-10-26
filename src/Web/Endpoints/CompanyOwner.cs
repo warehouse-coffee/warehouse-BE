@@ -17,7 +17,7 @@ namespace warehouse_BE.Web.Endpoints
         {
             app.MapGroup(this).RequireAuthorization()
             .MapPost(Create)
-            .MapGet(GetAll, "/all")
+            .MapPost(GetAll, "/all")
             .MapGet(GetDetail, "{id}")
             .MapPut(Update, "{id}")
             .MapDelete(Delete, "{id}")
@@ -27,9 +27,9 @@ namespace warehouse_BE.Web.Endpoints
         {
             return sender.Send(command);
         }
-        public Task<CompanyOwnerListVM> GetAll(ISender sender)
+        public Task<CompanyOwnerListVM> GetAll(ISender sender, GetCompanyOwnerListQuery query)
         {
-            return sender.Send(new GetCompanyOwnerListQuery());
+            return sender.Send(query);
         }
         public Task<CompanyOwnerDetailDto> GetDetail(ISender sender, string id)
         {

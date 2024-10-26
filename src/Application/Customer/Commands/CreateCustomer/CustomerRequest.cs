@@ -13,4 +13,5 @@ public class CustomerRequest
     public string? Email {  get; set; }
     public string? PhoneNumber { get; set; }
     public required string CompanyId { get; set; }
+    public List<int>? Warehouses { get; set; }
 }

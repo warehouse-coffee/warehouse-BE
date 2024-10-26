@@ -1,6 +1,7 @@
 ﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
+using warehouse_BE.Application.Users.Queries.GetUserDetail;
 using warehouse_BE.Domain.Entities;
 using warehouse_BE.Domain.Enums;
 
@@ -32,18 +33,21 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
 
     public async Task<ResponseDto> Handle(CreateStorageCommand request, CancellationToken cancellationToken)
     {
+        Storage? createdStorage = null; // Để lưu trữ entity đã tạo, có thể xóa nếu cần
         try
         {
-            var companyId = string.Empty;
-            if (_currentUser.Id != null)
+            if (string.IsNullOrWhiteSpace(_currentUser.Id))
             {
-               var data = await _identityService.GetCompanyId(_currentUser.Id);
-               companyId = data.CompanyId;
+                return new ResponseDto(400, "User ID is missing.");
             }
-            
+
+            var companyId = string.Empty;
+            var data = await _identityService.GetCompanyId(_currentUser.Id);
+            companyId = data.CompanyId;
+
             var areas = request.Areas != null && request.Areas.Any()
-            ? _mapper.Map<List<Area>>(request.Areas)
-            : new List<Area>();
+                ? _mapper.Map<List<Area>>(request.Areas)
+                : new List<Area>();
 
             foreach (var area in areas)
             {
@@ -52,7 +56,7 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
                     if (product.Category != null)
                     {
                         var category = await _context.Categories
-                       .FirstOrDefaultAsync(c => c.Name == product.Category.Name, cancellationToken);
+                            .FirstOrDefaultAsync(c => c.Name == product.Category.Name, cancellationToken);
 
                         if (category == null)
                         {
@@ -72,10 +76,11 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
 
                         product.CategoryId = category.Id;
                     }
-                   
                 }
             }
-            var entity = new Storage
+
+            // Tạo Storage
+            createdStorage = new Storage
             {
                 Name = request.Name,
                 Location = request.Location,
@@ -84,15 +89,24 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
                 CompanyId = companyId,
             };
 
-            _context.Storages.Add(entity);
+            _context.Storages.Add(createdStorage);
             await _context.SaveChangesAsync(cancellationToken);
 
-            var createdStorageDto = _mapper.Map<StorageDto>(entity); 
-
+            var result = await _identityService.AddUserStorageAsync(_currentUser.Id, createdStorage,cancellationToken);
+            var userStorages = await _identityService.GetUserStoragesAsync(_currentUser.Id);
+            await _context.SaveChangesAsync(cancellationToken);
+            var createdStorageDto = _mapper.Map<StorageDto>(createdStorage);
             return new ResponseDto(201, "Storage created successfully", createdStorageDto);
         }
         catch (Exception ex)
         {
+            // Xóa dữ liệu đã tạo nếu có lỗi xảy ra
+            if (createdStorage != null)
+            {
+                _context.Storages.Remove(createdStorage); // Xóa Storage
+                await _context.SaveChangesAsync(cancellationToken); // Lưu thay đổi
+            }
+
             return new ResponseDto(500, $"An error occurred while creating the storage: {ex.Message}");
         }
     }

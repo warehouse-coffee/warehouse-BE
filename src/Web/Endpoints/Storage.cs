@@ -1,5 +1,6 @@
 ﻿using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Commads.CreateStorage;
+using warehouse_BE.Application.Storages.Queries.GetStoragebyCompanyId;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 
 namespace warehouse_BE.Web.Endpoints;
@@ -11,7 +12,8 @@ public class Storage : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .MapPost(CreateStorage)
-            .MapGet(GetStorageList);
+            .MapGet(GetStorageList)
+            .MapPost(GetStorageOfUser,"/user");
     }
 
     public async Task<ResponseDto> CreateStorage(ISender sender, CreateStorageCommand command)
@@ -22,5 +24,9 @@ public class Storage : EndpointGroupBase
     public async Task<StorageListVM> GetStorageList(ISender sender)
     {
         return await sender.Send(new GetStorageListQuery());
+    }
+    public async Task<UserStorageList> GetStorageOfUser(ISender sender, GetStorageOfUserQuery query)
+    {
+        return await sender.Send(query);
     }
 }

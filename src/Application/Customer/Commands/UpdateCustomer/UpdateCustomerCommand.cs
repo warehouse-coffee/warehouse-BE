@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,14 @@ namespace warehouse_BE.Application.Customer.Commands.UpdateCustomer
 {
     public class UpdateCustomerCommand : IRequest<ResponseDto>
     {
-        public required UpdateCustomer customer { get; set; }
+        public required string Id { get; set; }
+        public string? UserName { get; set; }
+        public string? Password { get; set; }
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public bool IsActived { get; set; }
+        public IFormFile? AvatarImage { get; set; }
+        public List<string>? Warehouses { get; set; }
     }
     public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, ResponseDto>
     {
@@ -40,8 +48,20 @@ namespace warehouse_BE.Application.Customer.Commands.UpdateCustomer
                 {
                     return new ResponseDto(500, "User is not associated with any company.");
                 }
+                var customer = new UpdateCustomer
+                {
+                    CustomerId = request.Id,
+                    UserName = request.UserName,
+                    Password = request.Password,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    IsActived = request.IsActived,
+                    AvatarImage = "request.AvatarImage",
+                    Warehouses = request.Warehouses,
 
-                var rs = await _identityService.UpdateCustomer(request.customer);
+                };
+
+                var rs = await _identityService.UpdateCustomer(customer);
                 if (rs.Succeeded)
                 {
                     return new ResponseDto(200, "Customer created successfully.");

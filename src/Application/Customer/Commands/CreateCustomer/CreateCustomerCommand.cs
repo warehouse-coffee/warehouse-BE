@@ -14,17 +14,16 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
         public string? Password { get; set; }
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
+        public List<int>? Warehouses { get; set; }
     }
     public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand,ResponseDto>
     {
         private readonly IIdentityService _identityService;
         private readonly IUser _currentUser;
-        private readonly IApplicationDbContext _context;
-        public CreateCustomerCommandHandler(IIdentityService identityService, IUser currentUser, IApplicationDbContext context)
+        public CreateCustomerCommandHandler(IIdentityService identityService, IUser currentUser)
         {
             _identityService = identityService;
             _currentUser = currentUser;
-            _context = context;
         }
 
         public async Task<ResponseDto> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
@@ -49,6 +48,7 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
                     Password = request.Password,
                     PhoneNumber = request.PhoneNumber,
                     CompanyId = companyIdResult.CompanyId,
+                    Warehouses = request.Warehouses,
                 };
 
                 var rs = await _identityService.CreateCustomer(customer);

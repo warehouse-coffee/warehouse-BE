@@ -188,11 +188,23 @@
       }
     },
     "/api/CompanyOwner/all": {
-      "get": {
+      "post": {
         "tags": [
           "CompanyOwner"
         ],
         "operationId": "GetAll",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetCompanyOwnerListQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -460,11 +472,23 @@
       }
     },
     "/api/Customers/all": {
-      "get": {
+      "post": {
         "tags": [
           "Customers"
         ],
         "operationId": "GetListCustomer",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetListCustomerQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -878,6 +902,38 @@
         }
       }
     },
+    "/api/Storage/user": {
+      "post": {
+        "tags": [
+          "Storage"
+        ],
+        "operationId": "GetStorageOfUser",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetStorageOfUserQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStorageList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/SuperAdmin/user": {
       "post": {
         "tags": [
@@ -1254,6 +1310,14 @@
             "items": {
               "$ref": "#/components/schemas/UserDto"
             }
+          },
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
           }
         }
       },
@@ -1553,6 +1617,42 @@
         "type": "object",
         "x-abstract": true,
         "additionalProperties": false
+      },
+      "Page": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetCompanyOwnerListQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          }
+        }
       },
       "CompanyOwnerDetailDto": {
         "type": "object",
@@ -2076,6 +2176,14 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
+          },
+          "warehouses": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },
@@ -2083,16 +2191,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "customer": {
-            "$ref": "#/components/schemas/UpdateCustomer"
-          }
-        }
-      },
-      "UpdateCustomer": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "customerId": {
+          "id": {
             "type": "string"
           },
           "userName": {
@@ -2110,6 +2209,21 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
+          },
+          "isActived": {
+            "type": "boolean"
+          },
+          "avatarImage": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true
+          },
+          "warehouses": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -2123,6 +2237,28 @@
             "items": {
               "$ref": "#/components/schemas/UserDto"
             }
+          },
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          }
+        }
+      },
+      "GetListCustomerQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
           }
         }
       },
@@ -2370,28 +2506,6 @@
           }
         }
       },
-      "Page": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "size": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalElements": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "GetOrderListQuery": {
         "type": "object",
         "additionalProperties": false,
@@ -2502,6 +2616,63 @@
             "items": {
               "$ref": "#/components/schemas/StorageDto"
             }
+          }
+        }
+      },
+      "UserStorageList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "storages": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StorageDto2"
+            }
+          },
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          }
+        }
+      },
+      "StorageDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetStorageOfUserQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
           }
         }
       },

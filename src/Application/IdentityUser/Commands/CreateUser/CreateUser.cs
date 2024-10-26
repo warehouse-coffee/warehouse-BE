@@ -36,6 +36,10 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
         {
             return new ResponseDto(400, "All fields are required.");
         }
+        if (userRegister.RoleName.Equals("Super-Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            return new ResponseDto(400, "The role 'Super-Admin' cannot be assigned.");
+        }
         var existingCompany = await _context.Companies
                 .FirstOrDefaultAsync(c => c.CompanyId == userRegister.CompanyId, cancellationToken);
 

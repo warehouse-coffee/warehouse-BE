@@ -7,6 +7,7 @@ using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Domain.Common;
+using warehouse_BE.Domain.Entities;
 
 namespace warehouse_BE.Application.Common.Interfaces;
 
@@ -41,4 +42,6 @@ public interface IIdentityService
     Task<UserDto> GetUserById(string userId);
     Task<bool> Logout(string userId);
     Task<bool> ValidateTokenAsync(string token);
+    Task<List<Storage>> GetUserStoragesAsync(string userId);
+    Task<Storage> AddUserStorageAsync(string userId, Storage updatedStorage, CancellationToken cancellationToken);
 }

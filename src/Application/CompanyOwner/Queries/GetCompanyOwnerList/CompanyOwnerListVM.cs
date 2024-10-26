@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using warehouse_BE.Application.Common.Models;
 using warehouse_BE.Domain.Common;
 
 namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerList
@@ -14,5 +15,6 @@ namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerList
         }
 
         public List<UserDto> companyOwners { get; set; }
+        public Page? Page { get; set; }
     }
 }

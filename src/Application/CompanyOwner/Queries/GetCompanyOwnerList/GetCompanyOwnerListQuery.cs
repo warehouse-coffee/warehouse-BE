@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using warehouse_BE.Application.Common.Interfaces;
-using warehouse_BE.Application.Customer.Queries.GetListCustomer;
+﻿using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Common.Models;
 
 namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerList
 {
     public class GetCompanyOwnerListQuery : IRequest<CompanyOwnerListVM>
     {
+        public Page? Page { get; set; }
     }
     public class GetCompanyOwnerListQueryHandler : IRequestHandler<GetCompanyOwnerListQuery, CompanyOwnerListVM>
     {
@@ -31,10 +27,17 @@ namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerList
             var companyIdResult = await _identityService.GetCompanyId(_currentUser.Id);
             if (companyIdResult.CompanyId != null)
             {
-                var customer = await _identityService.GetUsersByRoleAsync("Admin", companyIdResult.CompanyId);
-                if (customer.Count > 0)
+                var admins = await _identityService.GetUsersByRoleAsync("Admin", companyIdResult.CompanyId);
+                if (admins.Count > 0)
                 {
-                    rs.companyOwners = customer;
+                    rs.companyOwners = admins.Skip((request.Page?.PageNumber - 1 ?? 0) * (request.Page?.Size ?? 1))
+                      .Take(request.Page?.Size ?? 10).ToList();
+                            rs.Page = new Page
+                            {
+                                Size = request.Page?.Size ?? 0,
+                                PageNumber = request.Page?.PageNumber ?? 1,
+                                TotalElements = admins.Count,
+                            };
                 }
             }
             return rs;

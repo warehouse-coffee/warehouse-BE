@@ -1,11 +1,12 @@
 ﻿using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Common.Models;
 using warehouse_BE.Application.Customer.Queries.GetListCustomer;
 
 namespace warehouse_BE.Application.Customer.Queries.GetLlistCustomer;
 
 public class GetListCustomerQuery : IRequest<CustomerListVM>
 {
-
+    public Page? Page { get; set; }
 }
 public class GetListCustomerQueryHandler : IRequestHandler<GetListCustomerQuery, CustomerListVM>
 {
@@ -36,7 +37,14 @@ public class GetListCustomerQueryHandler : IRequestHandler<GetListCustomerQuery,
             var customer = await _identityService.GetUsersByRoleAsync("Customer",companyIdResult.CompanyId);
             if (customer.Count > 0)
             {
-                rs.Customers = customer;
+                rs.Customers = customer.Skip((request.Page?.PageNumber - 1 ?? 0) * (request.Page?.Size ?? 1))
+                     .Take(request.Page?.Size ?? 10).ToList();
+                rs.Page = new Page
+                {
+                    Size = request.Page?.Size ?? 0,
+                    PageNumber = request.Page?.PageNumber ?? 1,
+                    TotalElements = customer.Count,
+                };
             }
         }
         return rs;

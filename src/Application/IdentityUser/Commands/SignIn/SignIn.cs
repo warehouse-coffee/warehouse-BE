@@ -39,7 +39,7 @@ public class SignInCommandHandler : IRequestHandler<SignInCommand, SignInVm>
             var token = await _identityService.SignIn(request.Email, request.Password, sourcePath);
             if (!string.IsNullOrEmpty(token))
             {
-                _logger.LogInformation("SampleController - Get method called : "+ request.Email );
+                _logger.LogInformation("SignIn - User SignIn with : "+ request.Email );
                 return new SignInVm
                 {
                     Token = token,

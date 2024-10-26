@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,23 +14,26 @@ public class DeleteCustomerCommand : IRequest<bool>
 }
 public class DeleteCustomerCommandHandler : IRequestHandler<DeleteCustomerCommand, bool>
 {
-    private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
-
-    public DeleteCustomerCommandHandler(IApplicationDbContext context
-        , IIdentityService identityService)
+    private readonly IUser _currentUser;
+    public DeleteCustomerCommandHandler( IIdentityService identityService, IUser currentUser)
     {
-        _context = context;
-        _identityService = identityService;
+        this._identityService = identityService;
+        this._currentUser = currentUser;
     }
     public async Task<bool> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
     {
         var rs = false;
-        var deleteresult = await _identityService.DeleteUserAsync(request.UserId);
-        if(deleteresult.Succeeded)
+        var role = await _identityService.GetRoleNamebyUserId(request.UserId);
+        if(role == "Customer")
         {
-            rs = true;
+            var deleteresult = await _identityService.DeleteUserAsync(request.UserId);
+            if (deleteresult.Succeeded)
+            {
+                rs = true;
+            }
         }
+        
         return rs;
 
     }
