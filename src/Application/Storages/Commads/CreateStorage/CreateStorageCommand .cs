@@ -93,18 +93,16 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
             await _context.SaveChangesAsync(cancellationToken);
 
             var result = await _identityService.AddUserStorageAsync(_currentUser.Id, createdStorage,cancellationToken);
-            var userStorages = await _identityService.GetUserStoragesAsync(_currentUser.Id);
             await _context.SaveChangesAsync(cancellationToken);
             var createdStorageDto = _mapper.Map<StorageDto>(createdStorage);
             return new ResponseDto(201, "Storage created successfully", createdStorageDto);
         }
         catch (Exception ex)
         {
-            // Xóa dữ liệu đã tạo nếu có lỗi xảy ra
             if (createdStorage != null)
             {
-                _context.Storages.Remove(createdStorage); // Xóa Storage
-                await _context.SaveChangesAsync(cancellationToken); // Lưu thay đổi
+                _context.Storages.Remove(createdStorage); 
+                await _context.SaveChangesAsync(cancellationToken);
             }
 
             return new ResponseDto(500, $"An error occurred while creating the storage: {ex.Message}");

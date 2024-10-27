@@ -54,14 +54,14 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
                 var rs = await _identityService.CreateCustomer(customer);
                 if(rs.Succeeded)
                 {
-                    return new ResponseDto(200, "Customer created successfully.");
+                    return new ResponseDto(200, "Employee created successfully.");
                 }
                 var errorMessages = string.Join(", ", rs.Errors);
-                return new ResponseDto(400, $"Customer creation unsuccessful. Errors: {errorMessages}");
+                return new ResponseDto(400, $"Employee creation unsuccessful. Errors: {errorMessages}");
             }
             catch (Exception ex)
             {
-                return new ResponseDto(500, $"An error occurred while creating the User: {ex.Message}");
+                return new ResponseDto(500, $"An error occurred while creating the Employee: {ex.Message}");
             }
         }
     }

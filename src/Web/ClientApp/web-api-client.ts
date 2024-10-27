@@ -3852,9 +3852,7 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
-    isActived?: boolean;
-    avatarImage?: string | undefined;
-    warehouses?: string[] | undefined;
+    warehouses?: number[] | undefined;
 
     constructor(data?: IUpdateCustomerCommand) {
         if (data) {
@@ -3872,8 +3870,6 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
             this.password = _data["password"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
-            this.isActived = _data["isActived"];
-            this.avatarImage = _data["avatarImage"];
             if (Array.isArray(_data["warehouses"])) {
                 this.warehouses = [] as any;
                 for (let item of _data["warehouses"])
@@ -3896,8 +3892,6 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
         data["password"] = this.password;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
-        data["isActived"] = this.isActived;
-        data["avatarImage"] = this.avatarImage;
         if (Array.isArray(this.warehouses)) {
             data["warehouses"] = [];
             for (let item of this.warehouses)
@@ -3913,9 +3907,7 @@ export interface IUpdateCustomerCommand {
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
-    isActived?: boolean;
-    avatarImage?: string | undefined;
-    warehouses?: string[] | undefined;
+    warehouses?: number[] | undefined;
 }
 
 export class CustomerListVM implements ICustomerListVM {
@@ -4012,6 +4004,7 @@ export class CustomerDetailVM implements ICustomerDetailVM {
     companyPhone?: string | undefined;
     companyEmail?: string | undefined;
     companyAddress?: string | undefined;
+    storages?: StorageDto2[] | undefined;
 
     constructor(data?: ICustomerDetailVM) {
         if (data) {
@@ -4033,6 +4026,11 @@ export class CustomerDetailVM implements ICustomerDetailVM {
             this.companyPhone = _data["companyPhone"];
             this.companyEmail = _data["companyEmail"];
             this.companyAddress = _data["companyAddress"];
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(StorageDto2.fromJS(item));
+            }
         }
     }
 
@@ -4054,6 +4052,11 @@ export class CustomerDetailVM implements ICustomerDetailVM {
         data["companyPhone"] = this.companyPhone;
         data["companyEmail"] = this.companyEmail;
         data["companyAddress"] = this.companyAddress;
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -4068,6 +4071,55 @@ export interface ICustomerDetailVM {
     companyPhone?: string | undefined;
     companyEmail?: string | undefined;
     companyAddress?: string | undefined;
+    storages?: StorageDto2[] | undefined;
+}
+
+export class StorageDto2 implements IStorageDto2 {
+    id?: number;
+    name?: string | undefined;
+    address?: string | undefined;
+    status?: string | undefined;
+
+    constructor(data?: IStorageDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.address = _data["address"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): StorageDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["address"] = this.address;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IStorageDto2 {
+    id?: number;
+    name?: string | undefined;
+    address?: string | undefined;
+    status?: string | undefined;
 }
 
 export class SignInVm implements ISignInVm {
@@ -4892,54 +4944,6 @@ export class UserStorageList implements IUserStorageList {
 export interface IUserStorageList {
     storages?: StorageDto2[] | undefined;
     page?: Page | undefined;
-}
-
-export class StorageDto2 implements IStorageDto2 {
-    id?: number;
-    name?: string | undefined;
-    address?: string | undefined;
-    status?: string | undefined;
-
-    constructor(data?: IStorageDto2) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.address = _data["address"];
-            this.status = _data["status"];
-        }
-    }
-
-    static fromJS(data: any): StorageDto2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new StorageDto2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["address"] = this.address;
-        data["status"] = this.status;
-        return data;
-    }
-}
-
-export interface IStorageDto2 {
-    id?: number;
-    name?: string | undefined;
-    address?: string | undefined;
-    status?: string | undefined;
 }
 
 export class GetStorageOfUserQuery implements IGetStorageOfUserQuery {

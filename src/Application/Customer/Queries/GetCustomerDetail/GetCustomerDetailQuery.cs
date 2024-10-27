@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Customer.Queries.GetListCustomer;
 using warehouse_BE.Application.Customer.Queries.GetLlistCustomer;
+using warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 
 namespace warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 
@@ -17,16 +18,28 @@ public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQu
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
-
+    private readonly IMapper _mapper;
+    private readonly IUser _currentUser;
+    private readonly ILoggerService _logger;
     public GetCustomerDetailQueryHandler(IApplicationDbContext context
-        , IIdentityService identityService)
+        , IIdentityService identityService
+        , IMapper mapper
+        , IUser currentUser
+        , ILoggerService logger)
     {
         _context = context;
         _identityService = identityService;
+        _mapper = mapper;
+        _currentUser = currentUser;
+        _logger = logger;
     }
     public async Task<CustomerDetailVM> Handle(GetCustomerDetailQuery request, CancellationToken cancellationToken)
     {
         var rs = new CustomerDetailVM { };
+        if (string.IsNullOrEmpty(_currentUser?.Id))
+        {
+            return rs;
+        }
         rs = await _identityService.GetUserByIdAsync(request.UserId);
         if (rs == null)
         {
@@ -42,6 +55,11 @@ public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQu
             rs.CompanyEmail = company.EmailContact;
             rs.CompanyAddress = company.Address;
         }
+        
+        var storages = await _identityService.GetUserStoragesAsync(_currentUser.Id);
+
+        var storageDtos = _mapper.Map<List<StorageDto>>(storages);
+        rs.Storages = storageDtos;
         return rs;
     }
 }

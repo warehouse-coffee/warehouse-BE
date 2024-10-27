@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using warehouse_BE.Application.Companies.Queries.GetCompanyList;
 using warehouse_BE.Domain.Entities;
 
-namespace warehouse_BE.Application.Storages.Queries.GetStoragebyCompanyId;
+namespace warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 
 public class StorageDto
 {

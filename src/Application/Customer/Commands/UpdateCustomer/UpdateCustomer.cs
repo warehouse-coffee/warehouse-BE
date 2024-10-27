@@ -14,7 +14,5 @@ public class UpdateCustomer
     public string? Password { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
-    public bool IsActived { get; set; }
-    public string? AvatarImage { get; set; }
-    public List<string>? Warehouses { get; set; }
+    public List<int>? Warehouses { get; set; }
 }

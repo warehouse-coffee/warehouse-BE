@@ -40,7 +40,6 @@ namespace warehouse_BE.Web.Endpoints
         {
             return sender.Send(query);
         }
-        [Authorize(Roles = "Admin")]
         public Task<CustomerDetailVM> GetCustomerDetail(ISender sender, string id) 
         {
             return sender.Send(new GetCustomerDetailQuery { UserId = id });

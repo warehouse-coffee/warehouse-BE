@@ -1,7 +1,7 @@
 ﻿using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Commads.CreateStorage;
-using warehouse_BE.Application.Storages.Queries.GetStoragebyCompanyId;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
+using warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 
 namespace warehouse_BE.Web.Endpoints;
 

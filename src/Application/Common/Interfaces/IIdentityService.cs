@@ -28,7 +28,7 @@ public interface IIdentityService
     Task<Result> ResetPasswordAsync(string email, string currentPassword, string newPassword);
     Task<(Result Result, string CompanyId)> GetCompanyId(string userId);
     Task<Result> CreateCustomer(CustomerRequest request);
-    Task<Result> UpdateCustomer(UpdateCustomer request);
+    Task<Result> UpdateCustomer(UpdateCustomer request, CancellationToken cancellation);
     Task<List<UserDto>> GetUsersByRoleAsync(string roleName, string companyId);
     Task<CustomerDetailVM?> GetUserByIdAsync(string userId);
     Task<Result> DeleteUserByIdAsync(string userId);

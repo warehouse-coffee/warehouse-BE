@@ -8,7 +8,7 @@ using warehouse_BE.Application.Common.Models;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Domain.Entities;
 
-namespace warehouse_BE.Application.Storages.Queries.GetStoragebyCompanyId;
+namespace warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 
 public class GetStorageOfUserQuery : IRequest<UserStorageList>
 {

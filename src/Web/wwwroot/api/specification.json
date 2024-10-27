@@ -2210,19 +2210,12 @@
             "type": "string",
             "nullable": true
           },
-          "isActived": {
-            "type": "boolean"
-          },
-          "avatarImage": {
-            "type": "string",
-            "format": "binary",
-            "nullable": true
-          },
           "warehouses": {
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           }
         }
@@ -2299,6 +2292,35 @@
             "nullable": true
           },
           "companyAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "storages": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StorageDto2"
+            }
+          }
+        }
+      },
+      "StorageDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
             "type": "string",
             "nullable": true
           }
@@ -2637,28 +2659,6 @@
                 "$ref": "#/components/schemas/Page"
               }
             ]
-          }
-        }
-      },
-      "StorageDto2": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "address": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
           }
         }
       },

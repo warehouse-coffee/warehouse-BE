@@ -16,9 +16,7 @@ namespace warehouse_BE.Application.Customer.Commands.UpdateCustomer
         public string? Password { get; set; }
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
-        public bool IsActived { get; set; }
-        public IFormFile? AvatarImage { get; set; }
-        public List<string>? Warehouses { get; set; }
+        public List<int>? Warehouses { get; set; }
     }
     public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, ResponseDto>
     {
@@ -55,23 +53,20 @@ namespace warehouse_BE.Application.Customer.Commands.UpdateCustomer
                     Password = request.Password,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
-                    IsActived = request.IsActived,
-                    AvatarImage = "request.AvatarImage",
                     Warehouses = request.Warehouses,
-
                 };
 
-                var rs = await _identityService.UpdateCustomer(customer);
+                var rs = await _identityService.UpdateCustomer(customer, cancellationToken);
                 if (rs.Succeeded)
                 {
-                    return new ResponseDto(200, "Customer created successfully.");
+                    return new ResponseDto(200, "Employee created successfully.");
                 }
                 var errorMessages = string.Join(", ", rs.Errors);
-                return new ResponseDto(400, $"Customer creation unsuccessful. Errors: {errorMessages}");
+                return new ResponseDto(400, $"Employee creation unsuccessful. Errors: {errorMessages}");
             }
             catch (Exception ex)
             {
-                return new ResponseDto(500, $"An error occurred while creating the User: {ex.Message}");
+                return new ResponseDto(500, $"An error occurred while creating the Employee: {ex.Message}");
             }
         }
     }

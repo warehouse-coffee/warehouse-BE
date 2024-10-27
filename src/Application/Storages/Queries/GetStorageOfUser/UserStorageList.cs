@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Models;
 
-namespace warehouse_BE.Application.Storages.Queries.GetStoragebyCompanyId;
+namespace warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 
 public class UserStorageList
 {

@@ -348,7 +348,11 @@ public class IdentityService : IIdentityService
             return (Result.Failure(new[] { "Unaccepted the request!." }));
 
         }
-
+        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email && !u.isDeleted);
+        if (existingUser != null)
+        {
+            return (Result.Failure(new[] { "Email is already in use." }));
+        }
         var storageIds = request.Warehouses ?? new List<int>();
 
         var storages = storageIds.Any()
@@ -389,7 +393,7 @@ public class IdentityService : IIdentityService
         }
         return (Result.Success());
     }
-    public async Task<Result> UpdateCustomer(UpdateCustomer request)
+    public async Task<Result> UpdateCustomer(UpdateCustomer request,CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request?.UserName) || string.IsNullOrEmpty(request?.Password) || string.IsNullOrEmpty(request?.Email))
         {
@@ -427,14 +431,59 @@ public class IdentityService : IIdentityService
                 return Result.Failure(passwordChangeResult.Errors.Select(e => e.Description));
             }
         }
-
-        var updateResult = await _userManager.UpdateAsync(user);
-
-        if (!updateResult.Succeeded)
+        try
         {
-            return Result.Failure(updateResult.Errors.Select(e => e.Description));
-        }
+            var curentUser = await _context.Users
+            .Include(u => u.Storages)
+            .FirstOrDefaultAsync(u => u.Id == request.CustomerId);
 
+            if (curentUser == null)
+            {
+                return Result.Failure(new[] { "User not found." });
+            }
+
+            // Lấy danh sách Storage IDs cần thêm
+            var storageIds = request.Warehouses ?? new List<int>();
+            var newStorages = await _context.Storages
+                                             .Where(s => storageIds.Contains(s.Id))
+                                             .ToListAsync();
+
+            // Log số lượng Storage hiện có
+            Console.WriteLine($"Current Storages Count: {curentUser.Storages.Count}");
+
+            // Xóa các `Storage` không có trong `storageIds`
+            curentUser.Storages.RemoveAll(s => !storageIds.Contains(s.Id));
+
+            // Thêm các `Storage` mới chưa có trong `user.Storages`
+            foreach (var storage in newStorages)
+            {
+                if (!curentUser.Storages.Any(s => s.Id == storage.Id))
+                {
+                    curentUser.Storages.Add(storage);
+                }
+            }
+
+            // Kiểm tra trạng thái của từng Storage trong `user.Storages`
+            foreach (var storage in curentUser.Storages)
+            {
+                _context.Entry(storage).State = EntityState.Modified;
+            }
+
+            // Cập nhật trạng thái của User và lưu thay đổi
+            var updateResult = await _userManager.UpdateAsync(user);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            if (!updateResult.Succeeded)
+            {
+                return Result.Failure(updateResult.Errors.Select(e => e.Description));
+            }
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogError( "Failed to update customer.", ex);
+            return Result.Failure(new[] { "An error occurred while updating the customer." });
+
+        }
         return Result.Success();
     }
     public async Task<List<UserDto>> GetUsersByRoleAsync(string roleName, string companyId)
