@@ -8,12 +8,12 @@ using warehouse_BE.Domain.Common;
 
 namespace warehouse_BE.Application.Customer.Queries.GetListCustomer;
 
-public class CustomerListVM
+public class EmployeeListVM
 {
-    public CustomerListVM()
+    public EmployeeListVM()
     {
-        Customers = new List<UserDto> { new UserDto() };
+        Employees = new List<EmployeeDto> { new EmployeeDto() };
     }
-   public List<UserDto>? Customers { get; set; }
+   public List<EmployeeDto>? Employees { get; set; }
     public Page? Page { get; set; }
 }

@@ -9,7 +9,7 @@ namespace warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 
 public class CustomerDetailVM
 {
-    public string? CustomerId { get; set; }
+    public string? Id { get; set; }
     public string? UserName { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }

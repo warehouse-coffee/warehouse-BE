@@ -36,18 +36,18 @@ namespace warehouse_BE.Web.Endpoints
             return sender.Send(command);
         }
         [Authorize(Roles = "Admin")]
-        public Task<CustomerListVM> GetListCustomer(ISender sender, GetListCustomerQuery query  )
+        public Task<EmployeeListVM> GetListCustomer(ISender sender, GetListCustomerQuery query  )
         {
             return sender.Send(query);
         }
         public Task<CustomerDetailVM> GetCustomerDetail(ISender sender, string id) 
         {
-            return sender.Send(new GetCustomerDetailQuery { UserId = id });
+            return sender.Send(new GetCustomerDetailQuery { Id = id });
         }
         [Authorize(Roles = "Admin")]
         public Task<bool> DeleteCustomer(ISender sender, string id)
         {
-            return sender.Send(new DeleteCustomerCommand { UserId = id });
+            return sender.Send(new DeleteCustomerCommand { Id = id });
         }
     }
 }

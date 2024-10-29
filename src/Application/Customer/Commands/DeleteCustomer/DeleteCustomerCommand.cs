@@ -10,7 +10,7 @@ namespace warehouse_BE.Application.Customer.Commands.DeleteCustomer;
 
 public class DeleteCustomerCommand : IRequest<bool>
 {
-    public required string UserId { get; set; }
+    public required string Id { get; set; }
 }
 public class DeleteCustomerCommandHandler : IRequestHandler<DeleteCustomerCommand, bool>
 {
@@ -24,10 +24,10 @@ public class DeleteCustomerCommandHandler : IRequestHandler<DeleteCustomerComman
     public async Task<bool> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
     {
         var rs = false;
-        var role = await _identityService.GetRoleNamebyUserId(request.UserId);
+        var role = await _identityService.GetRoleNamebyUserId(request.Id);
         if(role == "Customer")
         {
-            var deleteresult = await _identityService.DeleteUserAsync(request.UserId);
+            var deleteresult = await _identityService.DeleteUserAsync(request.Id);
             if (deleteresult.Succeeded)
             {
                 rs = true;

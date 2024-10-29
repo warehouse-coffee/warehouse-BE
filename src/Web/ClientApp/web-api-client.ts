@@ -788,7 +788,7 @@ export class CustomersClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    getListCustomer(query: GetListCustomerQuery): Promise<CustomerListVM> {
+    getListCustomer(query: GetListCustomerQuery): Promise<EmployeeListVM> {
         let url_ = this.baseUrl + "/api/Customers/all";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -810,14 +810,14 @@ export class CustomersClient {
         });
     }
 
-    protected processGetListCustomer(response: Response): Promise<CustomerListVM> {
+    protected processGetListCustomer(response: Response): Promise<EmployeeListVM> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CustomerListVM.fromJS(resultData200);
+            result200 = EmployeeListVM.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -825,7 +825,7 @@ export class CustomersClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CustomerListVM>(null as any);
+        return Promise.resolve<EmployeeListVM>(null as any);
     }
 
     getCustomerDetail(id: string): Promise<CustomerDetailVM> {
@@ -3910,11 +3910,11 @@ export interface IUpdateCustomerCommand {
     warehouses?: number[] | undefined;
 }
 
-export class CustomerListVM implements ICustomerListVM {
-    customers?: UserDto[] | undefined;
+export class EmployeeListVM implements IEmployeeListVM {
+    employees?: EmployeeDto[] | undefined;
     page?: Page | undefined;
 
-    constructor(data?: ICustomerListVM) {
+    constructor(data?: IEmployeeListVM) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3925,37 +3925,97 @@ export class CustomerListVM implements ICustomerListVM {
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["customers"])) {
-                this.customers = [] as any;
-                for (let item of _data["customers"])
-                    this.customers!.push(UserDto.fromJS(item));
+            if (Array.isArray(_data["employees"])) {
+                this.employees = [] as any;
+                for (let item of _data["employees"])
+                    this.employees!.push(EmployeeDto.fromJS(item));
             }
             this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): CustomerListVM {
+    static fromJS(data: any): EmployeeListVM {
         data = typeof data === 'object' ? data : {};
-        let result = new CustomerListVM();
+        let result = new EmployeeListVM();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.customers)) {
-            data["customers"] = [];
-            for (let item of this.customers)
-                data["customers"].push(item.toJSON());
+        if (Array.isArray(this.employees)) {
+            data["employees"] = [];
+            for (let item of this.employees)
+                data["employees"].push(item.toJSON());
         }
         data["page"] = this.page ? this.page.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface ICustomerListVM {
-    customers?: UserDto[] | undefined;
+export interface IEmployeeListVM {
+    employees?: EmployeeDto[] | undefined;
     page?: Page | undefined;
+}
+
+export class EmployeeDto implements IEmployeeDto {
+    id?: string | undefined;
+    companyId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    isActived?: boolean;
+    avatarImage?: string | undefined;
+
+    constructor(data?: IEmployeeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.companyId = _data["companyId"];
+            this.userName = _data["userName"];
+            this.email = _data["email"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.isActived = _data["isActived"];
+            this.avatarImage = _data["avatarImage"];
+        }
+    }
+
+    static fromJS(data: any): EmployeeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new EmployeeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["companyId"] = this.companyId;
+        data["userName"] = this.userName;
+        data["email"] = this.email;
+        data["phoneNumber"] = this.phoneNumber;
+        data["isActived"] = this.isActived;
+        data["avatarImage"] = this.avatarImage;
+        return data;
+    }
+}
+
+export interface IEmployeeDto {
+    id?: string | undefined;
+    companyId?: string | undefined;
+    userName?: string | undefined;
+    email?: string | undefined;
+    phoneNumber?: string | undefined;
+    isActived?: boolean;
+    avatarImage?: string | undefined;
 }
 
 export class GetListCustomerQuery implements IGetListCustomerQuery {
@@ -3995,7 +4055,7 @@ export interface IGetListCustomerQuery {
 }
 
 export class CustomerDetailVM implements ICustomerDetailVM {
-    customerId?: string | undefined;
+    id?: string | undefined;
     userName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
@@ -4017,7 +4077,7 @@ export class CustomerDetailVM implements ICustomerDetailVM {
 
     init(_data?: any) {
         if (_data) {
-            this.customerId = _data["customerId"];
+            this.id = _data["id"];
             this.userName = _data["userName"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
@@ -4043,7 +4103,7 @@ export class CustomerDetailVM implements ICustomerDetailVM {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["customerId"] = this.customerId;
+        data["id"] = this.id;
         data["userName"] = this.userName;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
@@ -4062,7 +4122,7 @@ export class CustomerDetailVM implements ICustomerDetailVM {
 }
 
 export interface ICustomerDetailVM {
-    customerId?: string | undefined;
+    id?: string | undefined;
     userName?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;

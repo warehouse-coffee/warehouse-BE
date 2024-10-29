@@ -12,7 +12,7 @@ namespace warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
 
 public class GetCustomerDetailQuery : IRequest<CustomerDetailVM>
 {
-    public required string UserId { get; set; }
+    public required string Id { get; set; }
 }
 public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQuery, CustomerDetailVM>
 {
@@ -40,7 +40,7 @@ public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQu
         {
             return rs;
         }
-        rs = await _identityService.GetUserByIdAsync(request.UserId);
+        rs = await _identityService.GetUserByIdAsync(request.Id);
         if (rs == null)
         {
            return new CustomerDetailVM { };
@@ -56,7 +56,7 @@ public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQu
             rs.CompanyAddress = company.Address;
         }
         
-        var storages = await _identityService.GetUserStoragesAsync(_currentUser.Id);
+        var storages = await _identityService.GetUserStoragesAsync(request.Id);
 
         var storageDtos = _mapper.Map<List<StorageDto>>(storages);
         rs.Storages = storageDtos;

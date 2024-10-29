@@ -51,10 +51,10 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
                     Warehouses = request.Warehouses,
                 };
 
-                var rs = await _identityService.CreateCustomer(customer);
-                if(rs.Succeeded)
+                var (rs, employeeDto) = await _identityService.CreateCustomer(customer);
+                if (rs.Succeeded)
                 {
-                    return new ResponseDto(200, "Employee created successfully.");
+                    return new ResponseDto(200, "Employee created successfully.", employeeDto);
                 }
                 var errorMessages = string.Join(", ", rs.Errors);
                 return new ResponseDto(400, $"Employee creation unsuccessful. Errors: {errorMessages}");

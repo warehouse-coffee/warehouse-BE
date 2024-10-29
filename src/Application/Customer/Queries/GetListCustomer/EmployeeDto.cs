@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using warehouse_BE.Domain.Entities;
 
 namespace warehouse_BE.Application.Customer.Queries.GetListCustomer;
 
-public class CustomerDto
+public class EmployeeDto
 {
-    public string? CustomerId { get; set; }
+    public string? Id { get; set; }
+    public string? CompanyId { get; set; }
     public string? UserName { get; set; }
-    public string? Password { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
-    public string? CompanyId { get; set; }
+    public bool isActived { get; set; }
+    public string? AvatarImage { get; set; }
 }

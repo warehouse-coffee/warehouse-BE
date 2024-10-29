@@ -495,7 +495,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomerListVM"
+                  "$ref": "#/components/schemas/EmployeeListVM"
                 }
               }
             }
@@ -2220,15 +2220,15 @@
           }
         }
       },
-      "CustomerListVM": {
+      "EmployeeListVM": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "customers": {
+          "employees": {
             "type": "array",
             "nullable": true,
             "items": {
-              "$ref": "#/components/schemas/UserDto"
+              "$ref": "#/components/schemas/EmployeeDto"
             }
           },
           "page": {
@@ -2238,6 +2238,39 @@
                 "$ref": "#/components/schemas/Page"
               }
             ]
+          }
+        }
+      },
+      "EmployeeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActived": {
+            "type": "boolean"
+          },
+          "avatarImage": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2259,7 +2292,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "customerId": {
+          "id": {
             "type": "string",
             "nullable": true
           },

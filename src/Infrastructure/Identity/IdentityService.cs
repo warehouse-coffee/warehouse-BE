@@ -18,6 +18,7 @@ using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
 using warehouse_BE.Domain.Entities;
+using warehouse_BE.Application.Customer.Queries.GetListCustomer;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -97,9 +98,9 @@ public class IdentityService : IIdentityService
         {
             return Result.Success();
         }
-        var result = await _userManager.DeleteAsync(user);
+        user.isDeleted = true;
+        var result = await _userManager.UpdateAsync(user);
         return result.ToApplicationResult();
-
     }
 
     public async Task<Result> DeleteUserAsync(ApplicationUser user)
@@ -341,17 +342,16 @@ public class IdentityService : IIdentityService
 
         return (Result.Success(), companyId);
     }
-    public async Task<Result> CreateCustomer(CustomerRequest request)
+    public async Task<(Result result, EmployeeDto? employeeDto)> CreateCustomer(CustomerRequest request)
     {
         if(string.IsNullOrEmpty(request?.UserName)  || string.IsNullOrEmpty(request?.Password) || string.IsNullOrEmpty(request?.Email))
         {
-            return (Result.Failure(new[] { "Unaccepted the request!." }));
-
+            return (Result.Failure(new[] { "Unaccepted the request!." }), null);
         }
         var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email && !u.isDeleted);
         if (existingUser != null)
         {
-            return (Result.Failure(new[] { "Email is already in use." }));
+            return (Result.Failure(new[] { "Email is already in use." }), null);
         }
         var storageIds = request.Warehouses ?? new List<int>();
 
@@ -368,13 +368,14 @@ public class IdentityService : IIdentityService
             CompanyId = request.CompanyId,
             Storages = storages
         };
+        var employeeDto = new EmployeeDto();
         try
         {
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description).ToList();
-                return Result.Failure(errors);
+                return (Result.Failure(errors), null);
             }
 
             var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
@@ -382,16 +383,26 @@ public class IdentityService : IIdentityService
             {
                 await _userManager.DeleteAsync(user);
                 var roleErrors = roleResult.Errors.Select(e => e.Description).ToList();
-                return Result.Failure(roleErrors);
+                return (Result.Failure(roleErrors), null);
             }
+            employeeDto = new EmployeeDto
+            {
+                Id = user.Id,
+                CompanyId = user.CompanyId,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                isActived = true, 
+                AvatarImage = user.AvatarImage 
+            };
         }
         catch
         {
             var result = await _userManager.CreateAsync(user, request.Password);
             var errors = result.Errors.Select(e => e.Description).ToList();
-            return (Result.Failure(errors));
+            return (Result.Failure(errors), null);
         }
-        return (Result.Success());
+        return (Result.Success(), employeeDto);
     }
     public async Task<Result> UpdateCustomer(UpdateCustomer request,CancellationToken cancellationToken)
     {
@@ -538,7 +549,7 @@ public class IdentityService : IIdentityService
         }
         var customerDetail = new CustomerDetailVM
         {
-            CustomerId = user.Id,
+            Id = user.Id,
             UserName = user.UserName,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
