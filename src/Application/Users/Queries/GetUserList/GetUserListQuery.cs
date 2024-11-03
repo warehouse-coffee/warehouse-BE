@@ -8,6 +8,7 @@ namespace warehouse_BE.Application.Users.Queries.GetUserList;
 public class GetUserListQuery : IRequest<UserListVm>
 {
     public Page? Page { get; set; }
+    public string? SearchText { get; set; }
 }
 public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, UserListVm>
 {
@@ -31,6 +32,13 @@ public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, UserLis
             var data = await _identityService.GetUserList();
             if (data != null)
             {
+                if (!string.IsNullOrEmpty(request.SearchText))
+                {
+                    data = data.Where(user =>
+                        user.Email != null &&
+                        user.Email.Contains(request.SearchText, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+                }
                 rs.Users = data.Skip((request.Page?.PageNumber - 1 ?? 0) * (request.Page?.Size ?? 1))
                .Take(request.Page?.Size ?? 10).ToList();
                 rs.Page = new Page

@@ -22,7 +22,7 @@ public class LoggerService : ILoggerService
         }
     }
 
-    private string GetLogFilePath(DateTime date)
+    private string GetLogFilePath(DateTime? date)
     {
         return Path.Combine(_logDirectory, $"{date:yyyy_MM_dd}.txt");
     }
@@ -52,30 +52,54 @@ public class LoggerService : ILoggerService
         }
     }
 
-    public List<string> ReadLogs(DateTime date, string? logLevel = null, int? hour = null)
+    public List<string> ReadLogs(DateTime? date, string? logLevel = null, int? hour = null)
     {
-        string logFilePath = GetLogFilePath(date);
-        if (!File.Exists(logFilePath))
+        List<string> logs = new List<string>();
+
+        if (date == default && logLevel == null && hour == null)
         {
-            return new List<string>();
+            var currentDate = DateTime.Now;
+            int currentMonth = currentDate.Month;
+            int currentYear = currentDate.Year;
+
+            for (int day = 1; day <= DateTime.DaysInMonth(currentYear, currentMonth); day++)
+            {
+                DateTime logDate = new DateTime(currentYear, currentMonth, day);
+                string logFilePath = GetLogFilePath(logDate);
+
+                if (File.Exists(logFilePath))
+                {
+                    logs.AddRange(File.ReadLines(logFilePath));
+                }
+            }
         }
+        else
+        {
+            string logFilePath = GetLogFilePath(date);
 
-        var logs = File.ReadLines(logFilePath)
-       .Where(line =>
-       {
-           bool levelMatches = string.IsNullOrEmpty(logLevel) || line.Contains($"[{logLevel}]");
+            if (!File.Exists(logFilePath))
+            {
+                return new List<string>();
+            }
 
-           bool hourMatches = true;
-           if (hour.HasValue)
-           {
-               var logTime = DateTime.Parse(line.Substring(0, 19)); 
-               hourMatches = logTime.Hour == hour.Value;
-           }
+            logs = File.ReadLines(logFilePath)
+                .Where(line =>
+                {
+                    bool levelMatches = string.IsNullOrEmpty(logLevel) || line.Contains($"[{logLevel}]");
 
-           return levelMatches && hourMatches;
-       })
-       .ToList();
+                    bool hourMatches = true;
+                    if (hour.HasValue)
+                    {
+                        var logTime = DateTime.Parse(line.Substring(0, 19));
+                        hourMatches = logTime.Hour == hour.Value;
+                    }
+
+                    return levelMatches && hourMatches;
+                })
+                .ToList();
+        }
 
         return logs;
     }
+
 }

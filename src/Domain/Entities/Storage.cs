@@ -7,4 +7,5 @@ public class Storage : BaseAuditableEntity
     public required StorageStatus Status { get; set; }
     public string? CompanyId { get; set; }
     public ICollection<Area>? Areas { get; set; } = new List<Area>();
+    public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
 }

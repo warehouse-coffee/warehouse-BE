@@ -1058,19 +1058,17 @@ export class LogsClient {
         this.XSRF = XSRF || "";
     }
 
-    getLogs(date: string | null | undefined, typelog: string | null | undefined, hour: number | null | undefined): Promise<LogList> {
-        let url_ = this.baseUrl + "/api/Logs?";
-        if (date !== undefined && date !== null)
-            url_ += "date=" + encodeURIComponent("" + date) + "&";
-        if (typelog !== undefined && typelog !== null)
-            url_ += "typelog=" + encodeURIComponent("" + typelog) + "&";
-        if (hour !== undefined && hour !== null)
-            url_ += "hour=" + encodeURIComponent("" + hour) + "&";
+    getLogs(query: GetLogListQuery): Promise<LogList> {
+        let url_ = this.baseUrl + "/api/Logs";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(query);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json",
                 "Authorization": `Bearer ${this.token}`,
                 "X-XSRF-TOKEN": `${this.XSRF}`,
@@ -1454,6 +1452,46 @@ export class StorageClient {
             });
         }
         return Promise.resolve<UserStorageList>(null as any);
+    }
+
+    getStorageProducts(query: GetStorageProductsQuery): Promise<StorageProductListVM> {
+        let url_ = this.baseUrl + "/api/Storage/products";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetStorageProducts(_response);
+        });
+    }
+
+    protected processGetStorageProducts(response: Response): Promise<StorageProductListVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StorageProductListVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<StorageProductListVM>(null as any);
     }
 }
 
@@ -2517,7 +2555,6 @@ export class Product extends BaseAuditableEntity implements IProduct {
     expiration?: Date;
     importDate?: Date;
     exportDate?: Date;
-    safeStock?: number;
     categoryId?: number;
     areaId?: number;
     category?: Category | undefined;
@@ -2540,7 +2577,6 @@ export class Product extends BaseAuditableEntity implements IProduct {
             this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
             this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
             this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
-            this.safeStock = _data["safeStock"];
             this.categoryId = _data["categoryId"];
             this.areaId = _data["areaId"];
             this.category = _data["category"] ? Category.fromJS(_data["category"]) : <any>undefined;
@@ -2567,7 +2603,6 @@ export class Product extends BaseAuditableEntity implements IProduct {
         data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
         data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
         data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
-        data["safeStock"] = this.safeStock;
         data["categoryId"] = this.categoryId;
         data["areaId"] = this.areaId;
         data["category"] = this.category ? this.category.toJSON() : <any>undefined;
@@ -2588,7 +2623,6 @@ export interface IProduct extends IBaseAuditableEntity {
     expiration?: Date;
     importDate?: Date;
     exportDate?: Date;
-    safeStock?: number;
     categoryId?: number;
     areaId?: number;
     category?: Category | undefined;
@@ -3019,7 +3053,6 @@ export interface IUpdateCompanyOwnerCommand {
 }
 
 export class CreateConfigCommand implements ICreateConfigCommand {
-    webServiceUrl?: string | undefined;
     aiServiceKey?: string | undefined;
     emailServiceKey?: string | undefined;
     aiDriverServer?: string | undefined;
@@ -3035,7 +3068,6 @@ export class CreateConfigCommand implements ICreateConfigCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.webServiceUrl = _data["webServiceUrl"];
             this.aiServiceKey = _data["aiServiceKey"];
             this.emailServiceKey = _data["emailServiceKey"];
             this.aiDriverServer = _data["aiDriverServer"];
@@ -3051,7 +3083,6 @@ export class CreateConfigCommand implements ICreateConfigCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["webServiceUrl"] = this.webServiceUrl;
         data["aiServiceKey"] = this.aiServiceKey;
         data["emailServiceKey"] = this.emailServiceKey;
         data["aiDriverServer"] = this.aiDriverServer;
@@ -3060,7 +3091,6 @@ export class CreateConfigCommand implements ICreateConfigCommand {
 }
 
 export interface ICreateConfigCommand {
-    webServiceUrl?: string | undefined;
     aiServiceKey?: string | undefined;
     emailServiceKey?: string | undefined;
     aiDriverServer?: string | undefined;
@@ -4349,6 +4379,7 @@ export interface IResetPasswordCommand {
 export class LogList implements ILogList {
     logVMs?: LogVM[];
     status?: number;
+    page?: Page | undefined;
 
     constructor(data?: ILogList) {
         if (data) {
@@ -4367,6 +4398,7 @@ export class LogList implements ILogList {
                     this.logVMs!.push(LogVM.fromJS(item));
             }
             this.status = _data["status"];
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
         }
     }
 
@@ -4385,6 +4417,7 @@ export class LogList implements ILogList {
                 data["logVMs"].push(item.toJSON());
         }
         data["status"] = this.status;
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -4392,6 +4425,7 @@ export class LogList implements ILogList {
 export interface ILogList {
     logVMs?: LogVM[];
     status?: number;
+    page?: Page | undefined;
 }
 
 export class LogVM implements ILogVM {
@@ -4444,6 +4478,54 @@ export interface ILogVM {
     message?: string | undefined;
     hour?: string | undefined;
     type?: string | undefined;
+}
+
+export class GetLogListQuery implements IGetLogListQuery {
+    page?: Page | undefined;
+    date?: Date | undefined;
+    typeLog?: string | undefined;
+    hour?: number | undefined;
+
+    constructor(data?: IGetLogListQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.typeLog = _data["typeLog"];
+            this.hour = _data["hour"];
+        }
+    }
+
+    static fromJS(data: any): GetLogListQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetLogListQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["typeLog"] = this.typeLog;
+        data["hour"] = this.hour;
+        return data;
+    }
+}
+
+export interface IGetLogListQuery {
+    page?: Page | undefined;
+    date?: Date | undefined;
+    typeLog?: string | undefined;
+    hour?: number | undefined;
 }
 
 export class ImportStogareCommand implements IImportStogareCommand {
@@ -5042,6 +5124,230 @@ export interface IGetStorageOfUserQuery {
     page?: Page | undefined;
 }
 
+export class StorageProductListVM implements IStorageProductListVM {
+    products?: ProductDto2[];
+    page?: Page;
+
+    constructor(data?: IStorageProductListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(ProductDto2.fromJS(item));
+            }
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): StorageProductListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageProductListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IStorageProductListVM {
+    products?: ProductDto2[];
+    page?: Page;
+}
+
+export class ProductDto2 implements IProductDto2 {
+    name?: string;
+    units?: string;
+    amount?: number;
+    image?: string | undefined;
+    status?: string;
+    expiration?: Date;
+    importDate?: Date;
+    exportDate?: Date;
+    safeStock?: number;
+    totalPrice?: number;
+
+    constructor(data?: IProductDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.units = _data["units"];
+            this.amount = _data["amount"];
+            this.image = _data["image"];
+            this.status = _data["status"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
+            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
+            this.safeStock = _data["safeStock"];
+            this.totalPrice = _data["totalPrice"];
+        }
+    }
+
+    static fromJS(data: any): ProductDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["units"] = this.units;
+        data["amount"] = this.amount;
+        data["image"] = this.image;
+        data["status"] = this.status;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
+        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
+        data["safeStock"] = this.safeStock;
+        data["totalPrice"] = this.totalPrice;
+        return data;
+    }
+}
+
+export interface IProductDto2 {
+    name?: string;
+    units?: string;
+    amount?: number;
+    image?: string | undefined;
+    status?: string;
+    expiration?: Date;
+    importDate?: Date;
+    exportDate?: Date;
+    safeStock?: number;
+    totalPrice?: number;
+}
+
+export class GetStorageProductsQuery implements IGetStorageProductsQuery {
+    storageId?: number;
+    page?: Page | undefined;
+    searchText?: string | undefined;
+    filterData?: FilterData[] | undefined;
+
+    constructor(data?: IGetStorageProductsQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.storageId = _data["storageId"];
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+            this.searchText = _data["searchText"];
+            if (Array.isArray(_data["filterData"])) {
+                this.filterData = [] as any;
+                for (let item of _data["filterData"])
+                    this.filterData!.push(FilterData.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetStorageProductsQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetStorageProductsQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["storageId"] = this.storageId;
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        data["searchText"] = this.searchText;
+        if (Array.isArray(this.filterData)) {
+            data["filterData"] = [];
+            for (let item of this.filterData)
+                data["filterData"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGetStorageProductsQuery {
+    storageId?: number;
+    page?: Page | undefined;
+    searchText?: string | undefined;
+    filterData?: FilterData[] | undefined;
+}
+
+export class FilterData implements IFilterData {
+    prop?: string | undefined;
+    value?: string | undefined;
+    filter?: string | undefined;
+    type?: string | undefined;
+
+    constructor(data?: IFilterData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.prop = _data["prop"];
+            this.value = _data["value"];
+            this.filter = _data["filter"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): FilterData {
+        data = typeof data === 'object' ? data : {};
+        let result = new FilterData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["prop"] = this.prop;
+        data["value"] = this.value;
+        data["filter"] = this.filter;
+        data["type"] = this.type;
+        return data;
+    }
+}
+
+export interface IFilterData {
+    prop?: string | undefined;
+    value?: string | undefined;
+    filter?: string | undefined;
+    type?: string | undefined;
+}
+
 export class CreateUserCommand implements ICreateUserCommand {
     userRegister?: UserRegister;
 
@@ -5184,6 +5490,7 @@ export interface IUserListVm {
 
 export class GetUserListQuery implements IGetUserListQuery {
     page?: Page | undefined;
+    searchText?: string | undefined;
 
     constructor(data?: IGetUserListQuery) {
         if (data) {
@@ -5197,6 +5504,7 @@ export class GetUserListQuery implements IGetUserListQuery {
     init(_data?: any) {
         if (_data) {
             this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+            this.searchText = _data["searchText"];
         }
     }
 
@@ -5210,12 +5518,14 @@ export class GetUserListQuery implements IGetUserListQuery {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        data["searchText"] = this.searchText;
         return data;
     }
 }
 
 export interface IGetUserListQuery {
     page?: Page | undefined;
+    searchText?: string | undefined;
 }
 
 export class UserVM implements IUserVM {

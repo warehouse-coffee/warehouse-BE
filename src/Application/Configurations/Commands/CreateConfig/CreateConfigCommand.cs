@@ -7,7 +7,7 @@ namespace warehouse_BE.Application.Configurations.Commands.CreateConfig;
 
 public class CreateConfigCommand : IRequest<ResponseDto>
 {
-    public string? WebServiceUrl { get; set; }
+    //public string? WebServiceUrl { get; set; }
     public string? AIServiceKey { get; set;}
     public string? EmailServiceKey { get; set;}
     public string? AiDriverServer { get; set; }
@@ -47,22 +47,22 @@ public class CreateConfigCommandHandeler : IRequestHandler<CreateConfigCommand, 
                                  c.Key == ConfigurationKeys.AiDriverServer)
                     .ToListAsync(cancellationToken);
 
-                if (!string.IsNullOrEmpty(request.WebServiceUrl))
-                {
-                    var webServiceConfig = existingConfigs.FirstOrDefault(c => c.Key == ConfigurationKeys.WebServiceUrl);
-                    if (webServiceConfig != null)
-                    {
-                        webServiceConfig.Value = request.WebServiceUrl;
-                    }
-                    else
-                    {
-                        _context.Configurations.Add(new Configuration
-                        {
-                            Key = ConfigurationKeys.WebServiceUrl,
-                            Value = request.WebServiceUrl
-                        });
-                    }
-                }
+                //if (!string.IsNullOrEmpty(request.WebServiceUrl))
+                //{
+                //    var webServiceConfig = existingConfigs.FirstOrDefault(c => c.Key == ConfigurationKeys.WebServiceUrl);
+                //    if (webServiceConfig != null)
+                //    {
+                //        webServiceConfig.Value = request.WebServiceUrl;
+                //    }
+                //    else
+                //    {
+                //        _context.Configurations.Add(new Configuration
+                //        {
+                //            Key = ConfigurationKeys.WebServiceUrl,
+                //            Value = request.WebServiceUrl
+                //        });
+                //    }
+                //}
 
                 if (!string.IsNullOrEmpty(request.AIServiceKey))
                 {

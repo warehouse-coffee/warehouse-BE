@@ -11,4 +11,6 @@ public class Order : BaseAuditableEntity
 
     // Relationships
     public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+    public int? ReservationId { get; set; }
+    public Reservation? Reservation { get; set; }
 }

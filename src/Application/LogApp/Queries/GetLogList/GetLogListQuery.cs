@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Common.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace warehouse_BE.Application.Logs.Queries.GetLogList;
 
 public class GetLogListQuery : IRequest<LogList>
 {
-    public string? Date { get; set; }
+    public Page? Page { get; set; }
+    public DateTime? Date { get; set; }
     public string? TypeLog { get; set; }
     public int? Hour { get; set; }
 }
@@ -21,12 +24,15 @@ public class GetLogListQueryHandler : IRequestHandler<GetLogListQuery, LogList> 
     }
     public async Task<LogList> Handle(GetLogListQuery request,CancellationToken cancellationToken)
     {
-        DateTime logDate;
-        if (string.IsNullOrEmpty(request.Date) || !DateTime.TryParse(request.Date, out logDate))
+        DateTime? logDate = null;
+        if (!string.IsNullOrEmpty(request.TypeLog) || request.Hour != null)
         {
             logDate = DateTime.Now; 
         }
-
+        if (request.Date != null)
+        {
+            logDate = request.Date;
+        }
         var logs = _loggerService.ReadLogs(
             logDate,
             string.IsNullOrEmpty(request.TypeLog) ? null : request.TypeLog,
@@ -35,20 +41,38 @@ public class GetLogListQueryHandler : IRequestHandler<GetLogListQuery, LogList> 
 
         var logVMs = logs.Select(logLine => {
             var logParts = logLine.Split(" - ", 3);
+            var dateTimePart = logParts[0];
+            var logLevelPart = dateTimePart.Substring(dateTimePart.IndexOf('[') + 1, 4); 
             return new LogVM
             {
-                Date = logParts[0].Substring(0, 10),
-                Hour = logParts[0].Substring(11, 5),
-                LogLevel = logParts[1].Trim('[', ']'),
-                Message = logParts[2],
-                Type = GetLogType(logParts[1])
+                Date = dateTimePart.Substring(0, 10), 
+                Hour = dateTimePart.Substring(11, 5), 
+                LogLevel = logLevelPart.Trim('[', ']'), 
+                Message = logParts[2], 
+                Type = GetLogType(logLevelPart.Trim('[', ']')) 
             };
         }).ToList();
 
+
+
+
+        int totalLogs = logVMs.Count;
+        var pagedLogs = logVMs
+            .Skip((request.Page?.PageNumber - 1 ?? 0) * request.Page?.Size ?? 1)
+            .Take(request.Page?.Size ?? 10)
+            .ToList();
+
+        // Trả về LogList đã phân trang
         return await Task.FromResult(new LogList
         {
-            LogVMs = logVMs,
-             Status = logs.Any() ? 1 : 0
+            LogVMs = pagedLogs,
+            Status = logs.Any() ? 1 : 0,
+            Page = new Page
+            {
+                PageNumber = request.Page?.Size ?? 0,
+                Size = request.Page?.PageNumber ?? 1,
+                TotalElements = pagedLogs.Count,
+            }
         });
     }
     private string GetLogType(string logLevel)

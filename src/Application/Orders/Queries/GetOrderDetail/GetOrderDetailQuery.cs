@@ -24,7 +24,7 @@ public class GetOrderDetailQueryHandler : IRequestHandler<GetOrderDetailQuery, O
         var rs = new OrderDetailVM();
         try {
             var order = await _context.Orders
-             .Where(o => o.OrderId == request.OrderId)
+             .Where(o => o.OrderId == request.OrderId && !o.IsDeleted)
              .ProjectTo<OrderDetailVM>(_mapper.ConfigurationProvider)
              .AsSplitQuery() 
              .FirstOrDefaultAsync(cancellationToken);

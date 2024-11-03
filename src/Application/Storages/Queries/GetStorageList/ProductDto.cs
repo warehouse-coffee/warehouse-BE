@@ -27,7 +27,7 @@ public class ProductDto
             CreateMap<warehouse_BE.Domain.Entities.Product, ProductDto>()
            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
            .ForMember(dest => dest.Units, opt => opt.MapFrom(src => src.Units))
-           .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+           .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Quantity))
            .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image))
            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
            .ForMember(dest => dest.Expiration, opt => opt.MapFrom(src => src.Expiration))

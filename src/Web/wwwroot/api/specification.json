@@ -659,41 +659,23 @@
       }
     },
     "/api/Logs": {
-      "get": {
+      "post": {
         "tags": [
           "Logs"
         ],
         "operationId": "GetLogs",
-        "parameters": [
-          {
-            "name": "date",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetLogListQuery"
+              }
+            }
           },
-          {
-            "name": "typelog",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "hour",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            },
-            "x-position": 3
-          }
-        ],
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -927,6 +909,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserStorageList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Storage/products": {
+      "post": {
+        "tags": [
+          "Storage"
+        ],
+        "operationId": "GetStorageProducts",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetStorageProductsQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageProductListVM"
                 }
               }
             }
@@ -1474,10 +1488,6 @@
                 "type": "string",
                 "format": "date-time"
               },
-              "safeStock": {
-                "type": "integer",
-                "format": "int32"
-              },
               "categoryId": {
                 "type": "integer",
                 "format": "int32"
@@ -1796,10 +1806,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "webServiceUrl": {
-            "type": "string",
-            "nullable": true
-          },
           "aiServiceKey": {
             "type": "string",
             "nullable": true
@@ -2428,6 +2434,14 @@
           "status": {
             "type": "integer",
             "format": "int32"
+          },
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
           }
         }
       },
@@ -2453,6 +2467,34 @@
           },
           "type": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GetLogListQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "typeLog": {
+            "type": "string",
+            "nullable": true
+          },
+          "hour": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         }
@@ -2709,6 +2751,115 @@
           }
         }
       },
+      "StorageProductListVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductDto2"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          }
+        }
+      },
+      "ProductDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "units": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "expiration": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "importDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "safeStock": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "GetStorageProductsQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "storageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          },
+          "searchText": {
+            "type": "string",
+            "nullable": true
+          },
+          "filterData": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
+            }
+          }
+        }
+      },
+      "FilterData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "prop": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "CreateUserCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2779,6 +2930,10 @@
                 "$ref": "#/components/schemas/Page"
               }
             ]
+          },
+          "searchText": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

@@ -1,4 +1,5 @@
 ﻿using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Orders.Queries.GetOrderList;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Domain.Entities;
 
@@ -14,19 +15,21 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
-    private readonly IUser currentUser;
+    private readonly IUser _currentUser;
+    private readonly IMapper _mapper;
 
-    public ImportStogareCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser currentUser)
+    public ImportStogareCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser currentUser, IMapper mapper)
     {
         _context = context;
         _identityService = identityService;
-        this.currentUser = currentUser;
+        _currentUser = currentUser;
+        _mapper = mapper;
     }
     public async Task<ResponseDto> Handle(ImportStogareCommand request, CancellationToken cancellationToken)
     {
         var rs = new ResponseDto();
 
-        if (currentUser.Id == null)
+        if (_currentUser.Id == null)
         {
             rs.StatusCode = 401;
             rs.Message = "Invalid or unauthorized user.";
@@ -100,15 +103,67 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
                 Date = DateTime.UtcNow,
                 TotalPrice = request.TotalPrice
             };
-
+            var inventories = new Dictionary<string, Inventory>();
             foreach (var productDto in request.Products)
             {
+                var key = $"{productDto.Name}-{productDto.StorageId}";
+                var inventory = await _context.Inventories
+                        .FirstOrDefaultAsync(i =>
+                            i.ProductName == productDto.Name &&
+                            i.StorageId == productDto.StorageId,
+                            cancellationToken);
+                if (productDto.Expiration < DateTime.UtcNow)
+                {
+                    rs.StatusCode = 400;
+                    rs.Message = $"Product '{productDto.Name}' has expired and cannot be imported.";
+                    return rs;
+                }
+                if (!inventories.ContainsKey(key))
+                {
+                    if (inventory == null)
+                    {
+                        inventory = new Inventory
+                        {
+                            ProductName = productDto.Name,
+                            TotalQuantity = productDto.Quantity,
+                            TotalPrice = productDto.Price * productDto.Quantity,
+                            Expiration = productDto.Expiration,
+                            CategoryId = productDto.CategoryId,
+                            StorageId = productDto.StorageId,
+                        };
+                        _context.Inventories.Add(inventory);
+                        inventories[key] = inventory;
+                    }
+                    else
+                    {
+                        inventory.TotalQuantity += productDto.Quantity;
+                        inventory.TotalPrice += productDto.Price * productDto.Quantity;
+
+                        if (inventory.Expiration == null || productDto.Expiration < inventory.Expiration)
+                        {
+                            inventory.Expiration = productDto.Expiration;
+                        }
+                        inventories[key] = inventory;
+                    }
+                }
+                else
+                {
+                    inventory = inventories[key];
+                   
+                    inventory.TotalQuantity += productDto.Quantity;
+                    inventory.TotalPrice += productDto.Price * productDto.Quantity;
+
+                    if (inventory.Expiration == null || productDto.Expiration < inventory.Expiration)
+                    {
+                        inventory.Expiration = productDto.Expiration;
+                    }
+                }
 
                 var product = new Product
                 {
                     Name = productDto.Name!,
                     Units = productDto.Unit,
-                    Amount = productDto.Quantity,
+                    Quantity = productDto.Quantity,
                     Status = Domain.Enums.ProductStatus.Available,
                     Expiration = productDto.Expiration,
                     ImportDate = DateTime.UtcNow,
@@ -126,18 +181,24 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
                     Product = product
                 };
                 order.OrderDetails.Add(orderDetail);
+                inventory.Products.Add(product);
             }
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync(cancellationToken);
+
+            // Map Order to OrderDto to return the newly created data
+            var data = _mapper.Map<OrderDto>(order);
+
+            rs.StatusCode = 201;
+            rs.Message = "Product import successful.";
+            rs.Data = data;
         }
         catch
         {
             rs.StatusCode = 400;
             rs.Message = "Product import unsuccessful.";
         }
-        rs.StatusCode = 201;
-        rs.Message = "Product import successful.";
 
         return rs;
     }

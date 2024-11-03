@@ -25,7 +25,9 @@ public class GetOrderListQueryHandler : IRequestHandler<GetOrderListQuery, Order
         var rs = new OrderListVM() { };
         try
         {
-            var query = _context.Orders.AsQueryable();
+            var query = _context.Orders
+                            .Where(o => !o.IsDeleted)
+                            .AsQueryable();
 
             //Page
             var totalElements = await query.CountAsync(cancellationToken);

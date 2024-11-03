@@ -310,6 +310,64 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.ToTable("Configurations");
                 });
 
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Inventory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Expiration")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ReservedQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SafeStock")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StorageId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("TotalQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalSalePrice")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StorageId");
+
+                    b.ToTable("Inventories");
+                });
+
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -339,6 +397,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("OrderId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int?>("ReservationId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
@@ -407,9 +468,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer");
-
                     b.Property<int>("AreaId")
                         .HasColumnType("integer");
 
@@ -434,6 +492,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<DateTime>("ImportDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("InventoryId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -447,7 +508,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("SafeStock")
+                    b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
                     b.Property<int>("Status")
@@ -466,9 +527,62 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("InventoryId");
+
                     b.HasIndex("StorageId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpectedPickupDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("InventoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ReservedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ReservedQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
@@ -654,6 +768,17 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasForeignKey("StorageId");
                 });
 
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Inventory", b =>
+                {
+                    b.HasOne("warehouse_BE.Domain.Entities.Storage", "Storage")
+                        .WithMany("Inventories")
+                        .HasForeignKey("StorageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Storage");
+                });
+
             modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
                 {
                     b.HasOne("warehouse_BE.Domain.Entities.Order", null)
@@ -683,6 +808,10 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("warehouse_BE.Domain.Entities.Inventory", null)
+                        .WithMany("Products")
+                        .HasForeignKey("InventoryId");
+
                     b.HasOne("warehouse_BE.Domain.Entities.Storage", "Storage")
                         .WithMany()
                         .HasForeignKey("StorageId")
@@ -694,6 +823,23 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Storage");
+                });
+
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Reservation", b =>
+                {
+                    b.HasOne("warehouse_BE.Domain.Entities.Inventory", "Inventory")
+                        .WithMany()
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("warehouse_BE.Domain.Entities.Order", "Order")
+                        .WithOne("Reservation")
+                        .HasForeignKey("warehouse_BE.Domain.Entities.Reservation", "OrderId");
+
+                    b.Navigation("Inventory");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
@@ -722,14 +868,23 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Inventory", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
                 {
                     b.Navigation("Areas");
+
+                    b.Navigation("Inventories");
                 });
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>

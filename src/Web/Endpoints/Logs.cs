@@ -9,18 +9,11 @@ public class Logs : EndpointGroupBase
     {
         app.MapGroup(this)
             .RequireAuthorization()
-            .MapGet(GetLogs)
+            .MapPost(GetLogs)
             ;
     }
-    public Task<LogList> GetLogs(ISender sender,[FromQuery] string? date, [FromQuery] string? typelog = null, [FromQuery] int? hour = null)
+    public Task<LogList> GetLogs(ISender sender, GetLogListQuery query)
     {
-        var query = new GetLogListQuery
-        {
-            Date = date,
-            Hour = hour,
-            TypeLog = typelog
-        };
-
         return sender.Send(query);
     }
 }

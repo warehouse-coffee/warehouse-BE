@@ -10,7 +10,7 @@ namespace warehouse_BE.Application.Products.Queries.GetProductList
     {
         public string? Name { get; set; }
         public string? Units { get; set; }
-        public int Amount { get; set; }
+        public int Quantity { get; set; }
         public string? Image { get; set; }
         public string? Status { get; set; }  // 'Sold or Not Sold,...'
         public DateTime? Expiration { get; set; }
@@ -28,7 +28,7 @@ namespace warehouse_BE.Application.Products.Queries.GetProductList
                 CreateMap<warehouse_BE.Domain.Entities.Product, ProductDto>()
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Units, opt => opt.MapFrom(src => src.Units))
-               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+               .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                .ForMember(dest => dest.Expiration, opt => opt.MapFrom(src => src.Expiration))

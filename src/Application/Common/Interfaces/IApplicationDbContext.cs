@@ -14,5 +14,7 @@ public interface IApplicationDbContext
     DbSet<Area> Areas { get; }
     DbSet<Category> Categories { get; }
     DbSet<Configuration> Configurations { get; }
+    DbSet<Inventory> Inventories { get; }
+    DbSet<Reservation> Reservations { get; } 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

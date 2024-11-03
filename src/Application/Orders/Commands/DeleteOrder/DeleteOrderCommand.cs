@@ -15,7 +15,7 @@ public class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderCommand, boo
     }
     public async Task<bool> Handle(DeleteOrderCommand request,CancellationToken cancellationToken)
     {
-        var rs = false;
+        int rs = 0;
         try
         {
             if(request.OrderId != null)
@@ -23,16 +23,15 @@ public class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderCommand, boo
                 var orderr = await _context.Orders.Where(o => o.OrderId == request.OrderId).FirstOrDefaultAsync();
                 if(orderr != null)
                 {
-                    var result =  _context.Orders.Remove(orderr);
-                    await _context.SaveChangesAsync(cancellationToken);
-                    rs = true;
+                    orderr.IsDeleted = true;
+                    rs = await _context.SaveChangesAsync(cancellationToken);
                 }
                 
             }
-            return rs;
+            return rs > 0;
         } catch 
         {
-            return rs;
+            return rs > 0;
         }
     }
 }

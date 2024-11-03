@@ -5,7 +5,7 @@ namespace warehouse_BE.Application.Orders.Commands.ImportStorage;
 
 public class ImportProductDto
 {
-    public string? Name { get; set; }
+    public required string Name { get; set; }
     public required string Unit { get; set; }
     public int Quantity { get; set; }
     public decimal Price { get; set; }
