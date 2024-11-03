@@ -1,6 +1,7 @@
 ﻿using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
 using warehouse_BE.Application.Orders.Commands.DeleteOrder;
 using warehouse_BE.Application.Orders.Commands.ImportStorage;
+using warehouse_BE.Application.Orders.Commands.SaleOrder;
 using warehouse_BE.Application.Orders.Queries.GetOrderDetail;
 using warehouse_BE.Application.Orders.Queries.GetOrderList;
 using warehouse_BE.Application.Response;
@@ -17,6 +18,7 @@ public class Orders : EndpointGroupBase
             .MapPost(GetList,"/all")
             .MapDelete(DeleteOrder,"/{id}")
             .MapGet(GetOrderDetail, "/{id}")
+            .MapPost(SaleOrder,"/sale")
             ;
     }
     public Task<ResponseDto> ImportProduct(ISender sender, ImportStogareCommand command)
@@ -34,5 +36,9 @@ public class Orders : EndpointGroupBase
     public Task<OrderDetailVM> GetOrderDetail(ISender sender, string id)
     {
         return sender.Send(new GetOrderDetailQuery { OrderId = id });
+    }
+    public Task<ResponseDto> SaleOrder(ISender sender, SaleOrderCommand command)
+    {
+        return sender.Send(command);
     }
 }

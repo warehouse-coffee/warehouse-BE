@@ -2,12 +2,12 @@
 using warehouse_BE.Application.Orders.Queries.GetOrderList;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Domain.Entities;
+using warehouse_BE.Domain.Enums;
 
 namespace warehouse_BE.Application.Orders.Commands.ImportStorage;
 
 public class ImportStogareCommand : IRequest<ResponseDto>
 {
-    public required string Type { get; set; }
     public decimal TotalPrice { get; set; }
     public List<ImportProductDto>? Products { get; set; }
 }
@@ -99,9 +99,10 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
             var order = new Order
             {
                 OrderId = Guid.NewGuid().ToString(),
-                Type = request.Type,
+                Type = "Import",
                 Date = DateTime.UtcNow,
-                TotalPrice = request.TotalPrice
+                TotalPrice = request.TotalPrice,
+                Status = OrderStatus.Pending
             };
             var inventories = new Dictionary<string, Inventory>();
             foreach (var productDto in request.Products)

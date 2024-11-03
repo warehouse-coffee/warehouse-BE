@@ -12,7 +12,7 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241103055317_CreateInit0")]
+    [Migration("20241103155714_CreateInit0")]
     partial class CreateInit0
     {
         /// <inheritdoc />
@@ -401,7 +401,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ReservationId")
+                    b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("TotalPrice")
@@ -582,8 +582,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     b.HasIndex("InventoryId");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Reservations");
                 });
@@ -836,13 +835,11 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("warehouse_BE.Domain.Entities.Order", "Order")
-                        .WithOne("Reservation")
-                        .HasForeignKey("warehouse_BE.Domain.Entities.Reservation", "OrderId");
+                    b.HasOne("warehouse_BE.Domain.Entities.Order", null)
+                        .WithMany("Reservations")
+                        .HasForeignKey("OrderId");
 
                     b.Navigation("Inventory");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
@@ -880,7 +877,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 {
                     b.Navigation("OrderDetails");
 
-                    b.Navigation("Reservation");
+                    b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>

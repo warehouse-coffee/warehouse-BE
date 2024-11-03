@@ -814,6 +814,38 @@
         }
       }
     },
+    "/api/Orders/sale": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "SaleOrder",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaleOrderCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Products": {
       "get": {
         "tags": [
@@ -1176,7 +1208,7 @@
             "type": "string",
             "nullable": true
           },
-          "amount": {
+          "quantity": {
             "type": "integer",
             "format": "int32"
           },
@@ -1407,6 +1439,12 @@
                 "items": {
                   "$ref": "#/components/schemas/Area"
                 }
+              },
+              "inventories": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Inventory"
+                }
               }
             }
           }
@@ -1465,7 +1503,7 @@
               "units": {
                 "type": "string"
               },
-              "amount": {
+              "quantity": {
                 "type": "integer",
                 "format": "int32"
               },
@@ -1627,6 +1665,73 @@
         "type": "object",
         "x-abstract": true,
         "additionalProperties": false
+      },
+      "Inventory": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "productName": {
+                "type": "string"
+              },
+              "totalQuantity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "reservedQuantity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "availableQuantity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "expiration": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "totalPrice": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "totalSalePrice": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "safeStock": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "categoryId": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "storageId": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "storage": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Storage"
+                  }
+                ]
+              },
+              "products": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        ]
       },
       "Page": {
         "type": "object",
@@ -2503,9 +2608,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "type": {
-            "type": "string"
-          },
           "totalPrice": {
             "type": "number",
             "format": "decimal"
@@ -2524,8 +2626,7 @@
         "additionalProperties": false,
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "unit": {
             "type": "string"
@@ -2664,6 +2765,44 @@
           },
           "note": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SaleOrderCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SaleOrderProduct"
+            }
+          }
+        }
+      },
+      "SaleOrderProduct": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "productName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "expectedPickupDate": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           }
         }

@@ -31,10 +31,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
            .HasForeignKey(u => u.CompanyId) 
            .HasPrincipalKey(c => c.CompanyId) 
            .OnDelete(DeleteBehavior.SetNull);
-        builder.Entity<Order>()
-           .HasOne(o => o.Reservation)
-           .WithOne(r => r.Order)
-           .HasForeignKey<Reservation>(r => r.OrderId);
         builder.Entity<Inventory>()
         .HasOne(i => i.Storage)
         .WithMany(s => s.Inventories)
