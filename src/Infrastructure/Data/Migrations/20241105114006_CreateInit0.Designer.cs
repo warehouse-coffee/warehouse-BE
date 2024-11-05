@@ -12,7 +12,7 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241103155714_CreateInit0")]
+    [Migration("20241105114006_CreateInit0")]
     partial class CreateInit0
     {
         /// <inheritdoc />
@@ -313,6 +313,52 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.ToTable("Configurations");
                 });
 
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Customer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Customers");
+                });
+
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Inventory", b =>
                 {
                     b.Property<int>("Id")
@@ -385,6 +431,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
@@ -412,6 +461,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Orders");
                 });
@@ -770,6 +821,15 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .HasForeignKey("StorageId");
                 });
 
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Customer", b =>
+                {
+                    b.HasOne("warehouse_BE.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId");
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Inventory", b =>
                 {
                     b.HasOne("warehouse_BE.Domain.Entities.Storage", "Storage")
@@ -779,6 +839,17 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Storage");
+                });
+
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Order", b =>
+                {
+                    b.HasOne("warehouse_BE.Domain.Entities.Customer", "Customer")
+                        .WithMany("Orders")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.OrderDetail", b =>
@@ -866,6 +937,11 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.Customer", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Inventory", b =>

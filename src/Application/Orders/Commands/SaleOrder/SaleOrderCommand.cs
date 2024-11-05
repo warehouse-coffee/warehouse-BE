@@ -8,6 +8,7 @@ namespace warehouse_BE.Application.Orders.Commands.SaleOrder;
 public class SaleOrderCommand : IRequest<ResponseDto>
 {
     public decimal TotalPrice { get; set; }
+    public int CustomerId { get; set; }
     public List<SaleOrderProduct> Products { get; set; } = new List<SaleOrderProduct>();
 
 }
@@ -26,6 +27,23 @@ public class SaleOrderCommandHandler : IRequestHandler<SaleOrderCommand, Respons
     {
         var response = new ResponseDto();
 
+        if (request.CustomerId == 0)
+        {
+            response.StatusCode = 400;
+            response.Message = "Customer ID cannot be zero or empty.";
+            return response;
+        }
+
+        var customer = await _context.Customers
+            .Where(o => o.Id == request.CustomerId && !o.IsDeleted)
+            .FirstOrDefaultAsync();
+
+        if (customer == null)
+        {
+            response.StatusCode = 404;
+            response.Message = "Customer not found.";
+            return response;
+        }
         if (request.Products == null || !request.Products.Any())
         {
             response.StatusCode = 400;
@@ -49,7 +67,8 @@ public class SaleOrderCommandHandler : IRequestHandler<SaleOrderCommand, Respons
                 Type = "Sale",
                 Date = DateTime.UtcNow,
                 TotalPrice = request.TotalPrice,
-                Status = OrderStatus.Pending
+                Status = OrderStatus.Pending,
+                CustomerId = customer.Id
             };
 
             foreach (var productDto in request.Products)

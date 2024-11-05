@@ -694,6 +694,61 @@ export class CrawClient {
     }
 }
 
+export class CustomersClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    private token: string;
+    private XSRF: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
+    }
+
+    createCustomer(command: CreateCustomerCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Customers";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCustomer(_response);
+        });
+    }
+
+    protected processCreateCustomer(response: Response): Promise<ResponseDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
+}
+
 export class EmployeesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -3953,6 +4008,58 @@ export interface ICrawlData {
     value?: number;
 }
 
+export class CreateCustomerCommand implements ICreateCustomerCommand {
+    name?: string;
+    email?: string | undefined;
+    phone?: string | undefined;
+    address?: string | undefined;
+    companyName?: string | undefined;
+
+    constructor(data?: ICreateCustomerCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.address = _data["address"];
+            this.companyName = _data["companyName"];
+        }
+    }
+
+    static fromJS(data: any): CreateCustomerCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCustomerCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["address"] = this.address;
+        data["companyName"] = this.companyName;
+        return data;
+    }
+}
+
+export interface ICreateCustomerCommand {
+    name?: string;
+    email?: string | undefined;
+    phone?: string | undefined;
+    address?: string | undefined;
+    companyName?: string | undefined;
+}
+
 export class CreateEmployeeCommand implements ICreateEmployeeCommand {
     userName?: string | undefined;
     password?: string | undefined;
@@ -4667,6 +4774,8 @@ export interface IGetLogListQuery {
 
 export class ImportStogareCommand implements IImportStogareCommand {
     totalPrice?: number;
+    customerName?: string | undefined;
+    customerPhoneNumber?: string | undefined;
     products?: ImportProductDto[] | undefined;
 
     constructor(data?: IImportStogareCommand) {
@@ -4681,6 +4790,8 @@ export class ImportStogareCommand implements IImportStogareCommand {
     init(_data?: any) {
         if (_data) {
             this.totalPrice = _data["totalPrice"];
+            this.customerName = _data["customerName"];
+            this.customerPhoneNumber = _data["customerPhoneNumber"];
             if (Array.isArray(_data["products"])) {
                 this.products = [] as any;
                 for (let item of _data["products"])
@@ -4699,6 +4810,8 @@ export class ImportStogareCommand implements IImportStogareCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["totalPrice"] = this.totalPrice;
+        data["customerName"] = this.customerName;
+        data["customerPhoneNumber"] = this.customerPhoneNumber;
         if (Array.isArray(this.products)) {
             data["products"] = [];
             for (let item of this.products)
@@ -4710,6 +4823,8 @@ export class ImportStogareCommand implements IImportStogareCommand {
 
 export interface IImportStogareCommand {
     totalPrice?: number;
+    customerName?: string | undefined;
+    customerPhoneNumber?: string | undefined;
     products?: ImportProductDto[] | undefined;
 }
 
@@ -5031,6 +5146,7 @@ export interface IOrderProductDto {
 
 export class SaleOrderCommand implements ISaleOrderCommand {
     totalPrice?: number;
+    customerId?: number;
     products?: SaleOrderProduct[];
 
     constructor(data?: ISaleOrderCommand) {
@@ -5045,6 +5161,7 @@ export class SaleOrderCommand implements ISaleOrderCommand {
     init(_data?: any) {
         if (_data) {
             this.totalPrice = _data["totalPrice"];
+            this.customerId = _data["customerId"];
             if (Array.isArray(_data["products"])) {
                 this.products = [] as any;
                 for (let item of _data["products"])
@@ -5063,6 +5180,7 @@ export class SaleOrderCommand implements ISaleOrderCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["totalPrice"] = this.totalPrice;
+        data["customerId"] = this.customerId;
         if (Array.isArray(this.products)) {
             data["products"] = [];
             for (let item of this.products)
@@ -5074,6 +5192,7 @@ export class SaleOrderCommand implements ISaleOrderCommand {
 
 export interface ISaleOrderCommand {
     totalPrice?: number;
+    customerId?: number;
     products?: SaleOrderProduct[];
 }
 

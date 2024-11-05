@@ -1,4 +1,5 @@
 ﻿using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Customers.Commands.CreateCustomer;
 using warehouse_BE.Application.Orders.Queries.GetOrderList;
 using warehouse_BE.Application.Response;
 using warehouse_BE.Domain.Entities;
@@ -9,6 +10,8 @@ namespace warehouse_BE.Application.Orders.Commands.ImportStorage;
 public class ImportStogareCommand : IRequest<ResponseDto>
 {
     public decimal TotalPrice { get; set; }
+    public string? CustomerName { get; set; }
+    public string? CustomerPhoneNumber { get; set; }
     public List<ImportProductDto>? Products { get; set; }
 }
 public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand, ResponseDto>
@@ -35,7 +38,12 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
             rs.Message = "Invalid or unauthorized user.";
             return rs;
         }
-
+        if(string.IsNullOrEmpty(request.CustomerName) && string.IsNullOrEmpty(request.CustomerPhoneNumber))
+        {
+            rs.StatusCode = 400;
+            rs.Message = "Customer is required.";
+            return rs;
+        }
         if (request.Products == null || !request.Products.Any())
         {
             rs.StatusCode = 400;
@@ -96,13 +104,28 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
         }
         try
         {
+            var customer = await _context.Customers
+            .FirstOrDefaultAsync(c => c.Name == request.CustomerName && c.Phone == request.CustomerPhoneNumber, cancellationToken);
+
+            if (customer == null)
+            {
+                 customer = new Customer
+                {
+                    Name = request.CustomerName!,
+                    Phone = request.CustomerPhoneNumber
+                };
+                _context.Customers.Add(customer);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
             var order = new Order
             {
                 OrderId = Guid.NewGuid().ToString(),
                 Type = "Import",
                 Date = DateTime.UtcNow,
                 TotalPrice = request.TotalPrice,
-                Status = OrderStatus.Pending
+                Status = OrderStatus.Pending,
+                CustomerId = customer.Id,
             };
             var inventories = new Dictionary<string, Inventory>();
             foreach (var productDto in request.Products)

@@ -69,8 +69,8 @@ public class GetLogListQueryHandler : IRequestHandler<GetLogListQuery, LogList> 
             Status = logs.Any() ? 1 : 0,
             Page = new Page
             {
-                PageNumber = request.Page?.Size ?? 0,
-                Size = request.Page?.PageNumber ?? 1,
+                PageNumber = request.Page?.PageNumber ?? 1,
+                Size = request.Page?.Size ?? 0,
                 TotalElements = pagedLogs.Count,
             }
         });

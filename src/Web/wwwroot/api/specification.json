@@ -409,6 +409,38 @@
         }
       }
     },
+    "/api/Customers": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "operationId": "CreateCustomer",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomerCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Employees": {
       "post": {
         "tags": [
@@ -2268,6 +2300,31 @@
           }
         }
       },
+      "CreateCustomerCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "CreateEmployeeCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2612,6 +2669,14 @@
             "type": "number",
             "format": "decimal"
           },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerPhoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
           "products": {
             "type": "array",
             "nullable": true,
@@ -2776,6 +2841,10 @@
           "totalPrice": {
             "type": "number",
             "format": "decimal"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
           },
           "products": {
             "type": "array",
