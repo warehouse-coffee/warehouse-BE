@@ -1,4 +1,4 @@
-﻿using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
+﻿using warehouse_BE.Application.Employee.Commands.UpdateEmployee;
 using warehouse_BE.Application.Orders.Commands.DeleteOrder;
 using warehouse_BE.Application.Orders.Commands.ImportStorage;
 using warehouse_BE.Application.Orders.Commands.SaleOrder;

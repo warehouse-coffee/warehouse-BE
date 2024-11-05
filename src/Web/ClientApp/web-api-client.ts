@@ -694,7 +694,7 @@ export class CrawClient {
     }
 }
 
-export class CustomersClient {
+export class EmployeesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     private token: string;
@@ -708,8 +708,8 @@ export class CustomersClient {
         this.XSRF = XSRF || "";
     }
 
-    createCustomer(command: CreateCustomerCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/Customers";
+    createEmployee(command: CreateEmployeeCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Employees";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -726,11 +726,11 @@ export class CustomersClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCustomer(_response);
+            return this.processCreateEmployee(_response);
         });
     }
 
-    protected processCreateCustomer(response: Response): Promise<ResponseDto> {
+    protected processCreateEmployee(response: Response): Promise<ResponseDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -748,8 +748,8 @@ export class CustomersClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    updateCustomer(command: UpdateCustomerCommand): Promise<ResponseDto> {
-        let url_ = this.baseUrl + "/api/Customers";
+    updateEmployee(command: UpdateEmployeeCommand): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Employees";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -766,11 +766,11 @@ export class CustomersClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateCustomer(_response);
+            return this.processUpdateEmployee(_response);
         });
     }
 
-    protected processUpdateCustomer(response: Response): Promise<ResponseDto> {
+    protected processUpdateEmployee(response: Response): Promise<ResponseDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -788,8 +788,8 @@ export class CustomersClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    getListCustomer(query: GetListCustomerQuery): Promise<EmployeeListVM> {
-        let url_ = this.baseUrl + "/api/Customers/all";
+    getListEmployee(query: GetListEmployeeQuery): Promise<EmployeeListVM> {
+        let url_ = this.baseUrl + "/api/Employees/all";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(query);
@@ -806,11 +806,11 @@ export class CustomersClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetListCustomer(_response);
+            return this.processGetListEmployee(_response);
         });
     }
 
-    protected processGetListCustomer(response: Response): Promise<EmployeeListVM> {
+    protected processGetListEmployee(response: Response): Promise<EmployeeListVM> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -828,8 +828,8 @@ export class CustomersClient {
         return Promise.resolve<EmployeeListVM>(null as any);
     }
 
-    getCustomerDetail(id: string): Promise<CustomerDetailVM> {
-        let url_ = this.baseUrl + "/api/Customers/{id}";
+    getEmployeeDetail(id: string): Promise<EmployeeDetailVM> {
+        let url_ = this.baseUrl + "/api/Employees/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -845,18 +845,18 @@ export class CustomersClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCustomerDetail(_response);
+            return this.processGetEmployeeDetail(_response);
         });
     }
 
-    protected processGetCustomerDetail(response: Response): Promise<CustomerDetailVM> {
+    protected processGetEmployeeDetail(response: Response): Promise<EmployeeDetailVM> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CustomerDetailVM.fromJS(resultData200);
+            result200 = EmployeeDetailVM.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -864,11 +864,11 @@ export class CustomersClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CustomerDetailVM>(null as any);
+        return Promise.resolve<EmployeeDetailVM>(null as any);
     }
 
-    deleteCustomer(id: string): Promise<boolean> {
-        let url_ = this.baseUrl + "/api/Customers/{id}";
+    deleteEmployee(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Employees/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -884,11 +884,11 @@ export class CustomersClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteCustomer(_response);
+            return this.processDeleteEmployee(_response);
         });
     }
 
-    protected processDeleteCustomer(response: Response): Promise<boolean> {
+    protected processDeleteEmployee(response: Response): Promise<boolean> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -3953,14 +3953,14 @@ export interface ICrawlData {
     value?: number;
 }
 
-export class CreateCustomerCommand implements ICreateCustomerCommand {
+export class CreateEmployeeCommand implements ICreateEmployeeCommand {
     userName?: string | undefined;
     password?: string | undefined;
     email?: string | undefined;
     phoneNumber?: string | undefined;
     warehouses?: number[] | undefined;
 
-    constructor(data?: ICreateCustomerCommand) {
+    constructor(data?: ICreateEmployeeCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3983,9 +3983,9 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
         }
     }
 
-    static fromJS(data: any): CreateCustomerCommand {
+    static fromJS(data: any): CreateEmployeeCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateCustomerCommand();
+        let result = new CreateEmployeeCommand();
         result.init(data);
         return result;
     }
@@ -4005,7 +4005,7 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
     }
 }
 
-export interface ICreateCustomerCommand {
+export interface ICreateEmployeeCommand {
     userName?: string | undefined;
     password?: string | undefined;
     email?: string | undefined;
@@ -4013,7 +4013,7 @@ export interface ICreateCustomerCommand {
     warehouses?: number[] | undefined;
 }
 
-export class UpdateCustomerCommand implements IUpdateCustomerCommand {
+export class UpdateEmployeeCommand implements IUpdateEmployeeCommand {
     id?: string;
     userName?: string | undefined;
     password?: string | undefined;
@@ -4021,7 +4021,7 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
     phoneNumber?: string | undefined;
     warehouses?: number[] | undefined;
 
-    constructor(data?: IUpdateCustomerCommand) {
+    constructor(data?: IUpdateEmployeeCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4045,9 +4045,9 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
         }
     }
 
-    static fromJS(data: any): UpdateCustomerCommand {
+    static fromJS(data: any): UpdateEmployeeCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new UpdateCustomerCommand();
+        let result = new UpdateEmployeeCommand();
         result.init(data);
         return result;
     }
@@ -4068,7 +4068,7 @@ export class UpdateCustomerCommand implements IUpdateCustomerCommand {
     }
 }
 
-export interface IUpdateCustomerCommand {
+export interface IUpdateEmployeeCommand {
     id?: string;
     userName?: string | undefined;
     password?: string | undefined;
@@ -4185,10 +4185,10 @@ export interface IEmployeeDto {
     avatarImage?: string | undefined;
 }
 
-export class GetListCustomerQuery implements IGetListCustomerQuery {
+export class GetListEmployeeQuery implements IGetListEmployeeQuery {
     page?: Page | undefined;
 
-    constructor(data?: IGetListCustomerQuery) {
+    constructor(data?: IGetListEmployeeQuery) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4203,9 +4203,9 @@ export class GetListCustomerQuery implements IGetListCustomerQuery {
         }
     }
 
-    static fromJS(data: any): GetListCustomerQuery {
+    static fromJS(data: any): GetListEmployeeQuery {
         data = typeof data === 'object' ? data : {};
-        let result = new GetListCustomerQuery();
+        let result = new GetListEmployeeQuery();
         result.init(data);
         return result;
     }
@@ -4217,11 +4217,11 @@ export class GetListCustomerQuery implements IGetListCustomerQuery {
     }
 }
 
-export interface IGetListCustomerQuery {
+export interface IGetListEmployeeQuery {
     page?: Page | undefined;
 }
 
-export class CustomerDetailVM implements ICustomerDetailVM {
+export class EmployeeDetailVM implements IEmployeeDetailVM {
     id?: string | undefined;
     userName?: string | undefined;
     email?: string | undefined;
@@ -4233,7 +4233,7 @@ export class CustomerDetailVM implements ICustomerDetailVM {
     companyAddress?: string | undefined;
     storages?: StorageDto2[] | undefined;
 
-    constructor(data?: ICustomerDetailVM) {
+    constructor(data?: IEmployeeDetailVM) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4261,9 +4261,9 @@ export class CustomerDetailVM implements ICustomerDetailVM {
         }
     }
 
-    static fromJS(data: any): CustomerDetailVM {
+    static fromJS(data: any): EmployeeDetailVM {
         data = typeof data === 'object' ? data : {};
-        let result = new CustomerDetailVM();
+        let result = new EmployeeDetailVM();
         result.init(data);
         return result;
     }
@@ -4288,7 +4288,7 @@ export class CustomerDetailVM implements ICustomerDetailVM {
     }
 }
 
-export interface ICustomerDetailVM {
+export interface IEmployeeDetailVM {
     id?: string | undefined;
     userName?: string | undefined;
     email?: string | undefined;

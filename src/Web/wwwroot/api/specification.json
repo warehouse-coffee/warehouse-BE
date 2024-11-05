@@ -409,18 +409,18 @@
         }
       }
     },
-    "/api/Customers": {
+    "/api/Employees": {
       "post": {
         "tags": [
-          "Customers"
+          "Employees"
         ],
-        "operationId": "CreateCustomer",
+        "operationId": "CreateEmployee",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateCustomerCommand"
+                "$ref": "#/components/schemas/CreateEmployeeCommand"
               }
             }
           },
@@ -442,15 +442,15 @@
       },
       "put": {
         "tags": [
-          "Customers"
+          "Employees"
         ],
-        "operationId": "UpdateCustomer",
+        "operationId": "UpdateEmployee",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateCustomerCommand"
+                "$ref": "#/components/schemas/UpdateEmployeeCommand"
               }
             }
           },
@@ -471,18 +471,18 @@
         }
       }
     },
-    "/api/Customers/all": {
+    "/api/Employees/all": {
       "post": {
         "tags": [
-          "Customers"
+          "Employees"
         ],
-        "operationId": "GetListCustomer",
+        "operationId": "GetListEmployee",
         "requestBody": {
           "x-name": "query",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GetListCustomerQuery"
+                "$ref": "#/components/schemas/GetListEmployeeQuery"
               }
             }
           },
@@ -503,12 +503,12 @@
         }
       }
     },
-    "/api/Customers/{id}": {
+    "/api/Employees/{id}": {
       "get": {
         "tags": [
-          "Customers"
+          "Employees"
         ],
-        "operationId": "GetCustomerDetail",
+        "operationId": "GetEmployeeDetail",
         "parameters": [
           {
             "name": "id",
@@ -526,7 +526,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomerDetailVM"
+                  "$ref": "#/components/schemas/EmployeeDetailVM"
                 }
               }
             }
@@ -535,9 +535,9 @@
       },
       "delete": {
         "tags": [
-          "Customers"
+          "Employees"
         ],
-        "operationId": "DeleteCustomer",
+        "operationId": "DeleteEmployee",
         "parameters": [
           {
             "name": "id",
@@ -2268,7 +2268,7 @@
           }
         }
       },
-      "CreateCustomerCommand": {
+      "CreateEmployeeCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2298,7 +2298,7 @@
           }
         }
       },
-      "UpdateCustomerCommand": {
+      "UpdateEmployeeCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2385,7 +2385,7 @@
           }
         }
       },
-      "GetListCustomerQuery": {
+      "GetListEmployeeQuery": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2399,7 +2399,7 @@
           }
         }
       },
-      "CustomerDetailVM": {
+      "EmployeeDetailVM": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

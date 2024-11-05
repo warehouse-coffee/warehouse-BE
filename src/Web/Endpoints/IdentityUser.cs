@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using warehouse_BE.Application.Common.Interfaces;
-using warehouse_BE.Application.Customer.Commands.CreateCustomer;
-using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
+using warehouse_BE.Application.Employee.Commands.CreateEmployee;
+using warehouse_BE.Application.Employee.Commands.UpdateEmployee;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.IdentityUser.Commands.LogOut;
 using warehouse_BE.Application.IdentityUser.Commands.ResetPassword;
