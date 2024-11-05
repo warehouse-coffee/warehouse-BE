@@ -1,10 +1,10 @@
 ﻿using warehouse_BE.Application.Common.Models;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
-using warehouse_BE.Application.Customer.Commands.CreateCustomer;
-using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
-using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
-using warehouse_BE.Application.Customer.Queries.GetListCustomer;
+using warehouse_BE.Application.Employee.Commands.CreateEmployee;
+using warehouse_BE.Application.Employee.Commands.UpdateEmployee;
+using warehouse_BE.Application.Employee.Queries.GetEmployeeDetail;
+using warehouse_BE.Application.Employee.Queries.GetListEmployee;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Domain.Common;
@@ -28,10 +28,10 @@ public interface IIdentityService
     Task<(Result Result, string UserId)> RegisterAsync(UserRegister userRegister);
     Task<Result> ResetPasswordAsync(string email, string currentPassword, string newPassword);
     Task<(Result Result, string CompanyId)> GetCompanyId(string userId);
-    Task<(Result result, EmployeeDto? employeeDto)> CreateCustomer(CustomerRequest request);
-    Task<Result> UpdateCustomer(UpdateCustomer request, CancellationToken cancellation);
+    Task<(Result result, EmployeeDto? employeeDto)> CreateEmployee(EmployeeRequest request);
+    Task<Result> UpdateEmployee(UpdateEmployee request, CancellationToken cancellation);
     Task<List<UserDto>> GetUsersByRoleAsync(string roleName, string companyId);
-    Task<CustomerDetailVM?> GetUserByIdAsync(string userId);
+    Task<EmployeeDetailVM?> GetUserByIdAsync(string userId);
     Task<Result> DeleteUserByIdAsync(string userId);
     Task<CompanyOwnerDetailDto?> GetCompanyOwnerByIdAsync(string userId);
     Task<string> GetRoleNamebyUserId(string userId);

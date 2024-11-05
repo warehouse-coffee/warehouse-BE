@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
-using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
+using warehouse_BE.Application.Employee.Queries.GetEmployeeDetail;
 
 namespace warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail
 {

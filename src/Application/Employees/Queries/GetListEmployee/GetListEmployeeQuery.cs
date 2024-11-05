@@ -1,20 +1,20 @@
 ﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Common.Models;
-using warehouse_BE.Application.Customer.Queries.GetListCustomer;
+using warehouse_BE.Application.Employee.Queries.GetListEmployee;
 
-namespace warehouse_BE.Application.Customer.Queries.GetLlistCustomer;
+namespace warehouse_BE.Application.Employee.Queries.GetListEmployee;
 
-public class GetListCustomerQuery : IRequest<EmployeeListVM>
+public class GetListEmployeeQuery : IRequest<EmployeeListVM>
 {
     public Page? Page { get; set; }
 }
-public class GetListCustomerQueryHandler : IRequestHandler<GetListCustomerQuery, EmployeeListVM>
+public class GetListEmployeeQueryHandler : IRequestHandler<GetListEmployeeQuery, EmployeeListVM>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IIdentityService _identityService;
     private readonly IUser _currentUser;
-    public GetListCustomerQueryHandler(IApplicationDbContext context
+    public GetListEmployeeQueryHandler(IApplicationDbContext context
         , IMapper mapper
         ,IIdentityService identityService
         ,IUser currentUser)
@@ -24,7 +24,7 @@ public class GetListCustomerQueryHandler : IRequestHandler<GetListCustomerQuery,
         _identityService = identityService;
         _currentUser = currentUser;
     }
-    public async Task<EmployeeListVM> Handle(GetListCustomerQuery request, CancellationToken cancellationToken)
+    public async Task<EmployeeListVM> Handle(GetListEmployeeQuery request, CancellationToken cancellationToken)
     {
         var rs = new EmployeeListVM();
         if (string.IsNullOrEmpty(_currentUser?.Id))
@@ -34,10 +34,10 @@ public class GetListCustomerQueryHandler : IRequestHandler<GetListCustomerQuery,
         var companyIdResult = await _identityService.GetCompanyId(_currentUser.Id);
         if(companyIdResult.CompanyId != null)
         {
-            var customers = await _identityService.GetUsersByRoleAsync("Customer",companyIdResult.CompanyId);
-            if (customers.Count > 0)
+            var Employees = await _identityService.GetUsersByRoleAsync("Employee",companyIdResult.CompanyId);
+            if (Employees.Count > 0)
             {
-                var employeeList = customers.Select(c => new EmployeeDto
+                var employeeList = Employees.Select(c => new EmployeeDto
                 {
                     Id = c.Id,
                     CompanyId = c.CompanyId,
@@ -58,7 +58,7 @@ public class GetListCustomerQueryHandler : IRequestHandler<GetListCustomerQuery,
                 {
                     Size = request.Page?.Size ?? 0,
                     PageNumber = request.Page?.PageNumber ?? 1,
-                    TotalElements = customers.Count,
+                    TotalElements = Employees.Count,
                 };
             }
         }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
-using warehouse_BE.Application.Customer.Commands.CreateCustomer;
+using warehouse_BE.Application.Employee.Commands.CreateEmployee;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.Response;
 
@@ -58,10 +58,10 @@ public class CreateCompanyOwnerCommandHandler : IRequestHandler<CreateCompanyOwn
             var rs = await _identityService.RegisterAsync(companyOwner);
             if (rs.Result.Succeeded)
             {
-                return new ResponseDto(200, "Customer created successfully.");
+                return new ResponseDto(200, "Employee created successfully.");
             }
             var errorMessages = string.Join(", ", rs.Result.Errors);
-            return new ResponseDto(400, $"Customer creation unsuccessful. Errors: {errorMessages}");
+            return new ResponseDto(400, $"Employee creation unsuccessful. Errors: {errorMessages}");
         }
         catch (Exception ex)
         {

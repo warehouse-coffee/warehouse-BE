@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 
-namespace warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
+namespace warehouse_BE.Application.Employee.Queries.GetEmployeeDetail;
 
-public class CustomerDetailVM
+public class EmployeeDetailVM
 {
     public string? Id { get; set; }
     public string? UserName { get; set; }

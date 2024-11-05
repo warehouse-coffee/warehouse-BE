@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using warehouse_BE.Application.Common.Interfaces;
+﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
 
-namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
+namespace warehouse_BE.Application.Employee.Commands.CreateEmployee
 {
-    public class CreateCustomerCommand : IRequest<ResponseDto>
+    public class CreateEmployeeCommand : IRequest<ResponseDto>
     {
         public string? UserName { get; set; }
         public string? Password { get; set; }
@@ -16,17 +11,17 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
         public string? PhoneNumber { get; set; }
         public List<int>? Warehouses { get; set; }
     }
-    public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand,ResponseDto>
+    public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeCommand,ResponseDto>
     {
         private readonly IIdentityService _identityService;
         private readonly IUser _currentUser;
-        public CreateCustomerCommandHandler(IIdentityService identityService, IUser currentUser)
+        public CreateEmployeeCommandHandler(IIdentityService identityService, IUser currentUser)
         {
             _identityService = identityService;
             _currentUser = currentUser;
         }
 
-        public async Task<ResponseDto> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseDto> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
         {
             try {
                 if (string.IsNullOrEmpty(_currentUser?.Id))
@@ -42,7 +37,7 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
                 {
                     return new ResponseDto(500, "User is not associated with any company.");
                 }
-                var customer = new CustomerRequest {
+                var Employee = new EmployeeRequest {
                     UserName = request.UserName,
                     Email = request.Email,
                     Password = request.Password,
@@ -51,7 +46,7 @@ namespace warehouse_BE.Application.Customer.Commands.CreateCustomer
                     Warehouses = request.Warehouses,
                 };
 
-                var (rs, employeeDto) = await _identityService.CreateCustomer(customer);
+                var (rs,employeeDto) = await _identityService.CreateEmployee(Employee);
                 if (rs.Succeeded)
                 {
                     return new ResponseDto(200, "Employee created successfully.", employeeDto);

@@ -26,28 +26,28 @@ namespace warehouse_BE.Web.Endpoints
                 ;
         }
         [Authorize(Roles = "Admin")]
-        public Task<ResponseDto> CreateCustomer(ISender sender, CreateCustomerCommand command)
+        public Task<ResponseDto> CreateCustomer(ISender sender, CreateEmployeeCommand command)
         {
             return sender.Send(command);
         }
         [Authorize(Roles = "Admin")]
-        public Task<ResponseDto> UpdateCustomer(ISender sender, UpdateCustomerCommand command)
+        public Task<ResponseDto> UpdateCustomer(ISender sender, UpdateEmployeeCommand command)
         {
             return sender.Send(command);
         }
         [Authorize(Roles = "Admin")]
-        public Task<EmployeeListVM> GetListCustomer(ISender sender, GetListCustomerQuery query  )
+        public Task<EmployeeListVM> GetListCustomer(ISender sender, GetListEmployeeQuery query  )
         {
             return sender.Send(query);
         }
-        public Task<CustomerDetailVM> GetCustomerDetail(ISender sender, string id) 
+        public Task<EmployeeDetailVM> GetCustomerDetail(ISender sender, string id) 
         {
-            return sender.Send(new GetCustomerDetailQuery { Id = id });
+            return sender.Send(new GetEmployeeDetailQuery { Id = id });
         }
         [Authorize(Roles = "Admin")]
         public Task<bool> DeleteCustomer(ISender sender, string id)
         {
-            return sender.Send(new DeleteCustomerCommand { Id = id });
+            return sender.Send(new DeleteEmployeeCommand { Id = id });
         }
     }
 }

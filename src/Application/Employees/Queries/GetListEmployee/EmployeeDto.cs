@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Domain.Entities;
 
-namespace warehouse_BE.Application.Customer.Queries.GetListCustomer;
+namespace warehouse_BE.Application.Employee.Queries.GetListEmployee;
 
 public class EmployeeDto
 {

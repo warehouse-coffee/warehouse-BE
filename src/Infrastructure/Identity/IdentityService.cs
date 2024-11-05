@@ -10,15 +10,15 @@ using System.Security.Claims;
 using System.Text;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Infrastructure.Data;
-using warehouse_BE.Application.Customer.Commands.CreateCustomer;
-using warehouse_BE.Application.Customer.Commands.UpdateCustomer;
+using warehouse_BE.Application.Employee.Commands.CreateEmployee;
+using warehouse_BE.Application.Employee.Commands.UpdateEmployee;
 using warehouse_BE.Domain.Common;
-using warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
+using warehouse_BE.Application.Employee.Queries.GetEmployeeDetail;
 using warehouse_BE.Application.CompanyOwner.Queries.GetCompanyOwnerDetail;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
 using warehouse_BE.Domain.Entities;
-using warehouse_BE.Application.Customer.Queries.GetListCustomer;
+using warehouse_BE.Application.Employee.Queries.GetListEmployee;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -342,7 +342,7 @@ public class IdentityService : IIdentityService
 
         return (Result.Success(), companyId);
     }
-    public async Task<(Result result, EmployeeDto? employeeDto)> CreateCustomer(CustomerRequest request)
+    public async Task<(Result result, EmployeeDto? employeeDto)> CreateEmployee(EmployeeRequest request)
     {
         if(string.IsNullOrEmpty(request?.UserName)  || string.IsNullOrEmpty(request?.Password) || string.IsNullOrEmpty(request?.Email))
         {
@@ -378,7 +378,7 @@ public class IdentityService : IIdentityService
                 return (Result.Failure(errors), null);
             }
 
-            var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+            var roleResult = await _userManager.AddToRoleAsync(user, "Employee");
             if (!roleResult.Succeeded)
             {
                 await _userManager.DeleteAsync(user);
@@ -404,17 +404,17 @@ public class IdentityService : IIdentityService
         }
         return (Result.Success(), employeeDto);
     }
-    public async Task<Result> UpdateCustomer(UpdateCustomer request,CancellationToken cancellationToken)
+    public async Task<Result> UpdateEmployee(UpdateEmployee request,CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request?.UserName) || string.IsNullOrEmpty(request?.Password) || string.IsNullOrEmpty(request?.Email))
         {
             return Result.Failure(new[] { "Unaccepted the request! Missing required fields." });
         }
 
-        var user = await _userManager.FindByIdAsync(request.CustomerId);
+        var user = await _userManager.FindByIdAsync(request.Id);
         if (user == null)
         {
-            return Result.Failure(new[] { "Customer not found." });
+            return Result.Failure(new[] { "Employee not found." });
         }
 
         if (!string.IsNullOrEmpty(request.UserName) && request.UserName != user.UserName)
@@ -446,7 +446,7 @@ public class IdentityService : IIdentityService
         {
             var curentUser = await _context.Users
             .Include(u => u.Storages)
-            .FirstOrDefaultAsync(u => u.Id == request.CustomerId);
+            .FirstOrDefaultAsync(u => u.Id == request.Id);
 
             if (curentUser == null)
             {
@@ -491,8 +491,8 @@ public class IdentityService : IIdentityService
         }
         catch (Exception ex) 
         {
-            _logger.LogError( "Failed to update customer.", ex);
-            return Result.Failure(new[] { "An error occurred while updating the customer." });
+            _logger.LogError( "Failed to update Employee.", ex);
+            return Result.Failure(new[] { "An error occurred while updating the Employee." });
 
         }
         return Result.Success();
@@ -509,7 +509,7 @@ public class IdentityService : IIdentityService
         .Where(u => u.CompanyId == companyId && !u.isDeleted) 
         .ToListAsync();
         string RoleDisplay;
-        if (roleName == "Customer")
+        if (roleName == "Employee")
         {
             RoleDisplay = "Employee"; 
         }
@@ -539,7 +539,7 @@ public class IdentityService : IIdentityService
 
         return usersInRole;
     }
-    public async Task<CustomerDetailVM?> GetUserByIdAsync(string userId)
+    public async Task<EmployeeDetailVM?> GetUserByIdAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -547,7 +547,7 @@ public class IdentityService : IIdentityService
         {
             return null; 
         }
-        var customerDetail = new CustomerDetailVM
+        var EmployeeDetail = new EmployeeDetailVM
         {
             Id = user.Id,
             UserName = user.UserName,
@@ -556,7 +556,7 @@ public class IdentityService : IIdentityService
             CompanyId = user.CompanyId 
         };
 
-        return customerDetail;
+        return EmployeeDetail;
     }
     public async Task<Result> DeleteUserByIdAsync(string userId)
     {
@@ -586,7 +586,7 @@ public class IdentityService : IIdentityService
             return null;
         }
 
-        var customerDetail = new CompanyOwnerDetailDto
+        var EmployeeDetail = new CompanyOwnerDetailDto
         {
             CompayOwnerId = user.Id,
             Name = user.UserName,
@@ -604,7 +604,7 @@ public class IdentityService : IIdentityService
 
         };
 
-        return customerDetail;
+        return EmployeeDetail;
     }
     public async Task<string> GetRoleNamebyUserId(string userId)
     {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Models;
 using warehouse_BE.Domain.Common;
 
-namespace warehouse_BE.Application.Customer.Queries.GetListCustomer;
+namespace warehouse_BE.Application.Employee.Queries.GetListEmployee;
 
 public class EmployeeListVM
 {

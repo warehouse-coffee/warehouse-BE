@@ -87,7 +87,7 @@ public class ApplicationDbContextInitialiser
         // Default roles
         var superAdminRole = new IdentityRole("Super-Admin");
         var adminRole = new IdentityRole("Admin");
-        var customerRole = new IdentityRole("Customer");
+        var customerRole = new IdentityRole("Employee");
 
         // Create roles if they don't exist
         if (_roleManager.Roles.All(r => r.Name != superAdminRole.Name))
@@ -108,7 +108,7 @@ public class ApplicationDbContextInitialiser
         // Default users
         var superAdmin = new ApplicationUser { UserName = "SuperAdmin@ute.com", Email = "superadmin@ute.com", CompanyId = "HCMUTE", isActived = true };
         var admin = new ApplicationUser { UserName = "Admin@ute.com", Email = "admin@ute.com", CompanyId = "HCMUTE", isActived = true };
-        var customer = new ApplicationUser { UserName = "Customer@ute.com", Email = "customer@ute.com" , CompanyId = "HCMUTE", isActived = true };
+        var customer = new ApplicationUser { UserName = "Employee@ute.com", Email = "e@ute.com" , CompanyId = "HCMUTE", isActived = true };
 
         // Create users and assign roles
         if (_userManager.Users.All(u => u.UserName != superAdmin.UserName))
@@ -125,7 +125,7 @@ public class ApplicationDbContextInitialiser
 
         if (_userManager.Users.All(u => u.UserName != customer.UserName))
         {
-            await _userManager.CreateAsync(customer, "Customer1!");
+            await _userManager.CreateAsync(customer, "Employee1!");
             await _userManager.AddToRolesAsync(customer, new[] { customerRole.Name! });
         }
 

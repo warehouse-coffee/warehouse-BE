@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
-using warehouse_BE.Application.Customer.Queries.GetListCustomer;
+using warehouse_BE.Application.Employee.Queries.GetListEmployee;
 using warehouse_BE.Application.Response;
 
-namespace warehouse_BE.Application.Customer.Commands.UpdateCustomer;
+namespace warehouse_BE.Application.Employee.Commands.UpdateEmployee;
 
-public class UpdateCustomerCommand : IRequest<ResponseDto>
+public class UpdateEmployeeCommand : IRequest<ResponseDto>
 {
     public required string Id { get; set; }
     public string? UserName { get; set; }
@@ -19,18 +19,18 @@ public class UpdateCustomerCommand : IRequest<ResponseDto>
     public string? PhoneNumber { get; set; }
     public List<int>? Warehouses { get; set; }
 }
-public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, ResponseDto>
+public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeCommand, ResponseDto>
 {
     private readonly IIdentityService _identityService;
     private readonly IUser _currentUser;
 
-    public UpdateCustomerCommandHandler(IIdentityService identityService, IUser currentUser)
+    public UpdateEmployeeCommandHandler(IIdentityService identityService, IUser currentUser)
     {
         _identityService = identityService;
         _currentUser = currentUser;
     }
 
-    public async Task<ResponseDto> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
+    public async Task<ResponseDto> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -47,9 +47,9 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
             {
                 return new ResponseDto(500, "User is not associated with any company.");
             }
-            var customer = new UpdateCustomer
+            var Employee = new UpdateEmployee
             {
-                CustomerId = request.Id,
+                Id = request.Id,
                 UserName = request.UserName,
                 Password = request.Password,
                 Email = request.Email,
@@ -57,7 +57,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
                 Warehouses = request.Warehouses,
             };
 
-            var rs = await _identityService.UpdateCustomer(customer, cancellationToken);
+            var rs = await _identityService.UpdateEmployee(Employee, cancellationToken);
             if (rs.Succeeded)
             {
                 var employee = await _identityService.GetUserById(request.Id);

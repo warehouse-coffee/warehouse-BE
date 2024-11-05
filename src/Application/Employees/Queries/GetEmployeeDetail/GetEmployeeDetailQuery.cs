@@ -4,24 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
-using warehouse_BE.Application.Customer.Queries.GetListCustomer;
-using warehouse_BE.Application.Customer.Queries.GetLlistCustomer;
+using warehouse_BE.Application.Employee.Queries.GetListEmployee;
 using warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 
-namespace warehouse_BE.Application.Customer.Queries.GetCustomerDetail;
+namespace warehouse_BE.Application.Employee.Queries.GetEmployeeDetail;
 
-public class GetCustomerDetailQuery : IRequest<CustomerDetailVM>
+public class GetEmployeeDetailQuery : IRequest<EmployeeDetailVM>
 {
     public required string Id { get; set; }
 }
-public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQuery, CustomerDetailVM>
+public class GetEmployeeDetailQueryHandler : IRequestHandler<GetEmployeeDetailQuery, EmployeeDetailVM>
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly IMapper _mapper;
     private readonly IUser _currentUser;
     private readonly ILoggerService _logger;
-    public GetCustomerDetailQueryHandler(IApplicationDbContext context
+    public GetEmployeeDetailQueryHandler(IApplicationDbContext context
         , IIdentityService identityService
         , IMapper mapper
         , IUser currentUser
@@ -33,9 +32,9 @@ public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQu
         _currentUser = currentUser;
         _logger = logger;
     }
-    public async Task<CustomerDetailVM> Handle(GetCustomerDetailQuery request, CancellationToken cancellationToken)
+    public async Task<EmployeeDetailVM> Handle(GetEmployeeDetailQuery request, CancellationToken cancellationToken)
     {
-        var rs = new CustomerDetailVM { };
+        var rs = new EmployeeDetailVM { };
         if (string.IsNullOrEmpty(_currentUser?.Id))
         {
             return rs;
@@ -43,7 +42,7 @@ public class GetCustomerDetailQueryHandler : IRequestHandler<GetCustomerDetailQu
         rs = await _identityService.GetUserByIdAsync(request.Id);
         if (rs == null)
         {
-           return new CustomerDetailVM { };
+           return new EmployeeDetailVM { };
         }
         var company = await _context.Companies
             .FirstOrDefaultAsync(c => c.CompanyId == rs.CompanyId, cancellationToken);
