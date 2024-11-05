@@ -23,6 +23,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Inventory> Inventories => Set<Inventory>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<InventoryOutbound> InventoriesOutbound => Set<InventoryOutbound>();
+    public DbSet<OutboundDetail> OutboundDetails => Set<OutboundDetail>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

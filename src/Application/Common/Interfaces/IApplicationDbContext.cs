@@ -17,5 +17,7 @@ public interface IApplicationDbContext
     DbSet<Inventory> Inventories { get; }
     DbSet<Reservation> Reservations { get; } 
     DbSet<Customer> Customers { get; }
+    DbSet<InventoryOutbound> InventoriesOutbound { get; }
+    DbSet<OutboundDetail> OutboundDetails { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

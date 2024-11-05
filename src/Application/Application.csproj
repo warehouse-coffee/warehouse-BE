@@ -24,6 +24,7 @@
     <Folder Include="Configurations\Queries\" />
     <Folder Include="Customers\Queries\" />
     <Folder Include="IdentityUser\Queries\" />
+    <Folder Include="InventoriesOutbound\Queries\" />
     <Folder Include="Inventories\Commands\" />
     <Folder Include="Inventories\Queries\" />
     <Folder Include="LogApp\Commands\" />

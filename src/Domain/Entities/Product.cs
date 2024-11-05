@@ -2,10 +2,11 @@
 
 public class Product : BaseAuditableEntity
 {
-    
     public required string Name { get; set; }
     public required string Units { get; set; }
     public int Quantity { get; set; }
+    public int SoldQuantity { get; set; }
+    public int OrderedQuantity { get; set; }
     public string? Image { get; set; }
     public required ProductStatus Status { get; set; }  // 'Sold or Not Sold,...'
     public required DateTime Expiration { get; set; }

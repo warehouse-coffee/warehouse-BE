@@ -690,6 +690,38 @@
         }
       }
     },
+    "/api/InventoriesOutbound": {
+      "post": {
+        "tags": [
+          "InventoriesOutbound"
+        ],
+        "operationId": "CreateInventoryOutbound",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInventoryOutboundCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Logs": {
       "post": {
         "tags": [
@@ -1536,6 +1568,14 @@
                 "type": "string"
               },
               "quantity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "soldQuantity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "orderedQuantity": {
                 "type": "integer",
                 "format": "int32"
               },
@@ -2580,6 +2620,16 @@
           },
           "newPassword": {
             "type": "string"
+          }
+        }
+      },
+      "CreateInventoryOutboundCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
