@@ -12,8 +12,8 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241105180605_AddInventoryOutbound")]
-    partial class AddInventoryOutbound
+    [Migration("20241108060317_CreateInit0")]
+    partial class CreateInit0
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

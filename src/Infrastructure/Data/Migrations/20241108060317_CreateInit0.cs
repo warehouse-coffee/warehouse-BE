@@ -368,6 +368,35 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InventoriesOutbound",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OutboundDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ExpectedOutboundDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    OutboundBy = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Remarks = table.Column<string>(type: "text", nullable: true),
+                    OrderId = table.Column<int>(type: "integer", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InventoriesOutbound", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_InventoriesOutbound_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -376,6 +405,8 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Units = table.Column<string>(type: "text", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
+                    SoldQuantity = table.Column<int>(type: "integer", nullable: false),
+                    OrderedQuantity = table.Column<int>(type: "integer", nullable: false),
                     Image = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Expiration = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -486,6 +517,40 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OutboundDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProductId = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    IsAvailable = table.Column<bool>(type: "boolean", nullable: false),
+                    Note = table.Column<string>(type: "text", nullable: true),
+                    InventoryOutboundId = table.Column<int>(type: "integer", nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboundDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OutboundDetails_InventoriesOutbound_InventoryOutboundId",
+                        column: x => x.InventoryOutboundId,
+                        principalTable: "InventoriesOutbound",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OutboundDetails_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Areas_StorageId",
                 table: "Areas",
@@ -544,6 +609,11 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 column: "StorageId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_InventoriesOutbound_OrderId",
+                table: "InventoriesOutbound",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_OrderId",
                 table: "OrderDetails",
                 column: "OrderId");
@@ -557,6 +627,16 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 name: "IX_Orders_CustomerId",
                 table: "Orders",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboundDetails_InventoryOutboundId",
+                table: "OutboundDetails",
+                column: "InventoryOutboundId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboundDetails_ProductId",
+                table: "OutboundDetails",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_AreaId",
@@ -619,10 +699,16 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 name: "OrderDetails");
 
             migrationBuilder.DropTable(
+                name: "OutboundDetails");
+
+            migrationBuilder.DropTable(
                 name: "Reservations");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "InventoriesOutbound");
 
             migrationBuilder.DropTable(
                 name: "Products");
