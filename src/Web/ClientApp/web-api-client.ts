@@ -569,6 +569,42 @@ export class ConfigurationsClient {
         }
         return Promise.resolve<ResponseDto>(null as any);
     }
+
+    getAllConfig(): Promise<ConfigVm> {
+        let url_ = this.baseUrl + "/api/Configurations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllConfig(_response);
+        });
+    }
+
+    protected processGetAllConfig(response: Response): Promise<ConfigVm> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ConfigVm.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ConfigVm>(null as any);
+    }
 }
 
 export class CrawClient {
@@ -1096,6 +1132,100 @@ export class IdentityUserClient {
             });
         }
         return Promise.resolve<boolean>(null as any);
+    }
+}
+
+export class InventoriesClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    private token: string;
+    private XSRF: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
+    }
+
+    getInventoryProductList(query: GetListProductOfInventory): Promise<InventoryProductsListVM> {
+        let url_ = this.baseUrl + "/api/Inventories";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetInventoryProductList(_response);
+        });
+    }
+
+    protected processGetInventoryProductList(response: Response): Promise<InventoryProductsListVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InventoryProductsListVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<InventoryProductsListVM>(null as any);
+    }
+
+    deleteInventoryProduct(id: number): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Inventories/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteInventoryProduct(_response);
+        });
+    }
+
+    protected processDeleteInventoryProduct(response: Response): Promise<ResponseDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
     }
 }
 
@@ -3351,6 +3481,50 @@ export interface ICreateConfigCommand {
     aiDriverServer?: string | undefined;
 }
 
+export class ConfigVm implements IConfigVm {
+    aiServiceKey?: string | undefined;
+    emailServiceKey?: string | undefined;
+    aiDriverServer?: string | undefined;
+
+    constructor(data?: IConfigVm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.aiServiceKey = _data["aiServiceKey"];
+            this.emailServiceKey = _data["emailServiceKey"];
+            this.aiDriverServer = _data["aiDriverServer"];
+        }
+    }
+
+    static fromJS(data: any): ConfigVm {
+        data = typeof data === 'object' ? data : {};
+        let result = new ConfigVm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["aiServiceKey"] = this.aiServiceKey;
+        data["emailServiceKey"] = this.emailServiceKey;
+        data["aiDriverServer"] = this.aiDriverServer;
+        return data;
+    }
+}
+
+export interface IConfigVm {
+    aiServiceKey?: string | undefined;
+    emailServiceKey?: string | undefined;
+    aiDriverServer?: string | undefined;
+}
+
 export class CommodityLinks implements ICommodityLinks {
     crudeOil?: string[];
     brent?: string[];
@@ -4681,6 +4855,162 @@ export interface IResetPasswordCommand {
     email?: string;
     currentPassword?: string;
     newPassword?: string;
+}
+
+export class InventoryProductsListVM implements IInventoryProductsListVM {
+    products?: InventoryProductsDto[] | undefined;
+    page?: Page | undefined;
+
+    constructor(data?: IInventoryProductsListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(InventoryProductsDto.fromJS(item));
+            }
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InventoryProductsListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new InventoryProductsListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IInventoryProductsListVM {
+    products?: InventoryProductsDto[] | undefined;
+    page?: Page | undefined;
+}
+
+export class InventoryProductsDto implements IInventoryProductsDto {
+    id?: number;
+    productName?: string;
+    totalQuantity?: number;
+    availableQuantity?: number;
+    expiration?: Date | undefined;
+    totalPrice?: number;
+    safeStock?: number;
+    categoryId?: number;
+    storageId?: number;
+    storageName?: string;
+
+    constructor(data?: IInventoryProductsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.productName = _data["productName"];
+            this.totalQuantity = _data["totalQuantity"];
+            this.availableQuantity = _data["availableQuantity"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.totalPrice = _data["totalPrice"];
+            this.safeStock = _data["safeStock"];
+            this.categoryId = _data["categoryId"];
+            this.storageId = _data["storageId"];
+            this.storageName = _data["storageName"];
+        }
+    }
+
+    static fromJS(data: any): InventoryProductsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InventoryProductsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["productName"] = this.productName;
+        data["totalQuantity"] = this.totalQuantity;
+        data["availableQuantity"] = this.availableQuantity;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["totalPrice"] = this.totalPrice;
+        data["safeStock"] = this.safeStock;
+        data["categoryId"] = this.categoryId;
+        data["storageId"] = this.storageId;
+        data["storageName"] = this.storageName;
+        return data;
+    }
+}
+
+export interface IInventoryProductsDto {
+    id?: number;
+    productName?: string;
+    totalQuantity?: number;
+    availableQuantity?: number;
+    expiration?: Date | undefined;
+    totalPrice?: number;
+    safeStock?: number;
+    categoryId?: number;
+    storageId?: number;
+    storageName?: string;
+}
+
+export class GetListProductOfInventory implements IGetListProductOfInventory {
+    page?: Page | undefined;
+
+    constructor(data?: IGetListProductOfInventory) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetListProductOfInventory {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetListProductOfInventory();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetListProductOfInventory {
+    page?: Page | undefined;
 }
 
 export class CreateInventoryOutboundCommand implements ICreateInventoryOutboundCommand {

@@ -71,7 +71,7 @@ public class GetLogListQueryHandler : IRequestHandler<GetLogListQuery, LogList> 
             {
                 PageNumber = request.Page?.PageNumber ?? 1,
                 Size = request.Page?.Size ?? 0,
-                TotalElements = pagedLogs.Count,
+                TotalElements = totalLogs
             }
         });
     }
