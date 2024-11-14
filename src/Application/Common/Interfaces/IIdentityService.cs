@@ -45,4 +45,5 @@ public interface IIdentityService
     Task<bool> ValidateTokenAsync(string token);
     Task<List<Storage>> GetUserStoragesAsync(string userId);
     Task<Storage> AddUserStorageAsync(string userId, Storage updatedStorage, CancellationToken cancellationToken);
+    Task<int> GetTotalUser();
 }

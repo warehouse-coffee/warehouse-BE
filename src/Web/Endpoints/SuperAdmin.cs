@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using warehouse_BE.Application.CompanyOwner.Commands.DeleteCompanyOwner;
 using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.Response;
+using warehouse_BE.Application.Stats.Queries.SuperAdmin;
 using warehouse_BE.Application.Users.Commands.UpdateUser;
 using warehouse_BE.Application.Users.Queries.GetUserDetail;
 using warehouse_BE.Application.Users.Queries.GetUserList;
@@ -21,6 +22,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapGet(GetUserDetail,"user/{id}")
                 .MapDelete(DeleteUser, "user/{id}")
                 .MapPut(UpdateUser, "user/{id}")
+                .MapGet(GetSuperAdminStast,"stast")
                 ;
         }
         public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)
@@ -44,6 +46,11 @@ namespace warehouse_BE.Web.Endpoints
         {
             command.Id = id;
             return sender.Send(command);
+        }
+
+        public Task<SuperAdminStatsVM> GetSuperAdminStast(ISender sender)
+        {
+            return sender.Send(new SuperAdminStatsQuery());
         }
     }
 

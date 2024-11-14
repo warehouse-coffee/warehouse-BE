@@ -909,4 +909,24 @@ public class IdentityService : IIdentityService
         return updatedStorage;
     }
 
+    public async Task<int> GetTotalUser()
+    {
+        var superAdminRole = await _roleManager.FindByNameAsync("Super-Admin");
+
+        var user = await _userManager.Users.CountAsync();
+        if (superAdminRole == null)
+        {
+            return await _userManager.Users.CountAsync();
+        }
+
+        var superAdminUserIds = await _context.UserRoles
+            .Where(ur => ur.RoleId == superAdminRole.Id)
+            .Select(ur => ur.UserId)
+            .ToListAsync();
+        var userCount = await _userManager.Users
+            .Where(u => !superAdminUserIds.Contains(u.Id))
+            .CountAsync();
+
+        return userCount;
+    }
 }

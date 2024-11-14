@@ -1287,6 +1287,26 @@
           }
         }
       }
+    },
+    "/api/SuperAdmin/stast": {
+      "get": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "operationId": "GetSuperAdminStast",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperAdminStatsVM"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3467,6 +3487,28 @@
             "type": "string",
             "format": "binary",
             "nullable": true
+          }
+        }
+      },
+      "SuperAdminStatsVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalUser": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCompany": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cpu": {
+            "type": "number",
+            "format": "float"
+          },
+          "ram": {
+            "type": "number",
+            "format": "float"
           }
         }
       }

@@ -1990,6 +1990,42 @@ export class SuperAdminClient {
         }
         return Promise.resolve<ResponseDto>(null as any);
     }
+
+    getSuperAdminStast(): Promise<SuperAdminStatsVM> {
+        let url_ = this.baseUrl + "/api/SuperAdmin/stast";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetSuperAdminStast(_response);
+        });
+    }
+
+    protected processGetSuperAdminStast(response: Response): Promise<SuperAdminStatsVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SuperAdminStatsVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SuperAdminStatsVM>(null as any);
+    }
 }
 
 export class ResponseDto implements IResponseDto {
@@ -6455,6 +6491,54 @@ export interface IUpdateUserCommand {
     companyId?: string | undefined;
     isActived?: boolean;
     avatarImage?: string | undefined;
+}
+
+export class SuperAdminStatsVM implements ISuperAdminStatsVM {
+    totalUser?: number;
+    totalCompany?: number;
+    cpu?: number;
+    ram?: number;
+
+    constructor(data?: ISuperAdminStatsVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalUser = _data["totalUser"];
+            this.totalCompany = _data["totalCompany"];
+            this.cpu = _data["cpu"];
+            this.ram = _data["ram"];
+        }
+    }
+
+    static fromJS(data: any): SuperAdminStatsVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new SuperAdminStatsVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalUser"] = this.totalUser;
+        data["totalCompany"] = this.totalCompany;
+        data["cpu"] = this.cpu;
+        data["ram"] = this.ram;
+        return data;
+    }
+}
+
+export interface ISuperAdminStatsVM {
+    totalUser?: number;
+    totalCompany?: number;
+    cpu?: number;
+    ram?: number;
 }
 
 export class SwaggerException extends Error {
