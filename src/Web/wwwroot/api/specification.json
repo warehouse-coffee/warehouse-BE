@@ -804,6 +804,37 @@
         }
       }
     },
+    "/api/LLM/intent": {
+      "get": {
+        "tags": [
+          "LLM"
+        ],
+        "operationId": "GetResponseIntent",
+        "parameters": [
+          {
+            "name": "intent",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Logs": {
       "post": {
         "tags": [
@@ -1643,6 +1674,10 @@
             "properties": {
               "name": {
                 "type": "string"
+              },
+              "storageId": {
+                "type": "integer",
+                "format": "int32"
               },
               "products": {
                 "type": "array",
