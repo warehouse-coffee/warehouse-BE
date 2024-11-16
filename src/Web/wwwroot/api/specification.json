@@ -1344,7 +1344,7 @@
         "tags": [
           "SuperAdmin"
         ],
-        "operationId": "GetSuperAdminStast",
+        "operationId": "GetSuperAdminStats",
         "responses": {
           "200": {
             "description": "",

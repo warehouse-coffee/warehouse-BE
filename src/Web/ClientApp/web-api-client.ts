@@ -2097,7 +2097,7 @@ export class SuperAdminClient {
         return Promise.resolve<ResponseDto>(null as any);
     }
 
-    getSuperAdminStast(): Promise<SuperAdminStatsVM> {
+    getSuperAdminStats(): Promise<SuperAdminStatsVM> {
         let url_ = this.baseUrl + "/api/SuperAdmin/stats";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2111,11 +2111,11 @@ export class SuperAdminClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetSuperAdminStast(_response);
+            return this.processGetSuperAdminStats(_response);
         });
     }
 
-    protected processGetSuperAdminStast(response: Response): Promise<SuperAdminStatsVM> {
+    protected processGetSuperAdminStats(response: Response): Promise<SuperAdminStatsVM> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {

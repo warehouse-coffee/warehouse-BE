@@ -22,7 +22,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapGet(GetUserDetail,"user/{id}")
                 .MapDelete(DeleteUser, "user/{id}")
                 .MapPut(UpdateUser, "user/{id}")
-                .MapGet(GetSuperAdminStast,"stats")
+                .MapGet(GetSuperAdminStats,"stats")
                 ;
         }
         public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)
@@ -48,7 +48,7 @@ namespace warehouse_BE.Web.Endpoints
             return sender.Send(command);
         }
 
-        public Task<SuperAdminStatsVM> GetSuperAdminStast(ISender sender)
+        public Task<SuperAdminStatsVM> GetSuperAdminStats(ISender sender)
         {
             return sender.Send(new SuperAdminStatsQuery());
         }
