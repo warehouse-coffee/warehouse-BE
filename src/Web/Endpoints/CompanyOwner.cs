@@ -45,5 +45,6 @@ namespace warehouse_BE.Web.Endpoints
         {
             return sender.Send(new DeleteCompanyOwnerCommand { UserId = id });
         }
+
     }
 }

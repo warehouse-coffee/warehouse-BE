@@ -105,6 +105,26 @@
         }
       }
     },
+    "/api/CoffeePrice/predict-graph": {
+      "get": {
+        "tags": [
+          "CoffeePrice"
+        ],
+        "operationId": "GetCoffeePricePredictGraph",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Companies": {
       "post": {
         "tags": [
@@ -1319,7 +1339,7 @@
         }
       }
     },
-    "/api/SuperAdmin/stast": {
+    "/api/SuperAdmin/stats": {
       "get": {
         "tags": [
           "SuperAdmin"
@@ -1471,6 +1491,36 @@
           "companyId": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "GraphVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pointInfos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointInfo"
+            }
+          }
+        }
+      },
+      "PointInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "ai_predict": {
+            "type": "number",
+            "format": "double"
+          },
+          "real_price_difference_rate": {
+            "type": "number",
+            "format": "double"
           }
         }
       },

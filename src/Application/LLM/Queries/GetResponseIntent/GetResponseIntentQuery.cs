@@ -1,8 +1,11 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Response;
+using warehouse_BE.Application.SmartPriceService.Queries.GetAllLinks;
 using warehouse_BE.Domain.Entities;
+using warehouse_BE.Domain.ValueObjects;
 
 namespace warehouse_BE.Application.LLM.Queries.GetResponseIntent;
 
@@ -16,17 +19,22 @@ public class GetResponseIntentQueryHandler : IRequestHandler<GetResponseIntentQu
     private readonly ILoggerService logger;
     private readonly IIdentityService identityService;
     private readonly IUser user;
+    private readonly IExternalHttpService externalHttpService;
 
-    public GetResponseIntentQueryHandler(IApplicationDbContext context, ILoggerService logger, IIdentityService identityService, IUser user)
+    public GetResponseIntentQueryHandler(IApplicationDbContext context, ILoggerService logger, IIdentityService identityService, IUser user, IExternalHttpService externalHttpService)
     {
         this.context = context;
         this.logger = logger;
         this.identityService = identityService;
         this.user = user;
+        this.externalHttpService = externalHttpService;
     }
     public async Task<ResponseDto> Handle(GetResponseIntentQuery request, CancellationToken cancellationToken)
     {
         var  result = new ResponseDto();
+        const string key = ConfigurationKeys.AiDriverServer;
+        var config = await context.Configurations
+                   .FirstOrDefaultAsync(c => c.Key == key, cancellationToken);
         if (user.Id != null)
         {
             var userStorages = await identityService.GetUserStoragesAsync(user.Id);
@@ -85,6 +93,18 @@ public class GetResponseIntentQueryHandler : IRequestHandler<GetResponseIntentQu
 
                     case "coffee_price_today":
                         result.Message = "Response for coffee price today";
+                        if (config != null)
+                        {
+                            var baseUrl = config.Value;
+                            var endpoint = $"{baseUrl}/crawl_one?product_name=Coffee";
+                            var data = await externalHttpService.GetAsync<CoffeePriceList>(endpoint);
+                            if (data != null)
+                            {
+                                var lastObject = data.Data.LastOrDefault();
+                                result.Data = lastObject;
+                            }
+                        }
+
                         break;
 
                     case "near_expired_product":
@@ -125,10 +145,16 @@ public class GetResponseIntentQueryHandler : IRequestHandler<GetResponseIntentQu
 
                     case "coffee_price_tomorrow":
                         result.Message = "Response for coffee price tomorrow";
-                        break;
-
-                    case "others":
-                        result.Message = "Response for others";
+                        if (config != null)
+                        {
+                            var baseUrl = config.Value;
+                            var endpoint = $"{baseUrl}/predict_tommorow";
+                            var response = await externalHttpService.GetAsync<CoffeePriceTommorow>(endpoint);
+                            if (response != null)
+                            {
+                                result.Data = response;
+                            }
+                        }
                         break;
 
                     default:

@@ -208,6 +208,57 @@ export class CategoriesClient {
     }
 }
 
+export class CoffeePriceClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    private token: string;
+    private XSRF: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
+    }
+
+    getCoffeePricePredictGraph(): Promise<GraphVM> {
+        let url_ = this.baseUrl + "/api/CoffeePrice/predict-graph";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoffeePricePredictGraph(_response);
+        });
+    }
+
+    protected processGetCoffeePricePredictGraph(response: Response): Promise<GraphVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GraphVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GraphVM>(null as any);
+    }
+}
+
 export class CompaniesClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -2047,7 +2098,7 @@ export class SuperAdminClient {
     }
 
     getSuperAdminStast(): Promise<SuperAdminStatsVM> {
-        let url_ = this.baseUrl + "/api/SuperAdmin/stast";
+        let url_ = this.baseUrl + "/api/SuperAdmin/stats";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -2405,6 +2456,94 @@ export interface ICategoryDto2 {
     id?: number;
     name?: string | undefined;
     companyId?: string | undefined;
+}
+
+export class GraphVM implements IGraphVM {
+    pointInfos?: PointInfo[];
+
+    constructor(data?: IGraphVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["pointInfos"])) {
+                this.pointInfos = [] as any;
+                for (let item of _data["pointInfos"])
+                    this.pointInfos!.push(PointInfo.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GraphVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new GraphVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.pointInfos)) {
+            data["pointInfos"] = [];
+            for (let item of this.pointInfos)
+                data["pointInfos"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGraphVM {
+    pointInfos?: PointInfo[];
+}
+
+export class PointInfo implements IPointInfo {
+    date?: string | undefined;
+    ai_predict?: number;
+    real_price_difference_rate?: number;
+
+    constructor(data?: IPointInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"];
+            this.ai_predict = _data["ai_predict"];
+            this.real_price_difference_rate = _data["real_price_difference_rate"];
+        }
+    }
+
+    static fromJS(data: any): PointInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new PointInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date;
+        data["ai_predict"] = this.ai_predict;
+        data["real_price_difference_rate"] = this.real_price_difference_rate;
+        return data;
+    }
+}
+
+export interface IPointInfo {
+    date?: string | undefined;
+    ai_predict?: number;
+    real_price_difference_rate?: number;
 }
 
 export class CreateCompanyCommand implements ICreateCompanyCommand {

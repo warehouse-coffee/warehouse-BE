@@ -274,7 +274,7 @@ public class IdentityService : IIdentityService
             Email = userRegister.Email,
             PhoneNumber = userRegister.PhoneNumber,
             CompanyId = userRegister.CompanyId,
-            isActived = true
+            isActived = false   
         };
 
         var result = await _userManager.CreateAsync(user, userRegister.Password);
@@ -318,10 +318,11 @@ public class IdentityService : IIdentityService
         var resetPasswordResult = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
         if (!resetPasswordResult.Succeeded)
         {
+            user.isActived = true;
+            await _userManager.UpdateAsync(user);
             return Result.Failure(resetPasswordResult.Errors.Select(e => e.Description));
         }
 
-        // Nếu mọi thứ thành công
         return Result.Success();
     }
     public async Task<(Result Result, string CompanyId)> GetCompanyId(string userId)

@@ -22,7 +22,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapGet(GetUserDetail,"user/{id}")
                 .MapDelete(DeleteUser, "user/{id}")
                 .MapPut(UpdateUser, "user/{id}")
-                .MapGet(GetSuperAdminStast,"stast")
+                .MapGet(GetSuperAdminStast,"stats")
                 ;
         }
         public Task<ResponseDto> UserRegister(ISender sender, CreateUserCommand command)

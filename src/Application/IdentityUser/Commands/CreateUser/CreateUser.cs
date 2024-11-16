@@ -63,7 +63,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
         {
             try
             {
-                var resetLink = $"https://yourapp.com/reset-password?email={userRegister.Email}";
+                var resetLink = $"https://warehouse-frontend-delta.vercel.app/reset-password";
 
                 // Nội dung email
                 var subject = "Welcome to Our Service!";
@@ -79,7 +79,8 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
             }
             catch
             {
-                return new ResponseDto(400, "Send mail Fail.", user);
+                // update inactive
+                return new ResponseDto(400, "User registered successfully. But send mail Fail. Please check email exit!", user);
             }
         }
 
