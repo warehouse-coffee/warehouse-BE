@@ -2,8 +2,8 @@
 
 public class FilterData
 {
-    public string? Prop { get; set; } 
-    public string? Value { get; set; } 
-    public string? Filter { get; set; }
-    public string? Type { get; set; } 
+    public required string Prop { get; set; } 
+    public required string Value { get; set; }
+    public required  string Filter { get; set; }
+    public required string Type { get; set; } 
 }

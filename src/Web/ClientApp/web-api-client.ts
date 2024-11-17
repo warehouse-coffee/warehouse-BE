@@ -2954,6 +2954,7 @@ export class Storage extends BaseAuditableEntity implements IStorage {
     companyId?: string | undefined;
     areas?: Area[] | undefined;
     inventories?: Inventory[];
+    userStorages?: UserStorage[];
 
     constructor(data?: IStorage) {
         super(data);
@@ -2975,6 +2976,11 @@ export class Storage extends BaseAuditableEntity implements IStorage {
                 this.inventories = [] as any;
                 for (let item of _data["inventories"])
                     this.inventories!.push(Inventory.fromJS(item));
+            }
+            if (Array.isArray(_data["userStorages"])) {
+                this.userStorages = [] as any;
+                for (let item of _data["userStorages"])
+                    this.userStorages!.push(UserStorage.fromJS(item));
             }
         }
     }
@@ -3002,6 +3008,11 @@ export class Storage extends BaseAuditableEntity implements IStorage {
             for (let item of this.inventories)
                 data["inventories"].push(item.toJSON());
         }
+        if (Array.isArray(this.userStorages)) {
+            data["userStorages"] = [];
+            for (let item of this.userStorages)
+                data["userStorages"].push(item.toJSON());
+        }
         super.toJSON(data);
         return data;
     }
@@ -3014,6 +3025,7 @@ export interface IStorage extends IBaseAuditableEntity {
     companyId?: string | undefined;
     areas?: Area[] | undefined;
     inventories?: Inventory[];
+    userStorages?: UserStorage[];
 }
 
 export enum StorageStatus {
@@ -3333,6 +3345,47 @@ export interface IInventory extends IBaseAuditableEntity {
     storageId?: number;
     storage?: Storage | undefined;
     products?: Product[];
+}
+
+export class UserStorage extends BaseAuditableEntity implements IUserStorage {
+    userId?: string;
+    storageId?: number;
+    storage?: Storage;
+
+    constructor(data?: IUserStorage) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.userId = _data["userId"];
+            this.storageId = _data["storageId"];
+            this.storage = _data["storage"] ? Storage.fromJS(_data["storage"]) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): UserStorage {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserStorage();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["storageId"] = this.storageId;
+        data["storage"] = this.storage ? this.storage.toJSON() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IUserStorage extends IBaseAuditableEntity {
+    userId?: string;
+    storageId?: number;
+    storage?: Storage;
 }
 
 export class Page implements IPage {
@@ -4765,6 +4818,7 @@ export interface IEmployeeDto {
 
 export class GetListEmployeeQuery implements IGetListEmployeeQuery {
     page?: Page | undefined;
+    filterData?: FilterData[] | undefined;
 
     constructor(data?: IGetListEmployeeQuery) {
         if (data) {
@@ -4778,6 +4832,11 @@ export class GetListEmployeeQuery implements IGetListEmployeeQuery {
     init(_data?: any) {
         if (_data) {
             this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+            if (Array.isArray(_data["filterData"])) {
+                this.filterData = [] as any;
+                for (let item of _data["filterData"])
+                    this.filterData!.push(FilterData.fromJS(item));
+            }
         }
     }
 
@@ -4791,12 +4850,66 @@ export class GetListEmployeeQuery implements IGetListEmployeeQuery {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        if (Array.isArray(this.filterData)) {
+            data["filterData"] = [];
+            for (let item of this.filterData)
+                data["filterData"].push(item.toJSON());
+        }
         return data;
     }
 }
 
 export interface IGetListEmployeeQuery {
     page?: Page | undefined;
+    filterData?: FilterData[] | undefined;
+}
+
+export class FilterData implements IFilterData {
+    prop?: string;
+    value?: string;
+    filter?: string;
+    type?: string;
+
+    constructor(data?: IFilterData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.prop = _data["prop"];
+            this.value = _data["value"];
+            this.filter = _data["filter"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): FilterData {
+        data = typeof data === 'object' ? data : {};
+        let result = new FilterData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["prop"] = this.prop;
+        data["value"] = this.value;
+        data["filter"] = this.filter;
+        data["type"] = this.type;
+        return data;
+    }
+}
+
+export interface IFilterData {
+    prop?: string;
+    value?: string;
+    filter?: string;
+    type?: string;
 }
 
 export class EmployeeDetailVM implements IEmployeeDetailVM {
@@ -6309,54 +6422,6 @@ export interface IGetStorageProductsQuery {
     page?: Page | undefined;
     searchText?: string | undefined;
     filterData?: FilterData[] | undefined;
-}
-
-export class FilterData implements IFilterData {
-    prop?: string | undefined;
-    value?: string | undefined;
-    filter?: string | undefined;
-    type?: string | undefined;
-
-    constructor(data?: IFilterData) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.prop = _data["prop"];
-            this.value = _data["value"];
-            this.filter = _data["filter"];
-            this.type = _data["type"];
-        }
-    }
-
-    static fromJS(data: any): FilterData {
-        data = typeof data === 'object' ? data : {};
-        let result = new FilterData();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["prop"] = this.prop;
-        data["value"] = this.value;
-        data["filter"] = this.filter;
-        data["type"] = this.type;
-        return data;
-    }
-}
-
-export interface IFilterData {
-    prop?: string | undefined;
-    value?: string | undefined;
-    filter?: string | undefined;
-    type?: string | undefined;
 }
 
 export class CreateUserCommand implements ICreateUserCommand {

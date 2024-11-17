@@ -12,7 +12,7 @@ using warehouse_BE.Infrastructure.Data;
 namespace warehouse_BE.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241108060317_CreateInit0")]
+    [Migration("20241117143823_CreateInit0")]
     partial class CreateInit0
     {
         /// <inheritdoc />
@@ -188,7 +188,7 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("StorageId")
+                    b.Property<int>("StorageId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -747,9 +747,6 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("text");
-
                     b.Property<string>("CompanyId")
                         .HasColumnType("text");
 
@@ -781,9 +778,49 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.ToTable("Storages");
+                });
+
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.UserStorage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("StorageId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Storages");
+                    b.HasIndex("StorageId");
+
+                    b.ToTable("UserStorages");
                 });
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
@@ -919,7 +956,9 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                 {
                     b.HasOne("warehouse_BE.Domain.Entities.Storage", null)
                         .WithMany("Areas")
-                        .HasForeignKey("StorageId");
+                        .HasForeignKey("StorageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("warehouse_BE.Domain.Entities.Customer", b =>
@@ -1044,11 +1083,19 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Navigation("Inventory");
                 });
 
-            modelBuilder.Entity("warehouse_BE.Domain.Entities.Storage", b =>
+            modelBuilder.Entity("warehouse_BE.Domain.Entities.UserStorage", b =>
                 {
                     b.HasOne("warehouse_BE.Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("Storages")
+                        .WithMany("UserStorages")
                         .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("warehouse_BE.Domain.Entities.Storage", "Storage")
+                        .WithMany("UserStorages")
+                        .HasForeignKey("StorageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Storage");
                 });
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
@@ -1097,11 +1144,13 @@ namespace warehouse_BE.Infrastructure.Data.Migrations
                     b.Navigation("Areas");
 
                     b.Navigation("Inventories");
+
+                    b.Navigation("UserStorages");
                 });
 
             modelBuilder.Entity("warehouse_BE.Infrastructure.Identity.ApplicationUser", b =>
                 {
-                    b.Navigation("Storages");
+                    b.Navigation("UserStorages");
                 });
 #pragma warning restore 612, 618
         }

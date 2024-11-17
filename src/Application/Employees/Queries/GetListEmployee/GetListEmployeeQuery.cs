@@ -7,6 +7,7 @@ namespace warehouse_BE.Application.Employee.Queries.GetListEmployee;
 public class GetListEmployeeQuery : IRequest<EmployeeListVM>
 {
     public Page? Page { get; set; }
+    public List<FilterData>? FilterData { get; set; }
 }
 public class GetListEmployeeQueryHandler : IRequestHandler<GetListEmployeeQuery, EmployeeListVM>
 {

@@ -1692,6 +1692,12 @@
                 "items": {
                   "$ref": "#/components/schemas/Inventory"
                 }
+              },
+              "userStorages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UserStorage"
+                }
               }
             }
           }
@@ -1987,6 +1993,29 @@
                 "items": {
                   "$ref": "#/components/schemas/Product"
                 }
+              }
+            }
+          }
+        ]
+      },
+      "UserStorage": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "type": "string"
+              },
+              "storageId": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "storage": {
+                "$ref": "#/components/schemas/Storage"
               }
             }
           }
@@ -2698,6 +2727,31 @@
                 "$ref": "#/components/schemas/Page"
               }
             ]
+          },
+          "filterData": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
+            }
+          }
+        }
+      },
+      "FilterData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "prop": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "filter": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
           }
         }
       },
@@ -3378,28 +3432,6 @@
             "items": {
               "$ref": "#/components/schemas/FilterData"
             }
-          }
-        }
-      },
-      "FilterData": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "prop": {
-            "type": "string",
-            "nullable": true
-          },
-          "value": {
-            "type": "string",
-            "nullable": true
-          },
-          "filter": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "type": "string",
-            "nullable": true
           }
         }
       },

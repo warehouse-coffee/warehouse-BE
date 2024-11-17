@@ -46,6 +46,7 @@
     <PackageVersion Include="StackExchange.Redis" Version="2.8.16" />
     <PackageVersion Include="System.Diagnostics.PerformanceCounter" Version="9.0.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
+    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.4.9" />
     <PackageVersion Include="System.Management" Version="9.0.0" />
     <PackageVersion Include="Testcontainers.MsSql" Version="3.6.0" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.40.0" />

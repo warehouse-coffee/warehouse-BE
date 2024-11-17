@@ -19,5 +19,6 @@ public interface IApplicationDbContext
     DbSet<Customer> Customers { get; }
     DbSet<InventoryOutbound> InventoriesOutbound { get; }
     DbSet<OutboundDetail> OutboundDetails { get; }
+    DbSet<UserStorage> UserStorages { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

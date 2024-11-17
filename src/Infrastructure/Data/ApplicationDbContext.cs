@@ -25,6 +25,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<InventoryOutbound> InventoriesOutbound => Set<InventoryOutbound>();
     public DbSet<OutboundDetail> OutboundDetails => Set<OutboundDetail>();
+    public DbSet<UserStorage> UserStorages => Set<UserStorage>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

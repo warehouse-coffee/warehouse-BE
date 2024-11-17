@@ -153,7 +153,7 @@ public class IdentityService : IIdentityService
                     issuer: issuer,
                     audience: audience,
                     claims: claims,
-                    expires: DateTime.UtcNow.AddHours(1),
+                    expires: DateTime.UtcNow.AddHours(24),
                     signingCredentials: creds);
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
@@ -361,13 +361,13 @@ public class IdentityService : IIdentityService
                 .Where(s => storageIds.Contains(s.Id)) 
                 .ToListAsync()
             : new List<Storage>();
+
         var user = new ApplicationUser
         {
             UserName = request.UserName,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             CompanyId = request.CompanyId,
-            Storages = storages
         };
         var employeeDto = new EmployeeDto();
         try
@@ -375,10 +375,22 @@ public class IdentityService : IIdentityService
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
             {
+
                 var errors = result.Errors.Select(e => e.Description).ToList();
                 return (Result.Failure(errors), null);
             }
+            foreach (var storage in storages)
+            {
+                var userStorage = new UserStorage
+                {
+                    UserId = user.Id,
+                    StorageId = storage.Id,
+                };
 
+                user.UserStorages.Add(userStorage);
+            }
+
+            await _userManager.UpdateAsync(user);
             var roleResult = await _userManager.AddToRoleAsync(user, "Employee");
             if (!roleResult.Succeeded)
             {
@@ -445,11 +457,12 @@ public class IdentityService : IIdentityService
         }
         try
         {
-            var curentUser = await _context.Users
-            .Include(u => u.Storages)
+            var currentUser = await _context.Users
+            .Include(u => u.UserStorages)  
+            .ThenInclude(us => us.Storage)
             .FirstOrDefaultAsync(u => u.Id == request.Id);
 
-            if (curentUser == null)
+            if (currentUser == null)
             {
                 return Result.Failure(new[] { "User not found." });
             }
@@ -460,29 +473,29 @@ public class IdentityService : IIdentityService
                                              .Where(s => storageIds.Contains(s.Id))
                                              .ToListAsync();
 
-            // Log số lượng Storage hiện có
-            Console.WriteLine($"Current Storages Count: {curentUser.Storages.Count}");
+            // Remove `UserStorage` entries that are not in the `storageIds`
+            currentUser.UserStorages = currentUser.UserStorages
+                .Where(us => storageIds.Contains(us.StorageId))
+                .ToList();
 
-            // Xóa các `Storage` không có trong `storageIds`
-            curentUser.Storages.RemoveAll(s => !storageIds.Contains(s.Id));
 
-            // Thêm các `Storage` mới chưa có trong `user.Storages`
+            // Thêm các `UserStorage` mới chưa có trong `currentUser.UserStorages`
             foreach (var storage in newStorages)
             {
-                if (!curentUser.Storages.Any(s => s.Id == storage.Id))
+                if (!currentUser.UserStorages.Any(us => us.StorageId == storage.Id))
                 {
-                    curentUser.Storages.Add(storage);
+                    currentUser.UserStorages.Add(new UserStorage
+                    {
+                        UserId = currentUser.Id,
+                        StorageId = storage.Id,
+                        Storage = storage 
+                    });
                 }
             }
 
-            // Kiểm tra trạng thái của từng Storage trong `user.Storages`
-            foreach (var storage in curentUser.Storages)
-            {
-                _context.Entry(storage).State = EntityState.Modified;
-            }
-
             // Cập nhật trạng thái của User và lưu thay đổi
-            var updateResult = await _userManager.UpdateAsync(user);
+            var updateResult = await _userManager.UpdateAsync(currentUser);
+
             await _context.SaveChangesAsync(cancellationToken);
 
             if (!updateResult.Succeeded)
@@ -579,15 +592,16 @@ public class IdentityService : IIdentityService
     public async Task<CompanyOwnerDetailDto?> GetCompanyOwnerByIdAsync(string userId)
     {
         var user = await _userManager.Users
-                                 .Include(u => u.Storages)
-                                 .FirstOrDefaultAsync(u => u.Id == userId);
+            .Include(u => u.UserStorages)  
+            .ThenInclude(us => us.Storage) 
+            .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
         {
             return null;
         }
 
-        var EmployeeDetail = new CompanyOwnerDetailDto
+        var employeeDetail = new CompanyOwnerDetailDto
         {
             CompayOwnerId = user.Id,
             Name = user.UserName,
@@ -595,17 +609,16 @@ public class IdentityService : IIdentityService
             Phone = user.PhoneNumber,
             CompanyId = user.CompanyId,
             ImageFile = user.AvatarImage,
-            Storages = user.Storages.Select(s => new StorageDto
+            Storages = user.UserStorages.Select(us => new StorageDto
             {
-               Name = s.Name,
-               Location = s.Location,
-                Status = s.Status,
-              
+                Name = us.Storage.Name,
+                Location = us.Storage.Location,
+                Status = us.Storage.Status,
             }).ToList()
-
         };
 
-        return EmployeeDetail;
+        return employeeDetail;
+
     }
     public async Task<string> GetRoleNamebyUserId(string userId)
     {
@@ -695,25 +708,39 @@ public class IdentityService : IIdentityService
     public async Task<Result> UpdateStoragesForUser(string userId, List<StorageDto> updatedStorages, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if(user != null)
+        if (user != null)
         {
-            var storagesToRemove = user.Storages.Where(s => !updatedStorages.Any(us => us.Id == s.Id)).ToList();
+            // Get the current UserStorages associated with the user
+            var currentUserStorages = user.UserStorages.ToList();
+
+            // Remove UserStorages that are not present in updatedStorages
+            var storagesToRemove = currentUserStorages
+                .Where(us => !updatedStorages.Any(s => s.Id == us.StorageId))
+                .ToList();
+
             if (storagesToRemove.Any())
             {
-                _context.Storages.RemoveRange(storagesToRemove);
+                _context.UserStorages.RemoveRange(storagesToRemove);
             }
 
             foreach (var storageDto in updatedStorages)
             {
-                var existingStorage = user.Storages.FirstOrDefault(s => s.Id == storageDto.Id);
-                if (existingStorage != null && !string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && storageDto.Status.HasValue )
+                // Check if the UserStorage exists
+                var existingUserStorage = currentUserStorages.FirstOrDefault(us => us.StorageId == storageDto.Id);
+
+                if (existingUserStorage != null)
                 {
-                    existingStorage.Name = storageDto.Name;
-                    existingStorage.Location = storageDto.Location;
-                    existingStorage.Status = (Domain.Enums.StorageStatus)storageDto.Status;
+                    // Update existing UserStorage
+                    if (!string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && storageDto.Status.HasValue)
+                    {
+                        existingUserStorage.Storage.Name = storageDto.Name;
+                        existingUserStorage.Storage.Location = storageDto.Location;
+                        existingUserStorage.Storage.Status = (Domain.Enums.StorageStatus)storageDto.Status;
+                    }
                 }
                 else
                 {
+                    // Add new UserStorage if not found
                     if (!string.IsNullOrEmpty(storageDto.Name) && !string.IsNullOrEmpty(storageDto.Location) && storageDto.Status.HasValue)
                     {
                         var newStorage = new Domain.Entities.Storage
@@ -722,14 +749,24 @@ public class IdentityService : IIdentityService
                             Location = storageDto.Location,
                             Status = (Domain.Enums.StorageStatus)storageDto.Status,
                         };
-                        user.Storages.Add(newStorage);
+
+                        // Create new UserStorage to link the user with the storage
+                        var newUserStorage = new UserStorage
+                        {
+                            UserId = user.Id,
+                            Storage = newStorage
+                        };
+
+                        user.UserStorages.Add(newUserStorage);
                     }
                 }
             }
 
             await _context.SaveChangesAsync(cancellationToken);
         }
+
         return Result.Success();
+
     }
     public async Task<Result> DeleteUser(string userId)
     {
@@ -865,7 +902,15 @@ public class IdentityService : IIdentityService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-
+        var storages = user.UserStorages
+    .Select(us => new Storage
+    {
+        Id = us.Storage.Id,
+        Name = us.Storage.Name,
+        Location = us.Storage.Location,
+        Status = us.Storage.Status
+    })
+    .ToList();
         var userDto = new UserDto
         {
             Id = user.Id,
@@ -875,7 +920,7 @@ public class IdentityService : IIdentityService
             PhoneNumber = user.PhoneNumber,
             RoleName = roles.FirstOrDefault(),  
             isActived = user.isActived,
-            Storages = user.Storages,
+            Storages = storages,
             AvatarImage = user.AvatarImage,
         };
 
@@ -884,10 +929,12 @@ public class IdentityService : IIdentityService
     public async Task<List<Storage>> GetUserStoragesAsync(string userId)
     {
         var user = await _context.Users
-        .Include(u => u.Storages) 
-        .FirstOrDefaultAsync(u => u.Id == userId);
+            .Include(u => u.UserStorages)  // Include UserStorages instead of Storages
+            .ThenInclude(us => us.Storage)  // Also include the related Storage entity
+            .FirstOrDefaultAsync(u => u.Id == userId);
 
-        return user?.Storages ?? new List<Storage>();
+        return user?.UserStorages.Select(us => us.Storage).ToList() ?? new List<Storage>();
+
     }
     public async Task<Storage> AddUserStorageAsync(string userId, Storage updatedStorage,CancellationToken cancellationToken)
     {
@@ -897,17 +944,32 @@ public class IdentityService : IIdentityService
             throw new Exception("User not found.");
         }
 
-        var existingStorage = user.Storages.FirstOrDefault(s => s.Name == updatedStorage.Name);
+        // Check if the storage already exists for this user through UserStorages
+        var existingStorage = user.UserStorages
+            .FirstOrDefault(us => us.Storage.Name == updatedStorage.Name);
+
         if (existingStorage != null)
         {
             throw new Exception($"Storage with name '{updatedStorage.Name}' already exists for this user.");
         }
 
-        user.Storages.Add(updatedStorage);
+        // Create a new UserStorage for the user and the updated storage
+        var newUserStorage = new UserStorage
+        {
+            UserId = user.Id,
+            StorageId = updatedStorage.Id  // Assuming updatedStorage already exists in the database
+        };
+
+        // Add the new UserStorage to the user's UserStorages collection
+        user.UserStorages.Add(newUserStorage);
+
+        // Optionally, you can update the Storage entity if needed
+        // _context.Storages.Update(updatedStorage);
 
         await _context.SaveChangesAsync(cancellationToken);
 
         return updatedStorage;
+
     }
 
     public async Task<int> GetTotalUser()

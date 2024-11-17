@@ -8,4 +8,7 @@ public class Storage : BaseAuditableEntity
     public string? CompanyId { get; set; }
     public ICollection<Area>? Areas { get; set; } = new List<Area>();
     public ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
+
+    public ICollection<UserStorage> UserStorages { get; set; } = new List<UserStorage>();
+
 }
