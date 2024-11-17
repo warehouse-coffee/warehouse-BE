@@ -46,4 +46,7 @@ public interface IIdentityService
     Task<List<Storage>> GetUserStoragesAsync(string userId);
     Task<Storage> AddUserStorageAsync(string userId, Storage updatedStorage, CancellationToken cancellationToken);
     Task<int> GetTotalUser();
+    Task<int> TotalActiveEmployee(string companyId);
+    Task<int> TotalOnlineEmployee(string companyId);
+    Task<bool> UpdateUserOnlineStatusAsync(string userId, bool isOnline);
 }

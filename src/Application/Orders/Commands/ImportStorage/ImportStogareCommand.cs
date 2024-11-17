@@ -20,13 +20,15 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
     private readonly IIdentityService _identityService;
     private readonly IUser _currentUser;
     private readonly IMapper _mapper;
+    private readonly IUser _user;
 
-    public ImportStogareCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser currentUser, IMapper mapper)
+    public ImportStogareCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser currentUser, IMapper mapper, IUser user)
     {
         _context = context;
         _identityService = identityService;
         _currentUser = currentUser;
         _mapper = mapper;
+        _user = user;
     }
     public async Task<ResponseDto> Handle(ImportStogareCommand request, CancellationToken cancellationToken)
     {
@@ -73,6 +75,10 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
             .Where(a => areaIds.Contains(a.Id))
             .Select(a => a.Id)
             .ToListAsync(cancellationToken);
+        if (_user.Id == null)
+        {
+            return rs;
+        }
 
         if (areasExist.Count != areaIds.Count)
         {
@@ -104,15 +110,25 @@ public class ImportStogareCommandHandler : IRequestHandler<ImportStogareCommand,
         }
         try
         {
+
             var customer = await _context.Customers
             .FirstOrDefaultAsync(c => c.Name == request.CustomerName && c.Phone == request.CustomerPhoneNumber, cancellationToken);
 
             if (customer == null)
             {
-                 customer = new Customer
+                var (result, companyId) = await _identityService.GetCompanyId(_user.Id);
+                var company = await _context.Companies
+                      .FirstOrDefaultAsync(c => c.CompanyId == companyId, cancellationToken);
+                if(company == null)
+                {
+                    return rs;
+                }
+
+                customer = new Customer
                 {
                     Name = request.CustomerName!,
-                    Phone = request.CustomerPhoneNumber
+                    Phone = request.CustomerPhoneNumber,
+                    CompanyId = company.Id
                 };
                 _context.Customers.Add(customer);
                 await _context.SaveChangesAsync(cancellationToken);

@@ -1063,6 +1063,26 @@
         }
       }
     },
+    "/api/Stats/admin": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "operationId": "GetAdminStats",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminStatsVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Storage": {
       "post": {
         "tags": [
@@ -2592,10 +2612,6 @@
           "address": {
             "type": "string",
             "nullable": true
-          },
-          "companyName": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -3275,6 +3291,27 @@
             "items": {
               "$ref": "#/components/schemas/ProductDto"
             }
+          }
+        }
+      },
+      "AdminStatsVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalInventoryValue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "onlineEmployeeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderCompletionRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "highDemandItemSummary": {
+            "type": "string"
           }
         }
       },

@@ -172,7 +172,11 @@ public class IdentityService : IIdentityService
             {
                 await _userManager.SetAuthenticationTokenAsync(user, "MyApp", "JWT", jwtToken);
             }
-
+            if(jwtToken != null)
+            {
+                user.isOnline = true;
+                await _userManager.UpdateAsync(user);
+            }
             return jwtToken;
 
         } catch (Exception ex)
@@ -991,5 +995,72 @@ public class IdentityService : IIdentityService
             .CountAsync();
 
         return userCount;
+    }
+
+    public async Task<int> TotalActiveEmployee(string companyId)
+    {
+        int activeEmployeeCount = 0;
+
+        var employeeActive = await _context.Users
+            .Where(o => o.CompanyId == companyId && !o.isDeleted && o.isActived)
+            .ToListAsync();
+
+        foreach (var employee in employeeActive)
+        {
+            var roles = await _userManager.GetRolesAsync(employee);
+            if (roles.Contains("Employee"))
+            {
+                activeEmployeeCount++;
+            }
+        }
+
+        return activeEmployeeCount;
+    }
+    public async Task<int> TotalOnlineEmployee(string companyId)
+    {
+        int employeeCount = 0;
+
+        var employees = await _context.Users
+            .Where(o => o.CompanyId == companyId && !o.isDeleted && o.isOnline)
+            .ToListAsync();
+
+        foreach (var employee in employees)
+        {
+            var roles = await _userManager.GetRolesAsync(employee);
+            if (roles.Contains("Employee"))
+            {
+                employeeCount++;
+            }
+        }
+
+        return employeeCount;
+    }
+    public async Task<bool> UpdateUserOnlineStatusAsync(string userId, bool isOnline)
+    {
+        try
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.isOnline = isOnline;  
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation($"User {userId} is now {(isOnline ? "online" : "offline")}.");
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error updating online status for user {userId}",ex);
+            return false;
+        }
     }
 }

@@ -1710,6 +1710,57 @@ export class ProductsClient {
     }
 }
 
+export class StatsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    private token: string;
+    private XSRF: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
+    }
+
+    getAdminStats(): Promise<AdminStatsVM> {
+        let url_ = this.baseUrl + "/api/Stats/admin";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAdminStats(_response);
+        });
+    }
+
+    protected processGetAdminStats(response: Response): Promise<AdminStatsVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdminStatsVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<AdminStatsVM>(null as any);
+    }
+}
+
 export class StorageClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -4537,7 +4588,6 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
     email?: string | undefined;
     phone?: string | undefined;
     address?: string | undefined;
-    companyName?: string | undefined;
 
     constructor(data?: ICreateCustomerCommand) {
         if (data) {
@@ -4554,7 +4604,6 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
             this.email = _data["email"];
             this.phone = _data["phone"];
             this.address = _data["address"];
-            this.companyName = _data["companyName"];
         }
     }
 
@@ -4571,7 +4620,6 @@ export class CreateCustomerCommand implements ICreateCustomerCommand {
         data["email"] = this.email;
         data["phone"] = this.phone;
         data["address"] = this.address;
-        data["companyName"] = this.companyName;
         return data;
     }
 }
@@ -4581,7 +4629,6 @@ export interface ICreateCustomerCommand {
     email?: string | undefined;
     phone?: string | undefined;
     address?: string | undefined;
-    companyName?: string | undefined;
 }
 
 export class CreateEmployeeCommand implements ICreateEmployeeCommand {
@@ -6062,6 +6109,54 @@ export class ProductListVM implements IProductListVM {
 
 export interface IProductListVM {
     productList?: ProductDto[] | undefined;
+}
+
+export class AdminStatsVM implements IAdminStatsVM {
+    totalInventoryValue?: number;
+    onlineEmployeeCount?: number;
+    orderCompletionRate?: number;
+    highDemandItemSummary?: string;
+
+    constructor(data?: IAdminStatsVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalInventoryValue = _data["totalInventoryValue"];
+            this.onlineEmployeeCount = _data["onlineEmployeeCount"];
+            this.orderCompletionRate = _data["orderCompletionRate"];
+            this.highDemandItemSummary = _data["highDemandItemSummary"];
+        }
+    }
+
+    static fromJS(data: any): AdminStatsVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new AdminStatsVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalInventoryValue"] = this.totalInventoryValue;
+        data["onlineEmployeeCount"] = this.onlineEmployeeCount;
+        data["orderCompletionRate"] = this.orderCompletionRate;
+        data["highDemandItemSummary"] = this.highDemandItemSummary;
+        return data;
+    }
+}
+
+export interface IAdminStatsVM {
+    totalInventoryValue?: number;
+    onlineEmployeeCount?: number;
+    orderCompletionRate?: number;
+    highDemandItemSummary?: string;
 }
 
 export class CreateStorageCommand implements ICreateStorageCommand {

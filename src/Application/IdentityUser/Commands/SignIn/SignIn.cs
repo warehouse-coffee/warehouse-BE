@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using warehouse_BE.Application.Common.Interfaces;
 
 namespace warehouse_BE.Application.IdentityUser.Commands.SignIn;
