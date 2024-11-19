@@ -55,7 +55,7 @@ public class AdminStatsQueryHandler : IRequestHandler<AdminStatsQuery, AdminStat
 
                     var AIpredict = await externalHttpService.GetAsync<Prediction>(endpoint);
 
-                    var AC = await externalHttpService.GetAsync<Prediction>(endpoint);
+                    var AC = await externalHttpService.GetAsync<Prediction>(ACURL);
                     prediction.AI_predict = AIpredict?.AI_predict ?? 0;
                     prediction.Accuracy = AC?.Accuracy ?? 0;
                     prediction.Date = AC?.Date ?? DateTime.MinValue;

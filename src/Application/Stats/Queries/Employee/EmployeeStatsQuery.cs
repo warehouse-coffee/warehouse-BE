@@ -1,10 +1,12 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Domain.Enums;
 
 namespace warehouse_BE.Application.Stats.Queries.Employee;
 
@@ -32,6 +34,10 @@ public class EmployeeStatsQueryHandler : IRequestHandler<EmployeeStatsQuery, Emp
         int producctExport = 0;
         int productImport = 0;
         int productExpiration = 0;
+        var currentMonth = DateTime.Now.Month;
+        var currentYear = DateTime.Now.Year;
+        var currentDate = DateTime.Now;
+
         try
         {
             if (user.Id != null)
@@ -39,21 +45,35 @@ public class EmployeeStatsQueryHandler : IRequestHandler<EmployeeStatsQuery, Emp
                 var (result, companyId) = await identityService.GetCompanyId(user.Id);
                 var userStorages = await identityService.GetUserStoragesAsync(user.Id);
                 // count total Product have quantity > 0 and Expiration 
-                var queryProductExpiration = context.Products.AsQueryable();
-
+                productExpiration = context.Products.AsQueryable()
+                    .Where(p => p.Quantity > 0 && p.Expiration.Year == currentYear && p.Expiration < currentDate) 
+                    .Count();
                 // get list outbound  of inventory for the storage User management and the outbound with state complete and in the month 
-                var queryOutboundInvent = context.InventoriesOutbound.AsQueryable().Where(o => o.CreatedBy == user.Id);
-
-
+                outboundInvent = context.InventoriesOutbound.AsQueryable()
+                    .Where(io => io.CreatedBy == user.Id && 
+                                 io.Status == OutboundStatus.Completed &&
+                                 io.OutboundDate.HasValue &&
+                                 io.OutboundDate.Value.Year == currentYear &&
+                                 io.OutboundDate.Value.Month == currentMonth)
+                    .Count();
                 // count total Order with type Export in the month 
-                var queryproductExport = context.Orders.AsQueryable();
-
-
+                var totalExportReservedQuantity = context.Orders
+                    .Where(order => order.Type == "Export" && 
+                                    order.Date.Year == currentYear && 
+                                    order.Date.Month == currentMonth)
+                    .SelectMany(order => order.Reservations) 
+                    .Sum(reservation => reservation.ReservedQuantity);
                 // count total Order with type Import in the month 
-                var queryproductImport = context.Orders.AsQueryable();
+                var totalImportReservedQuantity = context.Orders
+                    .Where(order => order.Type == "Import" && 
+                                    order.Date.Year == currentYear && 
+                                    order.Date.Month == currentMonth)
+                    .SelectMany(order => order.Reservations) 
+                    .Sum(reservation => reservation.ReservedQuantity); 
 
             }
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             loggerService.LogError("Error at Employee Stats Query: ", ex);
         }

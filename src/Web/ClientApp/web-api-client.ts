@@ -1278,6 +1278,46 @@ export class InventoriesClient {
         }
         return Promise.resolve<ResponseDto>(null as any);
     }
+
+    getInventoriesByStorage(query: GetInventoriesByStorageQuery): Promise<InventoryListVM> {
+        let url_ = this.baseUrl + "/api/Inventories/storageId";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetInventoriesByStorage(_response);
+        });
+    }
+
+    protected processGetInventoriesByStorage(response: Response): Promise<InventoryListVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InventoryListVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<InventoryListVM>(null as any);
+    }
 }
 
 export class InventoriesOutboundClient {
@@ -1758,6 +1798,42 @@ export class StatsClient {
             });
         }
         return Promise.resolve<AdminStatsVM>(null as any);
+    }
+
+    getEmployeeStats(): Promise<EmployeeStatsVM> {
+        let url_ = this.baseUrl + "/api/Stats/employee";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetEmployeeStats(_response);
+        });
+    }
+
+    protected processGetEmployeeStats(response: Response): Promise<EmployeeStatsVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EmployeeStatsVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<EmployeeStatsVM>(null as any);
     }
 }
 
@@ -3488,6 +3564,8 @@ export class Page implements IPage {
     pageNumber?: number;
     totalElements?: number;
     totalPages?: number;
+    sortBy?: string;
+    sortAsc?: boolean;
 
     constructor(data?: IPage) {
         if (data) {
@@ -3504,6 +3582,8 @@ export class Page implements IPage {
             this.pageNumber = _data["pageNumber"];
             this.totalElements = _data["totalElements"];
             this.totalPages = _data["totalPages"];
+            this.sortBy = _data["sortBy"];
+            this.sortAsc = _data["sortAsc"];
         }
     }
 
@@ -3520,6 +3600,8 @@ export class Page implements IPage {
         data["pageNumber"] = this.pageNumber;
         data["totalElements"] = this.totalElements;
         data["totalPages"] = this.totalPages;
+        data["sortBy"] = this.sortBy;
+        data["sortAsc"] = this.sortAsc;
         return data;
     }
 }
@@ -3529,6 +3611,8 @@ export interface IPage {
     pageNumber?: number;
     totalElements?: number;
     totalPages?: number;
+    sortBy?: string;
+    sortAsc?: boolean;
 }
 
 export class GetCompanyOwnerListQuery implements IGetCompanyOwnerListQuery {
@@ -5451,6 +5535,166 @@ export interface IGetListProductOfInventory {
     page?: Page | undefined;
 }
 
+export class InventoryListVM implements IInventoryListVM {
+    page?: Page | undefined;
+    inventories?: InventoryDto[] | undefined;
+
+    constructor(data?: IInventoryListVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+            if (Array.isArray(_data["inventories"])) {
+                this.inventories = [] as any;
+                for (let item of _data["inventories"])
+                    this.inventories!.push(InventoryDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): InventoryListVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new InventoryListVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        if (Array.isArray(this.inventories)) {
+            data["inventories"] = [];
+            for (let item of this.inventories)
+                data["inventories"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IInventoryListVM {
+    page?: Page | undefined;
+    inventories?: InventoryDto[] | undefined;
+}
+
+export class InventoryDto implements IInventoryDto {
+    productName?: string;
+    availableQuantity?: number;
+    expiration?: Date | undefined;
+    totalPrice?: number;
+    totalSalePrice?: number;
+    safeStock?: number;
+    status?: string;
+
+    constructor(data?: IInventoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.productName = _data["productName"];
+            this.availableQuantity = _data["availableQuantity"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.totalPrice = _data["totalPrice"];
+            this.totalSalePrice = _data["totalSalePrice"];
+            this.safeStock = _data["safeStock"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): InventoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InventoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["productName"] = this.productName;
+        data["availableQuantity"] = this.availableQuantity;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["totalPrice"] = this.totalPrice;
+        data["totalSalePrice"] = this.totalSalePrice;
+        data["safeStock"] = this.safeStock;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IInventoryDto {
+    productName?: string;
+    availableQuantity?: number;
+    expiration?: Date | undefined;
+    totalPrice?: number;
+    totalSalePrice?: number;
+    safeStock?: number;
+    status?: string;
+}
+
+export class GetInventoriesByStorageQuery implements IGetInventoriesByStorageQuery {
+    storageId?: number;
+    page?: Page;
+    filters?: FilterData[] | undefined;
+
+    constructor(data?: IGetInventoriesByStorageQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.storageId = _data["storageId"];
+            this.page = _data["page"] ? Page.fromJS(_data["page"]) : <any>undefined;
+            if (Array.isArray(_data["filters"])) {
+                this.filters = [] as any;
+                for (let item of _data["filters"])
+                    this.filters!.push(FilterData.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetInventoriesByStorageQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetInventoriesByStorageQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["storageId"] = this.storageId;
+        data["page"] = this.page ? this.page.toJSON() : <any>undefined;
+        if (Array.isArray(this.filters)) {
+            data["filters"] = [];
+            for (let item of this.filters)
+                data["filters"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGetInventoriesByStorageQuery {
+    storageId?: number;
+    page?: Page;
+    filters?: FilterData[] | undefined;
+}
+
 export class CreateInventoryOutboundCommand implements ICreateInventoryOutboundCommand {
     orderId?: number;
 
@@ -6253,6 +6497,54 @@ export interface IPrediction {
     aI_predict?: number;
     accuracy?: number;
     date?: Date;
+}
+
+export class EmployeeStatsVM implements IEmployeeStatsVM {
+    outboundInventoryCompletePerMonth?: number;
+    productExpirationCount?: number;
+    totalProductImportPerMonth?: number;
+    totalProductExportPerMonth?: number;
+
+    constructor(data?: IEmployeeStatsVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.outboundInventoryCompletePerMonth = _data["outboundInventoryCompletePerMonth"];
+            this.productExpirationCount = _data["productExpirationCount"];
+            this.totalProductImportPerMonth = _data["totalProductImportPerMonth"];
+            this.totalProductExportPerMonth = _data["totalProductExportPerMonth"];
+        }
+    }
+
+    static fromJS(data: any): EmployeeStatsVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new EmployeeStatsVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["outboundInventoryCompletePerMonth"] = this.outboundInventoryCompletePerMonth;
+        data["productExpirationCount"] = this.productExpirationCount;
+        data["totalProductImportPerMonth"] = this.totalProductImportPerMonth;
+        data["totalProductExportPerMonth"] = this.totalProductExportPerMonth;
+        return data;
+    }
+}
+
+export interface IEmployeeStatsVM {
+    outboundInventoryCompletePerMonth?: number;
+    productExpirationCount?: number;
+    totalProductImportPerMonth?: number;
+    totalProductExportPerMonth?: number;
 }
 
 export class CreateStorageCommand implements ICreateStorageCommand {

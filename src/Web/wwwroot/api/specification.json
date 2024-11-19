@@ -792,6 +792,38 @@
         }
       }
     },
+    "/api/Inventories/storageId": {
+      "post": {
+        "tags": [
+          "Inventories"
+        ],
+        "operationId": "GetInventoriesByStorage",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetInventoriesByStorageQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryListVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/InventoriesOutbound": {
       "post": {
         "tags": [
@@ -1076,6 +1108,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminStatsVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Stats/employee": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "operationId": "GetEmployeeStats",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeStatsVM"
                 }
               }
             }
@@ -2088,6 +2140,12 @@
           "totalPages": {
             "type": "integer",
             "format": "int32"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortAsc": {
+            "type": "boolean"
           }
         }
       },
@@ -3006,6 +3064,80 @@
           }
         }
       },
+      "InventoryListVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          },
+          "inventories": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/InventoryDto"
+            }
+          }
+        }
+      },
+      "InventoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "productName": {
+            "type": "string"
+          },
+          "availableQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expiration": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalSalePrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "safeStock": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "GetInventoriesByStorageQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "storageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          },
+          "filters": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
+            }
+          }
+        }
+      },
       "CreateInventoryOutboundCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -3370,6 +3502,28 @@
           "date": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "EmployeeStatsVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "outboundInventoryCompletePerMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productExpirationCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalProductImportPerMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalProductExportPerMonth": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
