@@ -1,5 +1,8 @@
-﻿using warehouse_BE.Application.Common.Interfaces;
+﻿using MediatR;
+using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.SmartPriceService.Queries.GetCoffeePriceGraph;
 using warehouse_BE.Domain.Enums;
+using warehouse_BE.Domain.ValueObjects;
 
 namespace warehouse_BE.Application.Stats.Queries.Admin;
 
@@ -13,30 +16,51 @@ public class AdminStatsQueryHandler : IRequestHandler<AdminStatsQuery, AdminStat
     private readonly IApplicationDbContext context; 
     private readonly IIdentityService identityService;  
     private readonly ILoggerService loggerService;
+    private readonly IExternalHttpService externalHttpService;
 
-    public AdminStatsQueryHandler(IUser user, IApplicationDbContext context, IIdentityService identityService, ILoggerService loggerService)
+    public AdminStatsQueryHandler(IUser user, IApplicationDbContext context, IIdentityService identityService, ILoggerService loggerService, IExternalHttpService externalHttpService)
     {
         this.user = user;
         this.context = context;
         this.identityService = identityService;
         this.loggerService = loggerService;
+        this.externalHttpService = externalHttpService;
     }
 
     public async Task<AdminStatsVM> Handle (AdminStatsQuery request, CancellationToken cancellationToken)
     {
         
         var rs = new AdminStatsVM {
-           HighDemandItemSummary = ""
+           HighDemandItemName = ""
         };
         var totalInventoryValue = 0m;
         var activeEmployeeCount = 0;
         double orderCompletionRate = 0;
-        string highDemandItemSummary = "";
-
+        string highDemandItemName = "";
+        int highDemandItemCount = 0;
+        const string key = ConfigurationKeys.AiDriverServer;
+        var prediction = new Prediction();
         try
         {
             if (user.Id != null)
             {
+                var config = await context.Configurations
+                  .FirstOrDefaultAsync(c => c.Key == key, cancellationToken);
+                if (config != null)
+                {
+                    var baseUrl = config.Value;
+                    var endpoint = $"{baseUrl}/predict_tommorow";
+
+                    var ACURL = $"{baseUrl}/train_status";
+
+                    var AIpredict = await externalHttpService.GetAsync<Prediction>(endpoint);
+
+                    var AC = await externalHttpService.GetAsync<Prediction>(endpoint);
+                    prediction.AI_predict = AIpredict?.AI_predict ?? 0;
+                    prediction.Accuracy = AC?.Accuracy ?? 0;
+                    prediction.Date = AC?.Date ?? DateTime.MinValue;
+
+                }
                 var (result, companyId) = await identityService.GetCompanyId(user.Id);
                 var userStorages = await identityService.GetUserStoragesAsync(user.Id);
                 var storageIds = userStorages.Select(s => s.Id).ToList();
@@ -74,7 +98,9 @@ public class AdminStatsQueryHandler : IRequestHandler<AdminStatsQuery, AdminStat
                                                               .FirstOrDefaultAsync();
                 if (highDemandItem != null)
                 {
-                    highDemandItemSummary =  $"{highDemandItem.ProductName} - {highDemandItem.TotalReserved} units ordered";
+                    highDemandItemName =  $"{highDemandItem.ProductName}";
+                    highDemandItemCount = highDemandItem.TotalReserved;
+   
                 }
             }
         } catch(Exception ex) 
@@ -84,7 +110,9 @@ public class AdminStatsQueryHandler : IRequestHandler<AdminStatsQuery, AdminStat
         rs.TotalInventoryValue = totalInventoryValue;
         rs.OnlineEmployeeCount = activeEmployeeCount;
         rs.OrderCompletionRate = orderCompletionRate;
-        rs.HighDemandItemSummary = highDemandItemSummary;
+        rs.HighDemandItemName = highDemandItemName;
+        rs.HighDemandItemCount = highDemandItemCount;
+        rs.Prediction = prediction;
         return rs;
     }
 }

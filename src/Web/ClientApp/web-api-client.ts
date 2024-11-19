@@ -1891,6 +1891,42 @@ export class StorageClient {
         return Promise.resolve<UserStorageList>(null as any);
     }
 
+    getListStorageInfoOfUser(): Promise<ListISorageInfoOfUserVM> {
+        let url_ = this.baseUrl + "/api/Storage/user-list";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetListStorageInfoOfUser(_response);
+        });
+    }
+
+    protected processGetListStorageInfoOfUser(response: Response): Promise<ListISorageInfoOfUserVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListISorageInfoOfUserVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ListISorageInfoOfUserVM>(null as any);
+    }
+
     getStorageProducts(query: GetStorageProductsQuery): Promise<StorageProductListVM> {
         let url_ = this.baseUrl + "/api/Storage/products";
         url_ = url_.replace(/[?&]$/, "");
@@ -2557,6 +2593,8 @@ export class PointInfo implements IPointInfo {
     date?: string | undefined;
     ai_predict?: number;
     real_price_difference_rate?: number;
+    aI_predict_money?: number;
+    real_price_money?: number;
 
     constructor(data?: IPointInfo) {
         if (data) {
@@ -2572,6 +2610,8 @@ export class PointInfo implements IPointInfo {
             this.date = _data["date"];
             this.ai_predict = _data["ai_predict"];
             this.real_price_difference_rate = _data["real_price_difference_rate"];
+            this.aI_predict_money = _data["aI_predict_money"];
+            this.real_price_money = _data["real_price_money"];
         }
     }
 
@@ -2587,6 +2627,8 @@ export class PointInfo implements IPointInfo {
         data["date"] = this.date;
         data["ai_predict"] = this.ai_predict;
         data["real_price_difference_rate"] = this.real_price_difference_rate;
+        data["aI_predict_money"] = this.aI_predict_money;
+        data["real_price_money"] = this.real_price_money;
         return data;
     }
 }
@@ -2595,6 +2637,8 @@ export interface IPointInfo {
     date?: string | undefined;
     ai_predict?: number;
     real_price_difference_rate?: number;
+    aI_predict_money?: number;
+    real_price_money?: number;
 }
 
 export class CreateCompanyCommand implements ICreateCompanyCommand {
@@ -6115,7 +6159,9 @@ export class AdminStatsVM implements IAdminStatsVM {
     totalInventoryValue?: number;
     onlineEmployeeCount?: number;
     orderCompletionRate?: number;
-    highDemandItemSummary?: string;
+    highDemandItemName?: string;
+    highDemandItemCount?: number;
+    prediction?: Prediction | undefined;
 
     constructor(data?: IAdminStatsVM) {
         if (data) {
@@ -6131,7 +6177,9 @@ export class AdminStatsVM implements IAdminStatsVM {
             this.totalInventoryValue = _data["totalInventoryValue"];
             this.onlineEmployeeCount = _data["onlineEmployeeCount"];
             this.orderCompletionRate = _data["orderCompletionRate"];
-            this.highDemandItemSummary = _data["highDemandItemSummary"];
+            this.highDemandItemName = _data["highDemandItemName"];
+            this.highDemandItemCount = _data["highDemandItemCount"];
+            this.prediction = _data["prediction"] ? Prediction.fromJS(_data["prediction"]) : <any>undefined;
         }
     }
 
@@ -6147,7 +6195,9 @@ export class AdminStatsVM implements IAdminStatsVM {
         data["totalInventoryValue"] = this.totalInventoryValue;
         data["onlineEmployeeCount"] = this.onlineEmployeeCount;
         data["orderCompletionRate"] = this.orderCompletionRate;
-        data["highDemandItemSummary"] = this.highDemandItemSummary;
+        data["highDemandItemName"] = this.highDemandItemName;
+        data["highDemandItemCount"] = this.highDemandItemCount;
+        data["prediction"] = this.prediction ? this.prediction.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -6156,7 +6206,53 @@ export interface IAdminStatsVM {
     totalInventoryValue?: number;
     onlineEmployeeCount?: number;
     orderCompletionRate?: number;
-    highDemandItemSummary?: string;
+    highDemandItemName?: string;
+    highDemandItemCount?: number;
+    prediction?: Prediction | undefined;
+}
+
+export class Prediction implements IPrediction {
+    aI_predict?: number;
+    accuracy?: number;
+    date?: Date;
+
+    constructor(data?: IPrediction) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.aI_predict = _data["aI_predict"];
+            this.accuracy = _data["accuracy"];
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Prediction {
+        data = typeof data === 'object' ? data : {};
+        let result = new Prediction();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["aI_predict"] = this.aI_predict;
+        data["accuracy"] = this.accuracy;
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IPrediction {
+    aI_predict?: number;
+    accuracy?: number;
+    date?: Date;
 }
 
 export class CreateStorageCommand implements ICreateStorageCommand {
@@ -6341,6 +6437,90 @@ export class GetStorageOfUserQuery implements IGetStorageOfUserQuery {
 
 export interface IGetStorageOfUserQuery {
     page?: Page | undefined;
+}
+
+export class ListISorageInfoOfUserVM implements IListISorageInfoOfUserVM {
+    storages?: StorageName[] | undefined;
+
+    constructor(data?: IListISorageInfoOfUserVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["storages"])) {
+                this.storages = [] as any;
+                for (let item of _data["storages"])
+                    this.storages!.push(StorageName.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListISorageInfoOfUserVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListISorageInfoOfUserVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.storages)) {
+            data["storages"] = [];
+            for (let item of this.storages)
+                data["storages"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IListISorageInfoOfUserVM {
+    storages?: StorageName[] | undefined;
+}
+
+export class StorageName implements IStorageName {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: IStorageName) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): StorageName {
+        data = typeof data === 'object' ? data : {};
+        let result = new StorageName();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IStorageName {
+    id?: number;
+    name?: string | undefined;
 }
 
 export class StorageProductListVM implements IStorageProductListVM {

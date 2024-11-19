@@ -1165,6 +1165,26 @@
         }
       }
     },
+    "/api/Storage/user-list": {
+      "get": {
+        "tags": [
+          "Storage"
+        ],
+        "operationId": "GetListStorageInfoOfUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListISorageInfoOfUserVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Storage/products": {
       "post": {
         "tags": [
@@ -1539,6 +1559,14 @@
             "format": "double"
           },
           "real_price_difference_rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "aI_predict_money": {
+            "type": "number",
+            "format": "double"
+          },
+          "real_price_money": {
             "type": "number",
             "format": "double"
           }
@@ -3310,8 +3338,38 @@
             "type": "number",
             "format": "double"
           },
-          "highDemandItemSummary": {
+          "highDemandItemName": {
             "type": "string"
+          },
+          "highDemandItemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "prediction": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Prediction"
+              }
+            ]
+          }
+        }
+      },
+      "Prediction": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "aI_predict": {
+            "type": "number",
+            "format": "double"
+          },
+          "accuracy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -3382,6 +3440,33 @@
                 "$ref": "#/components/schemas/Page"
               }
             ]
+          }
+        }
+      },
+      "ListISorageInfoOfUserVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "storages": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StorageName"
+            }
+          }
+        }
+      },
+      "StorageName": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
