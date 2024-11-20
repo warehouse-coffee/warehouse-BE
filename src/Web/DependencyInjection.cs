@@ -3,6 +3,7 @@ using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Infrastructure.Data;
 using warehouse_BE.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using warehouse_BE.Infrastructure.Service;
 
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -34,7 +35,7 @@ public static class DependencyInjection
             configure.Title = "warehouse_BE API";
 
         });
-
+        services.AddTransient<IFilterData, FilterDataService>();
         return services;
     }
 

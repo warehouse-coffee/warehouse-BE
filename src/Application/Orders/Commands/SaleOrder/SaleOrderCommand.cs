@@ -9,6 +9,7 @@ public class SaleOrderCommand : IRequest<ResponseDto>
 {
     public decimal TotalPrice { get; set; }
     public int CustomerId { get; set; }
+    public DateTime DateExport { get; set; }
     public List<SaleOrderProduct> Products { get; set; } = new List<SaleOrderProduct>();
 
 }
@@ -65,7 +66,7 @@ public class SaleOrderCommandHandler : IRequestHandler<SaleOrderCommand, Respons
             {
                 OrderId = Guid.NewGuid().ToString(),
                 Type = "Sale",
-                Date = DateTime.UtcNow,
+                Date = request.DateExport,
                 TotalPrice = request.TotalPrice,
                 Status = OrderStatus.Pending,
                 CustomerId = customer.Id

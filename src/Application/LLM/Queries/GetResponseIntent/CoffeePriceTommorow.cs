@@ -10,6 +10,7 @@ public class CoffeePriceTommorow
 {
     public int Index { get; set; }
     public double AI_predict { get; set; }
+    public double AI_predict_money { get; set; }
     public string? Date { get; set; }
     public long unix_date_ms { get; set; }
     public string? Message { get; set; }

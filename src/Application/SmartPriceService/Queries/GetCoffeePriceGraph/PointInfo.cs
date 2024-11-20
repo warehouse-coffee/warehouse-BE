@@ -11,4 +11,6 @@ public class PointInfo
     public string? Date { get; set; }
     public double ai_predict { get; set; }
     public double real_price_difference_rate { get; set; }
+    public double AI_predict_money { get; set; }
+    public double Real_price_money { get; set; }
 }

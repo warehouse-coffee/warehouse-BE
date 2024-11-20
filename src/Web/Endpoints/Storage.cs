@@ -1,5 +1,6 @@
 ﻿using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Commads.CreateStorage;
+using warehouse_BE.Application.Storages.Queries.GetListISorageInfoOfUser;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 using warehouse_BE.Application.Storages.Queries.GetStorageProducts;
@@ -15,6 +16,7 @@ public class Storage : EndpointGroupBase
             .MapPost(CreateStorage)
             .MapGet(GetStorageList)
             .MapPost(GetStorageOfUser,"/user")
+            .MapGet(GetListStorageInfoOfUser,"user-list")
             .MapPost(GetStorageProducts,"/products");
     }
 
@@ -34,5 +36,9 @@ public class Storage : EndpointGroupBase
     public async Task<StorageProductListVM> GetStorageProducts(ISender sender, GetStorageProductsQuery query)
     {
         return await sender.Send(query);
+    } 
+    public async Task<ListISorageInfoOfUserVM> GetListStorageInfoOfUser(ISender sender)
+    {
+        return await sender.Send(new GetListISorageInfoOfUserQuery());
     }
 }

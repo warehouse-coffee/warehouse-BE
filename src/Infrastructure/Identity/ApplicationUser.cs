@@ -11,5 +11,4 @@ public class ApplicationUser : IdentityUser
     public string? AvatarImage { get; set; }
     public bool isOnline { get; set; }
     public ICollection<UserStorage> UserStorages { get; set; } = new List<UserStorage>();
-
 }
