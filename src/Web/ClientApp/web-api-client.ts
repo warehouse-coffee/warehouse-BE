@@ -1697,6 +1697,42 @@ export class OrdersClient {
         }
         return Promise.resolve<ResponseDto>(null as any);
     }
+
+    getTopOrder(): Promise<SaleAndImportOrderVM> {
+        let url_ = this.baseUrl + "/api/Orders/top5";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetTopOrder(_response);
+        });
+    }
+
+    protected processGetTopOrder(response: Response): Promise<SaleAndImportOrderVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SaleAndImportOrderVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SaleAndImportOrderVM>(null as any);
+    }
 }
 
 export class ProductsClient {
@@ -6258,6 +6294,7 @@ export interface IOrderProductDto {
 export class SaleOrderCommand implements ISaleOrderCommand {
     totalPrice?: number;
     customerId?: number;
+    dateExport?: Date;
     products?: SaleOrderProduct[];
 
     constructor(data?: ISaleOrderCommand) {
@@ -6273,6 +6310,7 @@ export class SaleOrderCommand implements ISaleOrderCommand {
         if (_data) {
             this.totalPrice = _data["totalPrice"];
             this.customerId = _data["customerId"];
+            this.dateExport = _data["dateExport"] ? new Date(_data["dateExport"].toString()) : <any>undefined;
             if (Array.isArray(_data["products"])) {
                 this.products = [] as any;
                 for (let item of _data["products"])
@@ -6292,6 +6330,7 @@ export class SaleOrderCommand implements ISaleOrderCommand {
         data = typeof data === 'object' ? data : {};
         data["totalPrice"] = this.totalPrice;
         data["customerId"] = this.customerId;
+        data["dateExport"] = this.dateExport ? this.dateExport.toISOString() : <any>undefined;
         if (Array.isArray(this.products)) {
             data["products"] = [];
             for (let item of this.products)
@@ -6304,6 +6343,7 @@ export class SaleOrderCommand implements ISaleOrderCommand {
 export interface ISaleOrderCommand {
     totalPrice?: number;
     customerId?: number;
+    dateExport?: Date;
     products?: SaleOrderProduct[];
 }
 
@@ -6353,6 +6393,114 @@ export interface ISaleOrderProduct {
     quantity?: number;
     price?: number;
     expectedPickupDate?: Date | undefined;
+}
+
+export class SaleAndImportOrderVM implements ISaleAndImportOrderVM {
+    saleOrders?: OrderDto2[] | undefined;
+    importOrder?: OrderDto2[] | undefined;
+
+    constructor(data?: ISaleAndImportOrderVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["saleOrders"])) {
+                this.saleOrders = [] as any;
+                for (let item of _data["saleOrders"])
+                    this.saleOrders!.push(OrderDto2.fromJS(item));
+            }
+            if (Array.isArray(_data["importOrder"])) {
+                this.importOrder = [] as any;
+                for (let item of _data["importOrder"])
+                    this.importOrder!.push(OrderDto2.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SaleAndImportOrderVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new SaleAndImportOrderVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.saleOrders)) {
+            data["saleOrders"] = [];
+            for (let item of this.saleOrders)
+                data["saleOrders"].push(item.toJSON());
+        }
+        if (Array.isArray(this.importOrder)) {
+            data["importOrder"] = [];
+            for (let item of this.importOrder)
+                data["importOrder"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ISaleAndImportOrderVM {
+    saleOrders?: OrderDto2[] | undefined;
+    importOrder?: OrderDto2[] | undefined;
+}
+
+export class OrderDto2 implements IOrderDto2 {
+    id?: string | undefined;
+    type?: string | undefined;
+    status?: string | undefined;
+    date?: Date;
+    totalPrice?: number;
+
+    constructor(data?: IOrderDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.type = _data["type"];
+            this.status = _data["status"];
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.totalPrice = _data["totalPrice"];
+        }
+    }
+
+    static fromJS(data: any): OrderDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["type"] = this.type;
+        data["status"] = this.status;
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["totalPrice"] = this.totalPrice;
+        return data;
+    }
+}
+
+export interface IOrderDto2 {
+    id?: string | undefined;
+    type?: string | undefined;
+    status?: string | undefined;
+    date?: Date;
+    totalPrice?: number;
 }
 
 export class ProductListVM implements IProductListVM {

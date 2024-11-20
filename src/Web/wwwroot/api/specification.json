@@ -1075,6 +1075,26 @@
         }
       }
     },
+    "/api/Orders/top5": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "GetTopOrder",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaleAndImportOrderVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Products": {
       "get": {
         "tags": [
@@ -3411,6 +3431,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "dateExport": {
+            "type": "string",
+            "format": "date-time"
+          },
           "products": {
             "type": "array",
             "items": {
@@ -3438,6 +3462,52 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          }
+        }
+      },
+      "SaleAndImportOrderVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "saleOrders": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/OrderDto2"
+            }
+          },
+          "importOrder": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/OrderDto2"
+            }
+          }
+        }
+      },
+      "OrderDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "decimal"
           }
         }
       },
