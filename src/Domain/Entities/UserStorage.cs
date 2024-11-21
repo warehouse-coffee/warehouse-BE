@@ -1,6 +1,4 @@
-﻿
-namespace warehouse_BE.Domain.Entities;
-
+﻿namespace warehouse_BE.Domain.Entities;
 public class UserStorage : BaseAuditableEntity
 {
     public required string UserId { get; set; }

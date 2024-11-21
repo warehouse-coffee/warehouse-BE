@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Diagnostics;
 using warehouse_BE.Application.Common.Interfaces;
+using warehouse_BE.Application.Stats.Queries.Admin;
+using warehouse_BE.Domain.ValueObjects;
 
 namespace warehouse_BE.Application.Stats.Queries.SuperAdmin;
 
@@ -11,11 +14,13 @@ public class SuperAdminStatsQueryHandler : IRequestHandler<SuperAdminStatsQuery,
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly ILoggerService _loggerService;
-    public SuperAdminStatsQueryHandler(IApplicationDbContext context, IIdentityService identityService, ILoggerService loggerService)
+    private readonly IExternalHttpService _externalHttpService;
+    public SuperAdminStatsQueryHandler(IApplicationDbContext context, IIdentityService identityService, ILoggerService loggerService, IExternalHttpService externalHttpService)
     {
         _context = context;
         _identityService = identityService;
         _loggerService = loggerService;
+        _externalHttpService = externalHttpService;
     }
     public async Task<SuperAdminStatsVM> Handle(SuperAdminStatsQuery request, CancellationToken cancellationToken)
     {
@@ -26,9 +31,28 @@ public class SuperAdminStatsQueryHandler : IRequestHandler<SuperAdminStatsQuery,
 
         float cpu = 0;
         float ram = 0;
-
+        var prediction = new Prediction();
+        const string key = ConfigurationKeys.AiDriverServer;
         try
         {
+            var config = await _context.Configurations
+                .FirstOrDefaultAsync(c => c.Key == key, cancellationToken);
+            if (config != null)
+            {
+                var baseUrl = config.Value;
+                var endpoint = $"{baseUrl}/predict_tommorow";
+
+                var ACURL = $"{baseUrl}/train_status";
+
+                var AIpredict = await _externalHttpService.GetAsync<Prediction>(endpoint);
+
+                var AC = await _externalHttpService.GetAsync<Prediction>(ACURL);
+                prediction.AI_predict = AIpredict?.AI_predict ?? 0;
+                prediction.Accuracy = AC?.Accuracy ?? 0;
+                prediction.Date = AC?.Date ?? DateTime.MinValue;
+
+            }
+
 #pragma warning disable CA1416 // Validate platform compatibility
             var cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             cpuCounter.NextValue(); // Initial call returns 0
@@ -46,7 +70,7 @@ public class SuperAdminStatsQueryHandler : IRequestHandler<SuperAdminStatsQuery,
         {
             _loggerService.LogError("Error at SuperAdmin Stats : ", ex);
         }
-
+        rs.Prediction = prediction;
         rs.TotalCompany = company;
         rs.TotalUser = user;
         rs.CPU = cpu;

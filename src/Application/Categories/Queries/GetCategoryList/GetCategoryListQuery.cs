@@ -11,7 +11,7 @@ public class GetListCategoryQueryHandler : IRequestHandler<GetCategoryListQuery,
     private readonly IUser _currentUser;
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
-    private readonly IMapper    _mapper;    
+    private readonly IMapper _mapper;    
     public GetListCategoryQueryHandler(IUser currentUser, IIdentityService identityService, IApplicationDbContext context, IMapper mapper)
     {
         _currentUser = currentUser;

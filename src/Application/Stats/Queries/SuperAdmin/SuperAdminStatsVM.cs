@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using warehouse_BE.Application.Stats.Queries.Admin;
 
 namespace warehouse_BE.Application.Stats.Queries.SuperAdmin;
 
@@ -12,4 +8,6 @@ public class SuperAdminStatsVM
     public int TotalCompany { get; set; }
     public float CPU { get; set; }
     public float RAM { get; set; }
+    public Prediction? Prediction { get; set; }
 }
+

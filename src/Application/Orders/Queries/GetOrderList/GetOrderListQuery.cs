@@ -1,9 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Reflection;
-using warehouse_BE.Application.Common.Interfaces;
+﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Common.Models;
-using warehouse_BE.Domain.Entities;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace warehouse_BE.Application.Orders.Queries.GetOrderList;
 

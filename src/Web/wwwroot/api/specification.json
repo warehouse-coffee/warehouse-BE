@@ -1095,12 +1095,88 @@
         }
       }
     },
+    "/api/Orders/getimport": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "GetImportOrderList",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetImportOrderListQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderListVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Orders/getsale": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "GetSaleOrderList",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetSaleOrderListQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderListVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Products": {
-      "get": {
+      "post": {
         "tags": [
           "Products"
         ],
         "operationId": "GetProductList",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetProductListQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -3511,6 +3587,38 @@
           }
         }
       },
+      "GetImportOrderListQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          },
+          "filters": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
+            }
+          }
+        }
+      },
+      "GetSaleOrderListQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          },
+          "filters": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
+            }
+          }
+        }
+      },
       "ProductListVM": {
         "type": "object",
         "additionalProperties": false,
@@ -3520,6 +3628,30 @@
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/ProductDto"
+            }
+          },
+          "page": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              }
+            ]
+          }
+        }
+      },
+      "GetProductListQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          },
+          "filters": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/FilterData"
             }
           }
         }
@@ -3972,6 +4104,14 @@
           "ram": {
             "type": "number",
             "format": "float"
+          },
+          "prediction": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Prediction"
+              }
+            ]
           }
         }
       }

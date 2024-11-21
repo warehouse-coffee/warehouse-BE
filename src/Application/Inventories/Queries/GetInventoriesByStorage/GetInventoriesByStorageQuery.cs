@@ -1,5 +1,4 @@
-﻿
-using warehouse_BE.Application.Common.Interfaces;
+﻿using warehouse_BE.Application.Common.Interfaces;
 using warehouse_BE.Application.Common.Models;
 
 namespace warehouse_BE.Application.Inventories.Queries.GetInventoriesByStorage;
@@ -10,7 +9,6 @@ public class GetInventoriesByStorageQuery : IRequest<InventoryListVM>
     public required Page Page { get; set; }
     public List<FilterData>? Filters { get; set; }
 }
-
 public class GetInventoriesByStorageQueryHandler : IRequestHandler<GetInventoriesByStorageQuery, InventoryListVM>
 {
     private readonly IApplicationDbContext _context;

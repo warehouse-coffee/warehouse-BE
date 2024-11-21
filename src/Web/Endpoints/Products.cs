@@ -9,13 +9,12 @@ public class Products : EndpointGroupBase
     {
         app.MapGroup(this)
             .RequireAuthorization()
-            .MapGet(GetProductList);
+            .MapPost(GetProductList);
     }
 
-    [Authorize(Roles = "Administrator")]
-    public async Task<ProductListVM> GetProductList(ISender sender)
+    public async Task<ProductListVM> GetProductList(ISender sender, GetProductListQuery query)
     {
-        return await sender.Send(new GetProductListQuery());
+        return await sender.Send(query);
     }
 }
 
