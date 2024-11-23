@@ -1279,6 +1279,36 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Storage"
+        ],
+        "operationId": "UpdateStorage",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStorageCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/Storage/user": {
@@ -1358,6 +1388,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StorageProductListVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Storage/detail/{id}": {
+      "get": {
+        "tags": [
+          "Storage"
+        ],
+        "operationId": "GetStorageDetailUpdate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageDto3"
                 }
               }
             }
@@ -3909,6 +3971,77 @@
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/FilterData"
+            }
+          }
+        }
+      },
+      "StorageDto3": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "areas": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AreaDto2"
+            }
+          }
+        }
+      },
+      "AreaDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateStorageCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "storageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "areas": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AreaDto2"
             }
           }
         }

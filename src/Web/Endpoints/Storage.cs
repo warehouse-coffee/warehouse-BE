@@ -1,6 +1,8 @@
 ﻿using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Commads.CreateStorage;
+using warehouse_BE.Application.Storages.Commads.UpdateStorage;
 using warehouse_BE.Application.Storages.Queries.GetListISorageInfoOfUser;
+using warehouse_BE.Application.Storages.Queries.GetStorageDetailUpdate;
 using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.Storages.Queries.GetStorageOfUser;
 using warehouse_BE.Application.Storages.Queries.GetStorageProducts;
@@ -17,7 +19,10 @@ public class Storage : EndpointGroupBase
             .MapGet(GetStorageList)
             .MapPost(GetStorageOfUser,"/user")
             .MapGet(GetListStorageInfoOfUser,"user-list")
-            .MapPost(GetStorageProducts,"/products");
+            .MapPost(GetStorageProducts,"/products")
+            .MapGet(GetStorageDetailUpdate,"/detail/{id}")
+            .MapPut(UpdateStorage,"{id}")
+            ;
     }
 
     public async Task<ResponseDto> CreateStorage(ISender sender, CreateStorageCommand command)
@@ -40,5 +45,14 @@ public class Storage : EndpointGroupBase
     public async Task<ListISorageInfoOfUserVM> GetListStorageInfoOfUser(ISender sender)
     {
         return await sender.Send(new GetListISorageInfoOfUserQuery());
+    }
+    public async Task<Application.Storages.Queries.GetStorageDetailUpdate.StorageDto> GetStorageDetailUpdate(ISender sender, int id)
+    {
+        var query = new GetStorageDetailUpdateQuery { StorageId = id };
+        return await sender.Send(query);
+    }
+    public async Task<ResponseDto> UpdateStorage(ISender sender, UpdateStorageCommand command)
+    {
+        return await sender.Send(command);
     }
 }
