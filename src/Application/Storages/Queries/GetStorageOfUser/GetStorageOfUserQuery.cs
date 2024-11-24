@@ -37,8 +37,8 @@ public class GetListStoragebyCompanyIdQueryHandler : IRequestHandler<GetStorageO
             return rs;
         }
         var storages = await _identityService.GetUserStoragesAsync(_currentUser.Id);
-
-        var storageDtos = _mapper.Map<List<StorageDto>>(storages);
+        var storagesId = storages.Select(x => x.Id).ToList();
+        var storageDtos = _mapper.Map<List<StorageDto>>(_context.Storages.Include(o => o.Areas).Where(o => !o.IsDeleted && storagesId.Contains(o.Id)));
 
         var pagedStorages = storageDtos
             .Skip((request.Page?.PageNumber - 1 ?? 0) * (request.Page?.Size ?? 1))

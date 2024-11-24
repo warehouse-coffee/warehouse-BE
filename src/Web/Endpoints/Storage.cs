@@ -1,5 +1,6 @@
 ﻿using warehouse_BE.Application.Response;
 using warehouse_BE.Application.Storages.Commads.CreateStorage;
+using warehouse_BE.Application.Storages.Commads.DeleteStorage;
 using warehouse_BE.Application.Storages.Commads.UpdateStorage;
 using warehouse_BE.Application.Storages.Queries.GetListISorageInfoOfUser;
 using warehouse_BE.Application.Storages.Queries.GetStorageDetailUpdate;
@@ -22,6 +23,7 @@ public class Storage : EndpointGroupBase
             .MapPost(GetStorageProducts,"/products")
             .MapGet(GetStorageDetailUpdate,"/detail/{id}")
             .MapPut(UpdateStorage,"{id}")
+            .MapDelete(DeleteStorage,"{id}")
             ;
     }
 
@@ -53,6 +55,11 @@ public class Storage : EndpointGroupBase
     }
     public async Task<ResponseDto> UpdateStorage(ISender sender, UpdateStorageCommand command)
     {
+        return await sender.Send(command);
+    }
+    public async Task<ResponseDto> DeleteStorage(ISender sender, int id)
+    {
+        var command = new DeleteStorageCommand { Id = id };
         return await sender.Send(command);
     }
 }

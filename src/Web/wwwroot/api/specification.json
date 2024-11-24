@@ -1469,6 +1469,38 @@
         }
       }
     },
+    "/api/Storage/{id}": {
+      "delete": {
+        "tags": [
+          "Storage"
+        ],
+        "operationId": "DeleteStorage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/SuperAdmin/user": {
       "post": {
         "tags": [
@@ -3125,6 +3157,26 @@
           "status": {
             "type": "string",
             "nullable": true
+          },
+          "areas": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AreaDto2"
+            }
+          }
+        }
+      },
+      "AreaDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -4139,19 +4191,6 @@
             "items": {
               "$ref": "#/components/schemas/AreaDto2"
             }
-          }
-        }
-      },
-      "AreaDto2": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
           }
         }
       },

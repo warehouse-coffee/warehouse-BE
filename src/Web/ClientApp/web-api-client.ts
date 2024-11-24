@@ -2300,6 +2300,45 @@ export class StorageClient {
         }
         return Promise.resolve<StorageDto3>(null as any);
     }
+
+    deleteStorage(id: number): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Storage/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteStorage(_response);
+        });
+    }
+
+    protected processDeleteStorage(response: Response): Promise<ResponseDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
 }
 
 export class SuperAdminClient {
@@ -5430,6 +5469,7 @@ export class StorageDto2 implements IStorageDto2 {
     name?: string | undefined;
     address?: string | undefined;
     status?: string | undefined;
+    areas?: AreaDto2[] | undefined;
 
     constructor(data?: IStorageDto2) {
         if (data) {
@@ -5446,6 +5486,11 @@ export class StorageDto2 implements IStorageDto2 {
             this.name = _data["name"];
             this.address = _data["address"];
             this.status = _data["status"];
+            if (Array.isArray(_data["areas"])) {
+                this.areas = [] as any;
+                for (let item of _data["areas"])
+                    this.areas!.push(AreaDto2.fromJS(item));
+            }
         }
     }
 
@@ -5462,6 +5507,11 @@ export class StorageDto2 implements IStorageDto2 {
         data["name"] = this.name;
         data["address"] = this.address;
         data["status"] = this.status;
+        if (Array.isArray(this.areas)) {
+            data["areas"] = [];
+            for (let item of this.areas)
+                data["areas"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -5471,6 +5521,47 @@ export interface IStorageDto2 {
     name?: string | undefined;
     address?: string | undefined;
     status?: string | undefined;
+    areas?: AreaDto2[] | undefined;
+}
+
+export class AreaDto2 implements IAreaDto2 {
+    id?: number;
+    name?: string;
+
+    constructor(data?: IAreaDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): AreaDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new AreaDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IAreaDto2 {
+    id?: number;
+    name?: string;
 }
 
 export class SignInVm implements ISignInVm {
@@ -7791,46 +7882,6 @@ export interface IStorageDto3 {
     location?: string | undefined;
     status?: string | undefined;
     areas?: AreaDto2[] | undefined;
-}
-
-export class AreaDto2 implements IAreaDto2 {
-    id?: number;
-    name?: string;
-
-    constructor(data?: IAreaDto2) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): AreaDto2 {
-        data = typeof data === 'object' ? data : {};
-        let result = new AreaDto2();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        return data;
-    }
-}
-
-export interface IAreaDto2 {
-    id?: number;
-    name?: string;
 }
 
 export class UpdateStorageCommand implements IUpdateStorageCommand {
