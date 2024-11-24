@@ -1870,6 +1870,65 @@ export class ProductsClient {
     }
 }
 
+export class ReportStorageClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    private token: string;
+    private XSRF: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }, token?: string, XSRF?: string) {
+         this.http = http || { fetch: fetch as any };
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+        this.token = token || "";
+        this.XSRF = XSRF || "";
+    }
+
+    getReportStorage(dateStart: Date, dateEnd: Date): Promise<ReportVM> {
+        let url_ = this.baseUrl + "/api/ReportStorage?";
+        if (dateStart === undefined || dateStart === null)
+            throw new Error("The parameter 'dateStart' must be defined and cannot be null.");
+        else
+            url_ += "dateStart=" + encodeURIComponent(dateStart ? "" + dateStart.toISOString() : "") + "&";
+        if (dateEnd === undefined || dateEnd === null)
+            throw new Error("The parameter 'dateEnd' must be defined and cannot be null.");
+        else
+            url_ += "dateEnd=" + encodeURIComponent(dateEnd ? "" + dateEnd.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetReportStorage(_response);
+        });
+    }
+
+    protected processGetReportStorage(response: Response): Promise<ReportVM> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ReportVM.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ReportVM>(null as any);
+    }
+}
+
 export class StatsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -6856,6 +6915,230 @@ export class GetProductListQuery implements IGetProductListQuery {
 export interface IGetProductListQuery {
     page?: Page;
     filters?: FilterData[] | undefined;
+}
+
+export class ReportVM implements IReportVM {
+    warehouseStatistics?: WarehousePerformance[];
+    totalOrders?: number;
+    importStatistics?: ImportSummary[];
+    topProducts?: ProductPerformance[];
+    slowMovingProducts?: ProductPerformance[];
+    totalRevenue?: number;
+    totalImportCost?: number;
+
+    constructor(data?: IReportVM) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["warehouseStatistics"])) {
+                this.warehouseStatistics = [] as any;
+                for (let item of _data["warehouseStatistics"])
+                    this.warehouseStatistics!.push(WarehousePerformance.fromJS(item));
+            }
+            this.totalOrders = _data["totalOrders"];
+            if (Array.isArray(_data["importStatistics"])) {
+                this.importStatistics = [] as any;
+                for (let item of _data["importStatistics"])
+                    this.importStatistics!.push(ImportSummary.fromJS(item));
+            }
+            if (Array.isArray(_data["topProducts"])) {
+                this.topProducts = [] as any;
+                for (let item of _data["topProducts"])
+                    this.topProducts!.push(ProductPerformance.fromJS(item));
+            }
+            if (Array.isArray(_data["slowMovingProducts"])) {
+                this.slowMovingProducts = [] as any;
+                for (let item of _data["slowMovingProducts"])
+                    this.slowMovingProducts!.push(ProductPerformance.fromJS(item));
+            }
+            this.totalRevenue = _data["totalRevenue"];
+            this.totalImportCost = _data["totalImportCost"];
+        }
+    }
+
+    static fromJS(data: any): ReportVM {
+        data = typeof data === 'object' ? data : {};
+        let result = new ReportVM();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.warehouseStatistics)) {
+            data["warehouseStatistics"] = [];
+            for (let item of this.warehouseStatistics)
+                data["warehouseStatistics"].push(item.toJSON());
+        }
+        data["totalOrders"] = this.totalOrders;
+        if (Array.isArray(this.importStatistics)) {
+            data["importStatistics"] = [];
+            for (let item of this.importStatistics)
+                data["importStatistics"].push(item.toJSON());
+        }
+        if (Array.isArray(this.topProducts)) {
+            data["topProducts"] = [];
+            for (let item of this.topProducts)
+                data["topProducts"].push(item.toJSON());
+        }
+        if (Array.isArray(this.slowMovingProducts)) {
+            data["slowMovingProducts"] = [];
+            for (let item of this.slowMovingProducts)
+                data["slowMovingProducts"].push(item.toJSON());
+        }
+        data["totalRevenue"] = this.totalRevenue;
+        data["totalImportCost"] = this.totalImportCost;
+        return data;
+    }
+}
+
+export interface IReportVM {
+    warehouseStatistics?: WarehousePerformance[];
+    totalOrders?: number;
+    importStatistics?: ImportSummary[];
+    topProducts?: ProductPerformance[];
+    slowMovingProducts?: ProductPerformance[];
+    totalRevenue?: number;
+    totalImportCost?: number;
+}
+
+export class WarehousePerformance implements IWarehousePerformance {
+    id?: number;
+    warehouseName?: string | undefined;
+    revenue?: number;
+
+    constructor(data?: IWarehousePerformance) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.warehouseName = _data["warehouseName"];
+            this.revenue = _data["revenue"];
+        }
+    }
+
+    static fromJS(data: any): WarehousePerformance {
+        data = typeof data === 'object' ? data : {};
+        let result = new WarehousePerformance();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["warehouseName"] = this.warehouseName;
+        data["revenue"] = this.revenue;
+        return data;
+    }
+}
+
+export interface IWarehousePerformance {
+    id?: number;
+    warehouseName?: string | undefined;
+    revenue?: number;
+}
+
+export class ImportSummary implements IImportSummary {
+    supplierName?: string | undefined;
+    totalImportCost?: number;
+
+    constructor(data?: IImportSummary) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.supplierName = _data["supplierName"];
+            this.totalImportCost = _data["totalImportCost"];
+        }
+    }
+
+    static fromJS(data: any): ImportSummary {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImportSummary();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["supplierName"] = this.supplierName;
+        data["totalImportCost"] = this.totalImportCost;
+        return data;
+    }
+}
+
+export interface IImportSummary {
+    supplierName?: string | undefined;
+    totalImportCost?: number;
+}
+
+export class ProductPerformance implements IProductPerformance {
+    storageId?: number;
+    productName?: string | undefined;
+    totalSold?: number;
+    averageStorageTime?: number;
+
+    constructor(data?: IProductPerformance) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.storageId = _data["storageId"];
+            this.productName = _data["productName"];
+            this.totalSold = _data["totalSold"];
+            this.averageStorageTime = _data["averageStorageTime"];
+        }
+    }
+
+    static fromJS(data: any): ProductPerformance {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductPerformance();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["storageId"] = this.storageId;
+        data["productName"] = this.productName;
+        data["totalSold"] = this.totalSold;
+        data["averageStorageTime"] = this.averageStorageTime;
+        return data;
+    }
+}
+
+export interface IProductPerformance {
+    storageId?: number;
+    productName?: string | undefined;
+    totalSold?: number;
+    averageStorageTime?: number;
 }
 
 export class AdminStatsVM implements IAdminStatsVM {

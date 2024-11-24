@@ -1191,6 +1191,48 @@
         }
       }
     },
+    "/api/ReportStorage": {
+      "get": {
+        "tags": [
+          "ReportStorage"
+        ],
+        "operationId": "GetReportStorage",
+        "parameters": [
+          {
+            "name": "dateStart",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "dateEnd",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Stats/admin": {
       "get": {
         "tags": [
@@ -3715,6 +3757,102 @@
             "items": {
               "$ref": "#/components/schemas/FilterData"
             }
+          }
+        }
+      },
+      "ReportVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "warehouseStatistics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarehousePerformance"
+            }
+          },
+          "totalOrders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "importStatistics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportSummary"
+            }
+          },
+          "topProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductPerformance"
+            }
+          },
+          "slowMovingProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductPerformance"
+            }
+          },
+          "totalRevenue": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalImportCost": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "WarehousePerformance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warehouseName": {
+            "type": "string",
+            "nullable": true
+          },
+          "revenue": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "ImportSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "supplierName": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalImportCost": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "ProductPerformance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "storageId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalSold": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageStorageTime": {
+            "type": "number",
+            "format": "double"
           }
         }
       },

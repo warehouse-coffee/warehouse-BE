@@ -97,6 +97,7 @@ public class SaleOrderCommandHandler : IRequestHandler<SaleOrderCommand, Respons
                     var reservation = new Reservation
                     {
                         ReservedQuantity = allocatedQuantity,
+                        Pricce = productDto.Price,
                         ReservedDate = DateTime.UtcNow,
                         ExpectedPickupDate = productDto.ExpectedPickupDate,
                         Status = ReservationStatus.Pending,

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace warehouse_BE.Domain.Entities;
+﻿namespace warehouse_BE.Domain.Entities;
 
 public class Customer : BaseAuditableEntity
 {

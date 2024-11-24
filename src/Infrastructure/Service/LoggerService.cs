@@ -85,7 +85,7 @@ public class LoggerService : ILoggerService
             logs = File.ReadLines(logFilePath)
                 .Where(line =>
                 {
-                    bool levelMatches = string.IsNullOrEmpty(logLevel) || line.Contains($"[{logLevel}]");
+                    bool levelMatches = logLevel == "ALL" || string.IsNullOrEmpty(logLevel) || line.Contains($"[{logLevel}]");
 
                     bool hourMatches = true;
                     if (hour.HasValue)

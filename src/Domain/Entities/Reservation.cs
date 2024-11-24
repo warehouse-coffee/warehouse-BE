@@ -3,6 +3,7 @@
 public class Reservation : BaseAuditableEntity
 {
     public int ReservedQuantity { get; set; } 
+    public decimal Pricce { get; set; }
     public DateTime ReservedDate { get; set; }
     public DateTime? ExpectedPickupDate { get; set; }
 

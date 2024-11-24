@@ -23,5 +23,3 @@ public class Product : BaseAuditableEntity
     public Storage? Storage { get; set; }
 
 }
-
-
