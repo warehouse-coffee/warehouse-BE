@@ -42,173 +42,154 @@ public class GetReportOftheStorageHandler : IRequestHandler<GetReportOftheStorag
                 if (userStorages.Any())
                 {
                     // Lấy danh sách đơn hàng của công ty trong khoảng thời gian yêu cầu
-                    totalRevenue = _context.Orders
-                                                .Where(o => o.Customer != null &&
+                    totalRevenue = _context.Orders.Where(o => o.Customer != null &&
                                                             o.Customer.CompanyId == companyId &&
                                                             o.Status == Domain.Enums.OrderStatus.Completed &&
                                                             o.Date >= request.StartDate &&
                                                             o.Date <= request.EndDate &&
-                                                            o.Type == "Sale") // Chỉ tính đơn hàng loại "Sale"
-                                                .Sum(o => o.TotalPrice); // Tổng doanh thu từ tất cả các đơn hàng
+                                                            o.Type == "Sale").Sum(o => o.TotalPrice); 
 
-                    totalImportCost = _context.Orders
-                                                        .Where(o => o.Customer != null &&
+                    totalImportCost = _context.Orders.Where(o => o.Customer != null &&
                                                                     o.Customer.CompanyId == companyId &&
                                                                     o.Date >= request.StartDate &&
                                                                     o.Date <= request.EndDate &&
-                                                                    o.Type == "Import") // Chỉ tính đơn hàng loại "Import"
-                                                        .Sum(o => o.TotalPrice); // Tổng chi phí nhập hàng từ tất cả các đơn hàng
+                                                                    o.Type == "Import").Sum(o => o.TotalPrice); 
 
-                    totalOrder =  _context.Orders
-                                    .Where(o => o.Customer != null &&
+                    totalOrder =  _context.Orders.Where(o => o.Customer != null &&
                                                 o.Customer.CompanyId == companyId &&
                                                 o.Status == Domain.Enums.OrderStatus.Completed &&
                                                 o.Date >= request.StartDate &&
-                                                o.Date <= request.EndDate)
-                                    .Count();
-                    TopProducts = _context.Products
-                                        .Where(p => storageIds.Contains(p.StorageId) && (p.Status == ProductStatus.Available ||
-                 p.Status == ProductStatus.Sold ||
-                 p.Status == ProductStatus.Reserved)) // Giới hạn các sản phẩm đã bán
-                                        .GroupBy(p => new { p.Name, p.StorageId }) // Nhóm theo Tên sản phẩm và StorageId
-                                        .Select(g => new ProductPerformance
-                                        {
-                                            StorageId = g.Key.StorageId,
-                                            ProductName = g.Key.Name, // Tên sản phẩm
-                                            TotalSold = g.Sum(p => p.SoldQuantity), // Tổng số lượng bán ra
-                                            AverageStorageTime = g.Average(p => (DateTime.UtcNow - p.ImportDate).TotalDays) // Thời gian lưu kho trung bình (tính từ ngày nhập hàng đến hiện tại)
-                                        })
-                                        .OrderByDescending(p => p.TotalSold) // Sắp xếp theo số lượng bán ra giảm dần
-                                        .Take(10) // Lấy top 10 sản phẩm bán chạy nhất
-                                        .ToList();
+                                                o.Date <= request.EndDate).Count();
+                    TopProducts = _context.Products.Where(p => storageIds.Contains(p.StorageId) && (p.Status == ProductStatus.Available ||
+                                                             p.Status == ProductStatus.Sold || p.Status == ProductStatus.Reserved)) 
+                                                    .GroupBy(p => new { p.Name, p.StorageId })
+                                                    .Select(g => new ProductPerformance
+                                                    {
+                                                        StorageId = g.Key.StorageId,
+                                                        ProductName = g.Key.Name,
+                                                        TotalSold = g.Sum(p => p.SoldQuantity),
+                                                        AverageStorageTime = g.Average(p => (DateTime.UtcNow - p.ImportDate).TotalDays) 
+                                                    })
+                                                    .OrderByDescending(p => p.TotalSold)
+                                                    .Take(10) 
+                                                    .ToList();
 
-                    SlowMovingProducts =  _context.Products
-                       .Where(p => (p.Status == ProductStatus.Available ||
-                 p.Status == ProductStatus.Sold ||
-                 p.Status == ProductStatus.Reserved) && storageIds.Contains(p.StorageId)) // Giới hạn các sản phẩm đã bán
-                       .GroupBy(p => new { p.Name, p.StorageId }) // Nhóm theo Tên sản phẩm và StorageId
-                       .Select(g => new ProductPerformance
-                       {
-                           StorageId = g.Key.StorageId,
-                           ProductName = g.Key.Name, // Tên sản phẩm
-                           TotalSold = g.Sum(p => p.SoldQuantity), // Tổng số lượng bán ra
-                           AverageStorageTime = g.Average(p => (DateTime.UtcNow - p.ImportDate).TotalDays) // Thời gian lưu kho trung bình (tính từ ngày nhập hàng đến hiện tại)
-                       })
-                       .OrderBy(p => p.TotalSold) // Sắp xếp theo số lượng bán ra giảm dần
-                       .Take(10) // Lấy top 10 sản phẩm bán chạy nhất
-                       .ToList();
-
-                    var groupedOrders = _context.Orders
-                        .Where(o => o.Customer != null &&
-                                    o.Customer.CompanyId == companyId &&
-                                    o.Date >= request.StartDate &&
-                                    o.Date <= request.EndDate &&
-                                    o.Type == "Import") // Filter orders of type "Import"
-                        .GroupBy(o => o.CustomerId)
-                        .ToList(); // Get the grouped orders as a list
-
-                    ImportStatistics = groupedOrders
-                        .Join(_context.Customers,
-                              orderGroup => orderGroup.Key,
-                              customer => customer.Id,
-                              (orderGroup, customer) => new
-                              {
-                                  orderGroup,
-                                  customer
-                              })
-                        .Select(result => new ImportSummary
-                        {
-                            SupplierName = result.customer.Name, // Get the SupplierName from Customer entity
-                            TotalImportCost = result.orderGroup.Sum(o => o.TotalPrice) // Sum of TotalPrice for each supplier
-                        })
-                        .OrderByDescending(s => s.TotalImportCost)
-                        .Take(10)
-                        .ToList();
-
-                    var ordersData = await  _context.Orders
-                                    .Where(o => o.Customer != null &&
-                                                o.Customer.CompanyId == companyId &&
-                                                o.Status == Domain.Enums.OrderStatus.Completed &&
-                                                o.Date >= request.StartDate &&
-                                                o.Date <= request.EndDate)
-                                    .SelectMany(o => o.Reservations) // Lấy tất cả các Reservation liên quan đến Order
-                                    .Join(_context.Inventories,  // Kết hợp với bảng Inventory để lấy StorageId và các thông tin cần thiết
-                                        r => r.InventoryId, // Kết nối Reservation và Inventory qua InventoryId
-                                        i => i.Id, // Kết nối InventoryId
-                                        (r, i) => new
-                                        {
-                                            OrderId = r.Id,       // Lấy OrderId từ Reservation
-                                            ReservedQuantity = r.ReservedQuantity,  // Lấy ReservedQuantity từ Reservation
-                                            Price = r.Pricce,           // Lấy Price từ Reservation
-                                            InventoryId = r.InventoryId,   // Lấy InventoryId từ Reservation
-                                            StorageId = i.StorageId,    // Lấy StorageId từ Inventory
-                                        })
-                                    .ToListAsync(cancellationToken);
-                    var inboundData = await _context.InventoriesOutbound
-                                                       .Where(io => io.Status == OutboundStatus.Completed && // Chỉ lấy các Outbound đã hoàn thành
-                                                                   io.OutboundDate >= request.StartDate &&
-                                                                   io.OutboundDate <= request.EndDate)
-                                                       .SelectMany(io => io.OutboundDetails) // Lấy tất cả các OutboundDetail liên quan đến InventoryOutbound
-                                                       .Join(_context.OrderDetails, // Kết hợp với OrderDetails để lấy giá của sản phẩm
-                                                           od => od.Product != null ? od.Product.Id : (int?)null, // Kiểm tra null và lấy ProductId nếu Product không null
-                                                           odt => odt.Product != null ? odt.Product.Id : (int?)null, // Kết nối với OrderDetail qua ProductId
-                                                           (od, odt) => new
+                    SlowMovingProducts =  _context.Products.Where(p => (p.Status == ProductStatus.Available ||
+                                                                   p.Status == ProductStatus.Sold || p.Status == ProductStatus.Reserved) 
+                                                                   && storageIds.Contains(p.StorageId)) 
+                                                           .GroupBy(p => new { p.Name, p.StorageId }) 
+                                                           .Select(g => new ProductPerformance
                                                            {
-                                                               ProductId = od.Product != null ? od.Product.Id : (int?)null, // Kiểm tra null và lấy ProductId nếu Product không null
-                                                               Quantity = od.Quantity,    // Lấy Quantity từ OutboundDetail
-                                                               Price = odt.TotalPrice / odt.Quantity, // Tính giá đơn vị từ OrderDetail
-                                                               StorageId = od.Product != null ? od.Product.StorageId : (int?)null // Kiểm tra null và lấy StorageId từ Product nếu không null
+                                                               StorageId = g.Key.StorageId,
+                                                               ProductName = g.Key.Name, 
+                                                               TotalSold = g.Sum(p => p.SoldQuantity), 
+                                                               AverageStorageTime = g.Average(p => (DateTime.UtcNow - p.ImportDate).TotalDays) 
                                                            })
-                                                       .Where(x => x.ProductId != null) // Loại bỏ các kết quả có ProductId là null
-                                                       .GroupBy(x => x.ProductId) // Nhóm theo ProductId để tính tổng giá trị của mỗi sản phẩm
-                                                       .Select(g => new
-                                                       {
-                                                           ProductId = g.Key, // Lấy ProductId
-                                                           TotalQuantity = g.Sum(x => x.Quantity), // Tổng số lượng sản phẩm
-                                                           Price =  g.First().Price, 
-                                                           StorageId = g.First().StorageId // Lấy StorageId từ sản phẩm đầu tiên trong nhóm (vì StorageId là giống nhau cho mỗi sản phẩm)
-                                                       })
-                                                       .ToListAsync(cancellationToken);
+                                                           .OrderBy(p => p.TotalSold) 
+                                                           .Take(10) 
+                                                           .ToList();
 
-                    var ordersGroupedByStorageId = ordersData
-                                                        .GroupBy(o => o.StorageId) // Nhóm theo StorageId
-                                                        .Select(g => new
-                                                        {
-                                                            StorageId = g.Key, // Lấy StorageId
-                                                            TotalPrice = g.Sum(x => x.ReservedQuantity * x.Price) // Tính tổng giá trị của mỗi StorageId
-                                                        })
-                                                        .ToList();
-                    var inboundGroupedByStorageId = inboundData
-                                                            .GroupBy(i => i.StorageId) // Nhóm theo StorageId
+                    var groupedOrders = _context.Orders.Where(o => o.Customer != null &&
+                                                                        o.Customer.CompanyId == companyId &&
+                                                                        o.Date >= request.StartDate &&
+                                                                        o.Date <= request.EndDate &&
+                                                                        o.Type == "Import") 
+                                                            .GroupBy(o => o.CustomerId)
+                                                            .ToList(); 
+
+                    ImportStatistics = groupedOrders.Join(_context.Customers,
+                                                          orderGroup => orderGroup.Key,
+                                                          customer => customer.Id,
+                                                          (orderGroup, customer) => new
+                                                          {
+                                                              orderGroup,
+                                                              customer
+                                                          })
+                                                    .Select(result => new ImportSummary
+                                                    {
+                                                        SupplierName = result.customer.Name, 
+                                                        TotalImportCost = result.orderGroup.Sum(o => o.TotalPrice) 
+                                                    })
+                                                    .OrderByDescending(s => s.TotalImportCost)
+                                                    .Take(10)
+                                                    .ToList();
+
+                    var ordersData = await  _context.Orders.Where(o => o.Customer != null &&
+                                                                        o.Customer.CompanyId == companyId &&
+                                                                        o.Status == Domain.Enums.OrderStatus.Completed &&
+                                                                        o.Date >= request.StartDate &&
+                                                                        o.Date <= request.EndDate)
+                                                            .SelectMany(o => o.Reservations) 
+                                                            .Join(_context.Inventories, 
+                                                                r => r.InventoryId, 
+                                                                i => i.Id, 
+                                                                (r, i) => new
+                                                                {
+                                                                    OrderId = r.Id,       
+                                                                    ReservedQuantity = r.ReservedQuantity, 
+                                                                    Price = r.Pricce,         
+                                                                    InventoryId = r.InventoryId,   
+                                                                    StorageId = i.StorageId,   
+                                                                })
+                                                            .ToListAsync(cancellationToken);
+                    var inboundData = await _context.InventoriesOutbound.Where(io => io.Status == OutboundStatus.Completed && 
+                                                                                       io.OutboundDate >= request.StartDate &&
+                                                                                       io.OutboundDate <= request.EndDate)
+                                                                           .SelectMany(io => io.OutboundDetails) 
+                                                                           .Join(_context.OrderDetails, 
+                                                                               od => od.Product != null ? od.Product.Id : (int?)null, 
+                                                                               odt => odt.Product != null ? odt.Product.Id : (int?)null, 
+                                                                               (od, odt) => new
+                                                                               {
+                                                                                   ProductId = od.Product != null ? od.Product.Id : (int?)null,
+                                                                                   Quantity = od.Quantity,   
+                                                                                   Price = odt.TotalPrice / odt.Quantity,
+                                                                                   StorageId = od.Product != null ? od.Product.StorageId : (int?)null 
+                                                                               })
+                                                                           .Where(x => x.ProductId != null) 
+                                                                           .GroupBy(x => x.ProductId) 
+                                                                           .Select(g => new
+                                                                           {
+                                                                               ProductId = g.Key,
+                                                                               TotalQuantity = g.Sum(x => x.Quantity), 
+                                                                               Price =  g.First().Price, 
+                                                                               StorageId = g.First().StorageId
+                                                                           })
+                                                                           .ToListAsync(cancellationToken);
+
+                    var ordersGroupedByStorageId = ordersData.GroupBy(o => o.StorageId) 
                                                             .Select(g => new
                                                             {
-                                                                StorageId = g.Key, // Lấy StorageId
-                                                                TotalPrice = g.Sum(x => x.TotalQuantity * x.Price) // Tính tổng giá trị của mỗi StorageId
+                                                                StorageId = g.Key, 
+                                                                TotalPrice = g.Sum(x => x.ReservedQuantity * x.Price) 
                                                             })
                                                             .ToList();
+                    var inboundGroupedByStorageId = inboundData.GroupBy(i => i.StorageId)
+                                                                .Select(g => new
+                                                                {
+                                                                    StorageId = g.Key, 
+                                                                    TotalPrice = g.Sum(x => x.TotalQuantity * x.Price) 
+                                                                })
+                                                                .ToList();
 
-                     WarehouseStatistics = ordersGroupedByStorageId
-                                        .Join(inboundGroupedByStorageId, // Join ordersData and inboundData by StorageId
-                                            o => o.StorageId,
-                                            i => i.StorageId,
-                                            (o, i) => new
-                                            {
-                                                StorageId = o.StorageId, // StorageId from orders
-                                                PriceRemaining = o.TotalPrice - i.TotalPrice // Calculate remaining price
-                                            })
-                                           .Join(_context.Storages, // Join with storages to get WarehouseName (assuming storages is a collection of Storage entities)
-                                            result => result.StorageId,
-                                            storage => storage.Id, // Assuming StorageId corresponds to Storage.Id
-                                            (result, storage) => new WarehousePerformance
-                                            {
-                                                Id = result.StorageId, // Mapping StorageId to Id
-                                                WarehouseName = storage.Name, // Mapping warehouse name from Storage
-                                                Revenue = Math.Round(result.PriceRemaining, 4) // Round revenue to 4 decimal places
-                                            })
-                                        .ToList();
-
-                   
-
+                     WarehouseStatistics = ordersGroupedByStorageId.Join(inboundGroupedByStorageId, 
+                                                                        o => o.StorageId,
+                                                                        i => i.StorageId,
+                                                                        (o, i) => new
+                                                                        {
+                                                                            StorageId = o.StorageId, 
+                                                                            PriceRemaining = o.TotalPrice - i.TotalPrice 
+                                                                        })
+                                                                       .Join(_context.Storages, 
+                                                                        result => result.StorageId,
+                                                                        storage => storage.Id,
+                                                                        (result, storage) => new WarehousePerformance
+                                                                        {
+                                                                            Id = result.StorageId,
+                                                                            WarehouseName = storage.Name, 
+                                                                            Revenue = Math.Round(result.PriceRemaining, 4) 
+                                                                        })
+                                                                    .ToList();
                 }
 
                 _loggerService.LogWarning("No storages found for the user." + _user.Id);
