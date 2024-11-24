@@ -6919,12 +6919,12 @@ export interface IGetProductListQuery {
 
 export class ReportVM implements IReportVM {
     warehouseStatistics?: WarehousePerformance[];
-    totalOrders?: number;
     importStatistics?: ImportSummary[];
     topProducts?: ProductPerformance[];
     slowMovingProducts?: ProductPerformance[];
     totalRevenue?: number;
     totalImportCost?: number;
+    totalOrders?: number;
 
     constructor(data?: IReportVM) {
         if (data) {
@@ -6942,7 +6942,6 @@ export class ReportVM implements IReportVM {
                 for (let item of _data["warehouseStatistics"])
                     this.warehouseStatistics!.push(WarehousePerformance.fromJS(item));
             }
-            this.totalOrders = _data["totalOrders"];
             if (Array.isArray(_data["importStatistics"])) {
                 this.importStatistics = [] as any;
                 for (let item of _data["importStatistics"])
@@ -6960,6 +6959,7 @@ export class ReportVM implements IReportVM {
             }
             this.totalRevenue = _data["totalRevenue"];
             this.totalImportCost = _data["totalImportCost"];
+            this.totalOrders = _data["totalOrders"];
         }
     }
 
@@ -6977,7 +6977,6 @@ export class ReportVM implements IReportVM {
             for (let item of this.warehouseStatistics)
                 data["warehouseStatistics"].push(item.toJSON());
         }
-        data["totalOrders"] = this.totalOrders;
         if (Array.isArray(this.importStatistics)) {
             data["importStatistics"] = [];
             for (let item of this.importStatistics)
@@ -6995,18 +6994,19 @@ export class ReportVM implements IReportVM {
         }
         data["totalRevenue"] = this.totalRevenue;
         data["totalImportCost"] = this.totalImportCost;
+        data["totalOrders"] = this.totalOrders;
         return data;
     }
 }
 
 export interface IReportVM {
     warehouseStatistics?: WarehousePerformance[];
-    totalOrders?: number;
     importStatistics?: ImportSummary[];
     topProducts?: ProductPerformance[];
     slowMovingProducts?: ProductPerformance[];
     totalRevenue?: number;
     totalImportCost?: number;
+    totalOrders?: number;
 }
 
 export class WarehousePerformance implements IWarehousePerformance {

@@ -3770,10 +3770,6 @@
               "$ref": "#/components/schemas/WarehousePerformance"
             }
           },
-          "totalOrders": {
-            "type": "integer",
-            "format": "int32"
-          },
           "importStatistics": {
             "type": "array",
             "items": {
@@ -3799,6 +3795,10 @@
           "totalImportCost": {
             "type": "number",
             "format": "decimal"
+          },
+          "totalOrders": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
