@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Customers\Queries\" />
     <Folder Include="IdentityUser\Queries\" />
     <Folder Include="InventoriesOutbound\Queries\" />
     <Folder Include="LogApp\Commands\" />

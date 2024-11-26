@@ -49,4 +49,5 @@ public interface IIdentityService
     Task<int> TotalActiveEmployee(string companyId);
     Task<int> TotalOnlineEmployee(string companyId);
     Task<bool> UpdateUserOnlineStatusAsync(string userId, bool isOnline);
+    Task<int> GetCompanyIDInt(string userID);
 }

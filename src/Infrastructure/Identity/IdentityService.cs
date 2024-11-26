@@ -19,6 +19,7 @@ using warehouse_BE.Application.Storages.Queries.GetStorageList;
 using warehouse_BE.Application.CompanyOwner.Commands.UpdateCompanyOwner;
 using warehouse_BE.Domain.Entities;
 using warehouse_BE.Application.Employee.Queries.GetListEmployee;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace warehouse_BE.Infrastructure.Identity;
 
@@ -1062,5 +1063,21 @@ public class IdentityService : IIdentityService
             _logger.LogError($"Error updating online status for user {userId}",ex);
             return false;
         }
+    }
+    public async Task<int> GetCompanyIDInt(string userID)
+    {
+        int rs = 0;
+        var user = await _userManager.Users.Where(user => user.Id == userID).FirstOrDefaultAsync();
+        if (user != null)
+        {
+            int? companyIDint = _context.Companies.Where(o => !o.IsDeleted && o.CompanyId == user.CompanyId)
+                                                    .Select(o => (int?)o.Id)
+                                                    .FirstOrDefault();
+            if (companyIDint.HasValue)
+            {
+                rs = (int)companyIDint;
+            }
+        }
+        return rs;
     }
 }

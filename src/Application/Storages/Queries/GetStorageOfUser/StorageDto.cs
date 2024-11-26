@@ -22,6 +22,7 @@ public class StorageDto
         {
             CreateMap<Storage, StorageDto>()
              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Location.ToString()))
              .ForMember(dest => dest.Areas, opt => opt.MapFrom(src => src.Areas != null
                 ? src.Areas.Select(o => new AreaDto
                 {
