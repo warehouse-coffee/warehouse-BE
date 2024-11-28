@@ -424,7 +424,7 @@ public class IdentityService : IIdentityService
     }
     public async Task<Result> UpdateEmployee(UpdateEmployee request,CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request?.UserName) || string.IsNullOrEmpty(request?.Password) || string.IsNullOrEmpty(request?.Email))
+        if (string.IsNullOrEmpty(request?.UserName) || string.IsNullOrEmpty(request?.Email))
         {
             return Result.Failure(new[] { "Unaccepted the request! Missing required fields." });
         }
