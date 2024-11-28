@@ -22,7 +22,7 @@ public class Storage : EndpointGroupBase
             .MapGet(GetListStorageInfoOfUser,"user-list")
             .MapPost(GetStorageProducts,"/products")
             .MapGet(GetStorageDetailUpdate,"/detail/{id}")
-            .MapPut(UpdateStorage,"{id}")
+            .MapPut(UpdateStorage,"")
             .MapDelete(DeleteStorage,"{id}")
             ;
     }

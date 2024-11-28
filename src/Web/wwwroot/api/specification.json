@@ -1211,6 +1211,26 @@
         }
       }
     },
+    "/api/Products/product-order": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "GetProductsOrder",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsOrderVM"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ReportStorage": {
       "get": {
         "tags": [
@@ -3858,6 +3878,29 @@
           }
         }
       },
+      "ProductsOrderVM": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "products": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/ProductDto2"
+            }
+          }
+        }
+      },
+      "ProductDto2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ReportVM": {
         "type": "object",
         "additionalProperties": false,
@@ -4131,7 +4174,7 @@
           "products": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProductDto2"
+              "$ref": "#/components/schemas/ProductDto3"
             }
           },
           "page": {
@@ -4139,7 +4182,7 @@
           }
         }
       },
-      "ProductDto2": {
+      "ProductDto3": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
