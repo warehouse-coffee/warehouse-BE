@@ -29,7 +29,7 @@ public class GetTopFiveSaleAndImportOrderHandler : IRequestHandler<GetTopFiveSal
             {
                 var (result, companyId) = await _identityService.GetCompanyId(_user.Id);
 
-                var mostRecentExportDate = await _context.Orders.Where(order => order.Type == "Sale" &&
+                var mostRecentExportDate = await _context.Orders.Where(order => order.Type == "Sale" && !order.IsDeleted && 
                                                                             order.Customer != null &&
                                                                             order.Customer.Company != null &&
                                                                             order.Customer.Company.CompanyId == companyId)
@@ -37,7 +37,7 @@ public class GetTopFiveSaleAndImportOrderHandler : IRequestHandler<GetTopFiveSal
                                                             .Select(order => order.Date)
                                                             .FirstOrDefaultAsync();
 
-                var mostRecentImportDate = await _context.Orders.Where(order => order.Type == "Import" &&
+                var mostRecentImportDate = await _context.Orders.Where(order => order.Type == "Import" && !order.IsDeleted && 
                                                                                 order.Customer != null &&
                                                                                 order.Customer.Company != null &&
                                                                                 order.Customer.Company.CompanyId == companyId)
@@ -45,7 +45,7 @@ public class GetTopFiveSaleAndImportOrderHandler : IRequestHandler<GetTopFiveSal
                                                                 .Select(order => order.Date)
                                                                 .FirstOrDefaultAsync();
                 var topExportOrders = await _context.Orders
-                    .Where(order => order.Type == "Sale" &&
+                    .Where(order => order.Type == "Sale" && !order.IsDeleted  &&
                                     order.Customer != null &&
                                     order.Customer.Company != null &&
                                     order.Date <= mostRecentExportDate &&
@@ -63,7 +63,7 @@ public class GetTopFiveSaleAndImportOrderHandler : IRequestHandler<GetTopFiveSal
                     .ToListAsync();
 
                 var topImportOrders = await _context.Orders
-                    .Where(order => order.Type == "Import" &&
+                    .Where(order => order.Type == "Import" && !order.IsDeleted  &&
                                     order.Customer != null &&
                                     order.Customer.Company != null &&
                                     order.Date <= mostRecentImportDate &&
