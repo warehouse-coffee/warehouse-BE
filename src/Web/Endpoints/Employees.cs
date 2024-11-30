@@ -4,6 +4,7 @@ using warehouse_BE.Application.Employee.Commands.DeleteEmployee;
 using warehouse_BE.Application.Employee.Commands.UpdateEmployee;
 using warehouse_BE.Application.Employee.Queries.GetEmployeeDetail;
 using warehouse_BE.Application.Employee.Queries.GetListEmployee;
+using warehouse_BE.Application.Employees.Commands.ActivatedEmployee;
 using warehouse_BE.Application.Response;
 
 namespace warehouse_BE.Web.Endpoints
@@ -19,6 +20,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapPost(GetListEmployee,"/all")
                 .MapGet(GetEmployeeDetail,"/{id}")
                 .MapDelete(DeleteEmployee, "/{id}")
+                .MapPut(ActivateEmployee,"/activate/{employeeId}")
                 ;
         }
         [Authorize(Roles = "Admin")]
@@ -44,6 +46,11 @@ namespace warehouse_BE.Web.Endpoints
         public Task<bool> DeleteEmployee(ISender sender, string id)
         {
             return sender.Send(new DeleteEmployeeCommand { Id = id });
+        }
+        public Task<ResponseDto> ActivateEmployee(ISender sender, string employeeId, bool activated)
+        {
+            var command = new ActivatedEmployeeCommand { UserId  = employeeId, IsActive = activated };
+            return sender.Send(command);
         }
     }
 }

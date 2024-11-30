@@ -1327,6 +1327,49 @@ export class EmployeesClient {
         }
         return Promise.resolve<boolean>(null as any);
     }
+
+    activateEmployee(employeeId: string, activated: boolean): Promise<ResponseDto> {
+        let url_ = this.baseUrl + "/api/Employees/activate/{employeeId}?";
+        if (employeeId === undefined || employeeId === null)
+            throw new Error("The parameter 'employeeId' must be defined.");
+        url_ = url_.replace("{employeeId}", encodeURIComponent("" + employeeId));
+        if (activated === undefined || activated === null)
+            throw new Error("The parameter 'activated' must be defined and cannot be null.");
+        else
+            url_ += "activated=" + encodeURIComponent("" + activated) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "PUT",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processActivateEmployee(_response);
+        });
+    }
+
+    protected processActivateEmployee(response: Response): Promise<ResponseDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ResponseDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ResponseDto>(null as any);
+    }
 }
 
 export class IdentityUserClient {
@@ -4456,6 +4499,7 @@ export interface IStorageDto {
 }
 
 export class AreaDto implements IAreaDto {
+    id?: number;
     name?: string | undefined;
 
     constructor(data?: IAreaDto) {
@@ -4469,6 +4513,7 @@ export class AreaDto implements IAreaDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.name = _data["name"];
         }
     }
@@ -4482,12 +4527,14 @@ export class AreaDto implements IAreaDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["name"] = this.name;
         return data;
     }
 }
 
 export interface IAreaDto {
+    id?: number;
     name?: string | undefined;
 }
 

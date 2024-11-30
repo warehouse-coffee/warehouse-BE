@@ -373,6 +373,7 @@ public class IdentityService : IIdentityService
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             CompanyId = request.CompanyId,
+            isActived = true
         };
         var employeeDto = new EmployeeDto();
         try
@@ -1080,5 +1081,23 @@ public class IdentityService : IIdentityService
             }
         }
         return rs;
+    }
+    public async Task<Result> ActivateAsync(string userId, bool isActive)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return Result.Failure(new List<string> { "User not found" });
+        }
+
+        user.isActived = isActive;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return Result.Failure(errors);
+        }
+
+        return Result.Success();
     }
 }

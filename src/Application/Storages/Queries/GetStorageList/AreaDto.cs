@@ -9,6 +9,7 @@ namespace warehouse_BE.Application.Storages.Queries.GetStorageList;
 
 public class AreaDto
 {
+    public int Id { get; set; }
     public string? Name { get; set; }
 
     private class Mapping : Profile
@@ -17,6 +18,7 @@ public class AreaDto
         {
             CreateMap<Area, AreaDto>()
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForSourceMember(src => src.Products, opt => opt.DoNotValidate())
                .ReverseMap();
             CreateMap<AreaDto, Area>().ReverseMap();
