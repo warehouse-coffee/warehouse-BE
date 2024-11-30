@@ -1,5 +1,8 @@
 ﻿using warehouse_BE.Application.Categories.Commands.CreateCaterory;
 using warehouse_BE.Application.Categories.Queries.GetListCategory;
+using warehouse_BE.Application.Companies.Commands.DeleteCompany;
+using warehouse_BE.Application.Companies.Commands.UpdateCompany;
+using warehouse_BE.Application.Companies.Queries.CompanyDetail;
 using warehouse_BE.Application.Response;
 
 namespace warehouse_BE.Web.Endpoints;
@@ -11,7 +14,9 @@ public class Categories : EndpointGroupBase
         app.MapGroup(this)
             .RequireAuthorization()
             .MapPost(CreateCategory)
-            .MapGet(GetCategoryList);
+            .MapGet(GetCategoryList)
+            
+        ;
     }
 
 
@@ -25,4 +30,5 @@ public class Categories : EndpointGroupBase
     {
         return await sender.Send(new GetCategoryListQuery());
     }
+   
 }

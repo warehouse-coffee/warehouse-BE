@@ -810,7 +810,8 @@ public class IdentityService : IIdentityService
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
                     RoleName = roleName,
-                    isActived = user.isActived
+                    isActived = user.isActived,
+                    AvatarImage = user.AvatarImage
                 };
 
                 rs.Add(userDto);

@@ -63,7 +63,7 @@ public class GetListCategoryQueryHandler : IRequestHandler<GetCategoryListQuery,
                                      .ToListAsync(cancellationToken);
                     break;
 
-                case "Customer":
+                case "Employee":
                     var customerStorageIds = user.Storages?.Select(s => s.Id).ToList() ?? new List<int>();
 
                     rs.Categories = await _context.Categories
