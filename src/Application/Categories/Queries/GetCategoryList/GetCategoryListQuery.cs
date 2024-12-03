@@ -35,7 +35,7 @@ public class GetListCategoryQueryHandler : IRequestHandler<GetCategoryListQuery,
             }
         }
 
-        if (user?.CompanyId != null)
+        if (user?.CompanyId != null && _currentUser?.Id != null) 
         {
             switch (role)
             {
@@ -66,8 +66,10 @@ public class GetListCategoryQueryHandler : IRequestHandler<GetCategoryListQuery,
                 case "Employee":
                     var customerStorageIds = user.Storages?.Select(s => s.Id).ToList() ?? new List<int>();
 
+                    var userStorages = await _identityService.GetUserStoragesAsync(_currentUser.Id);
+                    var storageIds = userStorages.Select(s => s.Id).ToList();
                     rs.Categories = await _context.Categories
-                                                  .Where(c => c.Products.Any(p => customerStorageIds.Contains(p.StorageId)))
+                                                  .Where(c => c.Products.Any(p => storageIds.Contains(p.StorageId)))
                                                   .Select(c => new CategoryDto
                                                   {
                                                       Id = c.Id,

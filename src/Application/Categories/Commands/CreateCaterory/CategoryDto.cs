@@ -11,7 +11,6 @@ namespace warehouse_BE.Application.Categories.Commands.CreateCaterory;
 public class CategoryDto
 {
     public string? Name { get; set; }
-    public List<ProductDto>? Products { get; set; }
     private class Mapping : Profile
     {
         public Mapping()

@@ -5,6 +5,7 @@ namespace warehouse_BE.Application.Companies.Queries.GetCompanyList;
 
 public class CompanyDto 
 {
+    public int Id { get; set; }
     public string? CompanyId { get; set; }
     public string? CompanyName { get; set; }
     public string? PhoneContact { get; set; }

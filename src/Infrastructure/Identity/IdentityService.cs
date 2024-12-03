@@ -994,7 +994,7 @@ public class IdentityService : IIdentityService
             .Select(ur => ur.UserId)
             .ToListAsync();
         var userCount = await _userManager.Users
-            .Where(u => !superAdminUserIds.Contains(u.Id))
+            .Where(u => !superAdminUserIds.Contains(u.Id) && !u.isDeleted)
             .CountAsync();
 
         return userCount;
@@ -1099,5 +1099,16 @@ public class IdentityService : IIdentityService
         }
 
         return Result.Success();
+    }
+    public async Task<string> GetUserIdByEmail(string email)
+    {
+        string id = "";
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if(user != null)
+        {
+            id = user.Id;
+        }
+        return id;
     }
 }

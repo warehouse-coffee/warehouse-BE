@@ -3070,7 +3070,6 @@ export interface ICreateCategoryCommand {
 
 export class CategoryDto implements ICategoryDto {
     name?: string | undefined;
-    products?: ProductDto[] | undefined;
 
     constructor(data?: ICategoryDto) {
         if (data) {
@@ -3084,11 +3083,6 @@ export class CategoryDto implements ICategoryDto {
     init(_data?: any) {
         if (_data) {
             this.name = _data["name"];
-            if (Array.isArray(_data["products"])) {
-                this.products = [] as any;
-                for (let item of _data["products"])
-                    this.products!.push(ProductDto.fromJS(item));
-            }
         }
     }
 
@@ -3102,90 +3096,12 @@ export class CategoryDto implements ICategoryDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
-        if (Array.isArray(this.products)) {
-            data["products"] = [];
-            for (let item of this.products)
-                data["products"].push(item.toJSON());
-        }
         return data;
     }
 }
 
 export interface ICategoryDto {
     name?: string | undefined;
-    products?: ProductDto[] | undefined;
-}
-
-export class ProductDto implements IProductDto {
-    name?: string | undefined;
-    units?: string | undefined;
-    quantity?: number;
-    image?: string | undefined;
-    status?: string | undefined;
-    expiration?: Date | undefined;
-    importDate?: Date | undefined;
-    exportDate?: Date | undefined;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
-
-    constructor(data?: IProductDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.units = _data["units"];
-            this.quantity = _data["quantity"];
-            this.image = _data["image"];
-            this.status = _data["status"];
-            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
-            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
-            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
-            this.categoryId = _data["categoryId"];
-            this.areaId = _data["areaId"];
-        }
-    }
-
-    static fromJS(data: any): ProductDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProductDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["units"] = this.units;
-        data["quantity"] = this.quantity;
-        data["image"] = this.image;
-        data["status"] = this.status;
-        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
-        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
-        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
-        data["categoryId"] = this.categoryId;
-        data["areaId"] = this.areaId;
-        return data;
-    }
-}
-
-export interface IProductDto {
-    name?: string | undefined;
-    units?: string | undefined;
-    quantity?: number;
-    image?: string | undefined;
-    status?: string | undefined;
-    expiration?: Date | undefined;
-    importDate?: Date | undefined;
-    exportDate?: Date | undefined;
-    categoryId?: number | undefined;
-    areaId?: number | undefined;
 }
 
 export class CategoryListVM implements ICategoryListVM {
@@ -3465,6 +3381,7 @@ export interface ICompanyListVM {
 }
 
 export class CompanyDto implements ICompanyDto {
+    id?: number;
     companyId?: string | undefined;
     companyName?: string | undefined;
     phoneContact?: string | undefined;
@@ -3480,6 +3397,7 @@ export class CompanyDto implements ICompanyDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.companyId = _data["companyId"];
             this.companyName = _data["companyName"];
             this.phoneContact = _data["phoneContact"];
@@ -3495,6 +3413,7 @@ export class CompanyDto implements ICompanyDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["companyId"] = this.companyId;
         data["companyName"] = this.companyName;
         data["phoneContact"] = this.phoneContact;
@@ -3503,6 +3422,7 @@ export class CompanyDto implements ICompanyDto {
 }
 
 export interface ICompanyDto {
+    id?: number;
     companyId?: string | undefined;
     companyName?: string | undefined;
     phoneContact?: string | undefined;
@@ -7266,7 +7186,7 @@ export class SaleOrderProduct implements ISaleOrderProduct {
     productName?: string;
     quantity?: number;
     price?: number;
-    expectedPickupDate?: Date | undefined;
+    expectedPickupDate?: Date;
 
     constructor(data?: ISaleOrderProduct) {
         if (data) {
@@ -7307,7 +7227,7 @@ export interface ISaleOrderProduct {
     productName?: string;
     quantity?: number;
     price?: number;
-    expectedPickupDate?: Date | undefined;
+    expectedPickupDate?: Date;
 }
 
 export class SaleAndImportOrderVM implements ISaleAndImportOrderVM {
@@ -7560,6 +7480,78 @@ export class ProductListVM implements IProductListVM {
 export interface IProductListVM {
     productList?: ProductDto[] | undefined;
     page?: Page | undefined;
+}
+
+export class ProductDto implements IProductDto {
+    name?: string | undefined;
+    units?: string | undefined;
+    quantity?: number;
+    image?: string | undefined;
+    status?: string | undefined;
+    expiration?: Date | undefined;
+    importDate?: Date | undefined;
+    exportDate?: Date | undefined;
+    categoryId?: number | undefined;
+    areaId?: number | undefined;
+
+    constructor(data?: IProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.units = _data["units"];
+            this.quantity = _data["quantity"];
+            this.image = _data["image"];
+            this.status = _data["status"];
+            this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
+            this.importDate = _data["importDate"] ? new Date(_data["importDate"].toString()) : <any>undefined;
+            this.exportDate = _data["exportDate"] ? new Date(_data["exportDate"].toString()) : <any>undefined;
+            this.categoryId = _data["categoryId"];
+            this.areaId = _data["areaId"];
+        }
+    }
+
+    static fromJS(data: any): ProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["units"] = this.units;
+        data["quantity"] = this.quantity;
+        data["image"] = this.image;
+        data["status"] = this.status;
+        data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
+        data["importDate"] = this.importDate ? this.importDate.toISOString() : <any>undefined;
+        data["exportDate"] = this.exportDate ? this.exportDate.toISOString() : <any>undefined;
+        data["categoryId"] = this.categoryId;
+        data["areaId"] = this.areaId;
+        return data;
+    }
+}
+
+export interface IProductDto {
+    name?: string | undefined;
+    units?: string | undefined;
+    quantity?: number;
+    image?: string | undefined;
+    status?: string | undefined;
+    expiration?: Date | undefined;
+    importDate?: Date | undefined;
+    exportDate?: Date | undefined;
+    categoryId?: number | undefined;
+    areaId?: number | undefined;
 }
 
 export class GetProductListQuery implements IGetProductListQuery {

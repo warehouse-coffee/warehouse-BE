@@ -1,4 +1,5 @@
 ﻿using warehouse_BE.Application.Areas.CreateArea;
+using warehouse_BE.Application.Inventories.Commands.CountSafeStock;
 using warehouse_BE.Application.Inventories.Commands.DeleteInventoryProduct;
 using warehouse_BE.Application.Inventories.Queries.GetInventoriesByStorage;
 using warehouse_BE.Application.Inventories.Queries.GetListProductOfInventory;
@@ -28,6 +29,10 @@ namespace warehouse_BE.Web.Endpoints
         public Task<InventoryListVM> GetInventoriesByStorage(ISender sender, GetInventoriesByStorageQuery query)
         {
             return sender.Send(query);
+        }
+        public Task<int> GetSafeStock(ISender sender, int id)
+        {
+            return sender.Send(new CountSafeStockCommand { Id = id });
         }
     }
 }

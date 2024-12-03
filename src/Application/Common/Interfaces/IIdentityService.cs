@@ -51,4 +51,5 @@ public interface IIdentityService
     Task<bool> UpdateUserOnlineStatusAsync(string userId, bool isOnline);
     Task<int> GetCompanyIDInt(string userID);
     Task<Result> ActivateAsync(string userId, bool isActive);
+    Task<string> GetUserIdByEmail(string email);
 }

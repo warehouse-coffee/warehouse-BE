@@ -38,18 +38,7 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
             {
                 Name = request.Category.Name,
             };
-            if (request.Category.Products != null && request.Category.Products.Any())
-            {
-                var products = _mapper.Map<List<Product>>(request.Category.Products);
-
-                foreach (var product in products)
-                {
-                    product.Category = categoryEntity; 
-                }
-
-                categoryEntity.Products = products;
-
-            }
+           
 
             _context.Categories.Add(categoryEntity);
 

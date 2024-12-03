@@ -41,7 +41,8 @@ public class ResetPasswordCommand : IRequest<ResetPasswordVm>
                     StatusCode = 400 
                 };
             }
-
+            var userId = await _identityService.GetUserIdByEmail(request.Email);
+            var avtivate = await _identityService.ActivateAsync(userId, true);
             var token = await _identityService.SignIn(request.Email, request.NewPassword, sourcePath);
             if (!string.IsNullOrEmpty(token))
             {

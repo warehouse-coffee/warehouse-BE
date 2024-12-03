@@ -2012,64 +2012,6 @@
           "name": {
             "type": "string",
             "nullable": true
-          },
-          "products": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/ProductDto"
-            }
-          }
-        }
-      },
-      "ProductDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "units": {
-            "type": "string",
-            "nullable": true
-          },
-          "quantity": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "image": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "expiration": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "importDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "exportDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "areaId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
           }
         }
       },
@@ -2175,6 +2117,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
           "companyId": {
             "type": "string",
             "nullable": true
@@ -4083,8 +4029,7 @@
           },
           "expectedPickupDate": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "format": "date-time"
           }
         }
       },
@@ -4184,6 +4129,57 @@
                 "$ref": "#/components/schemas/Page"
               }
             ]
+          }
+        }
+      },
+      "ProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "units": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "expiration": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "importDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "exportDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "areaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         }
       },
