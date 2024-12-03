@@ -17,38 +17,48 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _currentUser;
-    private readonly IMapper _mapper;
-    public CreateCategoryCommandHandler(IApplicationDbContext context, IUser currentUser, IMapper mapper)
+    private readonly IIdentityService _identityService;
+    public CreateCategoryCommandHandler(IApplicationDbContext context, IUser currentUser, IIdentityService identityService )
     {
         _context = context;
         _currentUser = currentUser;
-        _mapper = mapper;
+        _identityService = identityService;
     }
     public async Task<ResponseDto> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        try
+        if (_currentUser.Id != null)
         {
-            var existingCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Name == request.Category.Name, cancellationToken);
-            if (existingCategory != null)
+            try
             {
+                var (result, companyId) = await _identityService.GetCompanyId(_currentUser.Id);
+                var existingCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Name == request.Category.Name && c.CompanyId == companyId, cancellationToken);
+                if (existingCategory != null)
+                {
 
-                return new ResponseDto(409, "Category with the same name already exists");
+                    return new ResponseDto(409, "Category with the same name already exists");
+                }
+                var categoryEntity = new Category
+                {
+                    Name = request.Category.Name,
+                };
+
+
+                _context.Categories.Add(categoryEntity);
+
+                await _context.SaveChangesAsync(cancellationToken);
+                var data = new Categories.Queries.GetListCategory.CategoryDto
+                {
+                    Id = categoryEntity.Id,
+                    Name = request.Category.Name,
+                    CompanyId = companyId,
+                };
+                return new ResponseDto(201, "Category created successfully", data);
             }
-            var categoryEntity = new Category
+            catch (Exception ex)
             {
-                Name = request.Category.Name,
-            };
-           
-
-            _context.Categories.Add(categoryEntity);
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return new ResponseDto(201, "Category created successfully");
+                return new ResponseDto(500, $"An error occurred while creating the category: {ex.Message}");
+            }
         }
-        catch (Exception ex)
-        {
-            return new ResponseDto(500, $"An error occurred while creating the category: {ex.Message}");
-        }
+        return new ResponseDto(400, $"Create Category fail");
     }
 }
