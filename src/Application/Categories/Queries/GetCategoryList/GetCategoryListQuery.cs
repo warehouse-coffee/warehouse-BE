@@ -24,11 +24,10 @@ public class GetListCategoryQueryHandler : IRequestHandler<GetCategoryListQuery,
         var rs = new CategoryListVM();
         string role = string.Empty;
         UserDto? user = null;
-
         if (!string.IsNullOrEmpty(_currentUser?.Id))
         {
             user = await _identityService.GetUserById(_currentUser.Id);
-
+            
             if (user != null)
             {
                 role = user.RoleName ?? string.Empty; 
@@ -64,19 +63,15 @@ public class GetListCategoryQueryHandler : IRequestHandler<GetCategoryListQuery,
                     break;
 
                 case "Employee":
-                    var customerStorageIds = user.Storages?.Select(s => s.Id).ToList() ?? new List<int>();
-
-                    var userStorages = await _identityService.GetUserStoragesAsync(_currentUser.Id);
-                    var storageIds = userStorages.Select(s => s.Id).ToList();
                     rs.Categories = await _context.Categories
-                                                  .Where(c => c.Products.Any(p => storageIds.Contains(p.StorageId)))
-                                                  .Select(c => new CategoryDto
-                                                  {
-                                                      Id = c.Id,
-                                                      Name = c.Name,
-                                                      CompanyId = c.CompanyId
-                                                  })
-                                                  .ToListAsync(cancellationToken);
+                                                   .Where(c => c.CompanyId == user.CompanyId && !c.IsDeleted)
+                                                     .Select(c => new CategoryDto
+                                                     {
+                                                         Id = c.Id,
+                                                         Name = c.Name,
+                                                         CompanyId = c.CompanyId
+                                                     })
+                                                     .ToListAsync(cancellationToken);
                     break;
                 default:
                     throw new InvalidOperationException($"Role '{role}' is not recognized.");

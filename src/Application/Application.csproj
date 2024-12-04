@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IdentityUser\Queries\" />
+    <Folder Include="IdentityUser\Commands\ForgotPassword\" />
     <Folder Include="InventoriesOutbound\Queries\" />
     <Folder Include="LogApp\Commands\" />
     <Folder Include="SmartPriceService\Commands\" />

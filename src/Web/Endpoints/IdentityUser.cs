@@ -8,6 +8,7 @@ using warehouse_BE.Application.IdentityUser.Commands.CreateUser;
 using warehouse_BE.Application.IdentityUser.Commands.LogOut;
 using warehouse_BE.Application.IdentityUser.Commands.ResetPassword;
 using warehouse_BE.Application.IdentityUser.Commands.SignIn;
+using warehouse_BE.Application.IdentityUser.Queries.CheckEmail;
 using warehouse_BE.Application.Response;
 
 namespace warehouse_BE.Web.Endpoints;
@@ -19,7 +20,9 @@ public class IdentityUser : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(SignIn, "/signin")
             .MapPost(ResetPassword, "/resetpassword")
-            .MapPost(Logout, "/logout");
+            .MapPost(Logout, "/logout")
+            .MapGet(CheckEmail,"/checkemail")
+            ;
     }
     public Task<SignInVm> SignIn(ISender sender, SignInCommand query)
     {
@@ -32,5 +35,9 @@ public class IdentityUser : EndpointGroupBase
     public Task<bool> Logout(ISender sender, [FromQuery] string Id)
     {
         return sender.Send(new LogoutCommand { UserId = Id });
+    }
+    public Task<bool> CheckEmail(ISender sender, string email)
+    {
+        return sender.Send(new CheckEmailQuery { Email = email });
     }
 }

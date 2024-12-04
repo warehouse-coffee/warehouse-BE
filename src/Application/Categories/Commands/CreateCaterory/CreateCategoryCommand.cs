@@ -40,6 +40,7 @@ public record CreateCategoryCommandHandler : IRequestHandler<CreateCategoryComma
                 var categoryEntity = new Category
                 {
                     Name = request.Category.Name,
+                    CompanyId = companyId,
                 };
 
 

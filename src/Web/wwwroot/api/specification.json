@@ -1025,6 +1025,37 @@
         }
       }
     },
+    "/api/IdentityUser/checkemail": {
+      "get": {
+        "tags": [
+          "IdentityUser"
+        ],
+        "operationId": "CheckEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Inventories": {
       "post": {
         "tags": [
