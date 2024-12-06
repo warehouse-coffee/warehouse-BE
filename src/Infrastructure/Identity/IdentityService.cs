@@ -552,7 +552,8 @@ public class IdentityService : IIdentityService
                     UserName = user.UserName,
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
-                    RoleName = RoleDisplay
+                    RoleName = RoleDisplay,
+                    isActived = user.isActived
                 }); 
             }
         }
@@ -573,7 +574,7 @@ public class IdentityService : IIdentityService
             UserName = user.UserName,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
-            CompanyId = user.CompanyId 
+            CompanyId = user.CompanyId
         };
 
         return EmployeeDetail;
@@ -1023,10 +1024,11 @@ public class IdentityService : IIdentityService
     {
         int employeeCount = 0;
 
-        var employees = await _context.Users
-            .Where(o => o.CompanyId == companyId && !o.isDeleted && o.isOnline)
-            .ToListAsync();
-
+        //var employees = await _context.Users
+        //    .Where(o => o.CompanyId == companyId && !o.isDeleted && o.isOnline)
+        //    .ToListAsync();
+        var employees = await _context.Users.Where(o => o.CompanyId == companyId && !o.isDeleted)
+                                            .ToListAsync();
         foreach (var employee in employees)
         {
             var roles = await _userManager.GetRolesAsync(employee);

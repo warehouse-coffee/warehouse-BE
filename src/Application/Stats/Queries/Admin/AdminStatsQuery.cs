@@ -79,10 +79,10 @@ public class AdminStatsQueryHandler : IRequestHandler<AdminStatsQuery, AdminStat
                     Cid = company.Id;
                 }
                 var completedOrdersCount = await context.Orders
-                                              .Where(order => order.Customer != null && order.Customer.CompanyId == Cid && order.Status == OrderStatus.Completed && order.Type == "Sale")
+                                              .Where(order => order.Customer != null && order.Customer.CompanyId == Cid && order.Status == OrderStatus.Completed && order.Type == "Sale" && !order.IsDeleted)
                                               .CountAsync();
                 var orderCount = await context.Orders
-                                              .Where(order => order.Customer != null && order.Customer.CompanyId == Cid && order.Type == "Sale")
+                                              .Where(order => order.Customer != null && order.Customer.CompanyId == Cid && order.Type == "Sale" && !order.IsDeleted)
                                               .CountAsync();
                 orderCompletionRate = orderCount > 0 ? (double)completedOrdersCount / orderCount * 100 : 0;
                 orderCompletionRate = Math.Round(orderCompletionRate, 2);

@@ -85,7 +85,7 @@ public class GetReportOftheStorageHandler : IRequestHandler<GetReportOftheStorag
                                                                TotalSold = g.Sum(p => p.SoldQuantity), 
                                                                AverageStorageTime = g.Average(p => (DateTime.UtcNow - p.ImportDate).TotalDays) 
                                                            })
-                                                           .OrderBy(p => p.TotalSold) 
+                                                           .OrderByDescending(p => p.AverageStorageTime) 
                                                            .Take(10) 
                                                            .ToList();
 

@@ -16,6 +16,7 @@ namespace warehouse_BE.Web.Endpoints
                 .MapPost(GetInventoryProductList)
                 .MapDelete(DeleteInventoryProduct,"{id}")
                 .MapPost(GetInventoriesByStorage,"storageId")
+                .MapGet(GetSafeStock,"safestock")
                 ;
         }
         public Task<InventoryProductsListVM> GetInventoryProductList(ISender sender, GetListProductOfInventory query)
