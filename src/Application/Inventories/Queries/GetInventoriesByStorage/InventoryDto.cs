@@ -6,6 +6,7 @@ namespace warehouse_BE.Application.Inventories.Queries.GetInventoriesByStorage;
 
 public class InventoryDto
 {
+    public int Id { get; set; }
     public required string ProductName { get; set; }
     public int AvailableQuantity { get; set; }
     public DateTime? Expiration { get; set; }

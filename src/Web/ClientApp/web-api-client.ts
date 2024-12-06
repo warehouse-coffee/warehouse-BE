@@ -1762,6 +1762,47 @@ export class InventoriesClient {
         }
         return Promise.resolve<number>(null as any);
     }
+
+    updateSafeStock(command: UpdateSafeStockCommand): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Inventories/safestock";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${this.token}`,
+                "X-XSRF-TOKEN": `${this.XSRF}`,
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateSafeStock(_response);
+        });
+    }
+
+    protected processUpdateSafeStock(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
 }
 
 export class InventoriesOutboundClient {
@@ -6577,6 +6618,7 @@ export interface IInventoryListVM {
 }
 
 export class InventoryDto implements IInventoryDto {
+    id?: number;
     productName?: string;
     availableQuantity?: number;
     expiration?: Date | undefined;
@@ -6596,6 +6638,7 @@ export class InventoryDto implements IInventoryDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.productName = _data["productName"];
             this.availableQuantity = _data["availableQuantity"];
             this.expiration = _data["expiration"] ? new Date(_data["expiration"].toString()) : <any>undefined;
@@ -6615,6 +6658,7 @@ export class InventoryDto implements IInventoryDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["productName"] = this.productName;
         data["availableQuantity"] = this.availableQuantity;
         data["expiration"] = this.expiration ? this.expiration.toISOString() : <any>undefined;
@@ -6627,6 +6671,7 @@ export class InventoryDto implements IInventoryDto {
 }
 
 export interface IInventoryDto {
+    id?: number;
     productName?: string;
     availableQuantity?: number;
     expiration?: Date | undefined;
@@ -6686,6 +6731,46 @@ export interface IGetInventoriesByStorageQuery {
     storageId?: number;
     page?: Page;
     filters?: FilterData[] | undefined;
+}
+
+export class UpdateSafeStockCommand implements IUpdateSafeStockCommand {
+    inventoryId?: number;
+    safeStock?: number;
+
+    constructor(data?: IUpdateSafeStockCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.inventoryId = _data["inventoryId"];
+            this.safeStock = _data["safeStock"];
+        }
+    }
+
+    static fromJS(data: any): UpdateSafeStockCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSafeStockCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["inventoryId"] = this.inventoryId;
+        data["safeStock"] = this.safeStock;
+        return data;
+    }
+}
+
+export interface IUpdateSafeStockCommand {
+    inventoryId?: number;
+    safeStock?: number;
 }
 
 export class CreateInventoryOutboundCommand implements ICreateInventoryOutboundCommand {
