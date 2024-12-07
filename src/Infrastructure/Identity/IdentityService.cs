@@ -937,11 +937,11 @@ public class IdentityService : IIdentityService
     public async Task<List<Storage>> GetUserStoragesAsync(string userId)
     {
         var user = await _context.Users
-            .Include(u => u.UserStorages)  // Include UserStorages instead of Storages
-            .ThenInclude(us => us.Storage)  // Also include the related Storage entity
+            .Include(u => u.UserStorages)  
+            .ThenInclude(us => us.Storage)
             .FirstOrDefaultAsync(u => u.Id == userId);
 
-        return user?.UserStorages.Select(us => us.Storage).ToList() ?? new List<Storage>();
+        return user?.UserStorages.Where(us => !us.Storage.IsDeleted).Select(us => us.Storage).ToList() ?? new List<Storage>();
 
     }
     public async Task<Storage> AddUserStorageAsync(string userId, Storage updatedStorage,CancellationToken cancellationToken)
@@ -1112,5 +1112,28 @@ public class IdentityService : IIdentityService
             id = user.Id;
         }
         return id;
+    }
+    public async Task<bool> SetNewPasswordAsync(string userId, string newPassword)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(newPassword))
+            return false;
+
+        // Find the user by ID
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return false; // User not found
+        }
+
+        // Remove the old password and set the new one
+        var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+        if (!removePasswordResult.Succeeded)
+        {
+            return false; // Failed to remove the old password
+        }
+
+        // Add the new password
+        var addPasswordResult = await _userManager.AddPasswordAsync(user, newPassword);
+        return addPasswordResult.Succeeded;
     }
 }

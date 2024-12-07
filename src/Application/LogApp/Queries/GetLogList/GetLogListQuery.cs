@@ -41,25 +41,33 @@ public class GetLogListQueryHandler : IRequestHandler<GetLogListQuery, LogList> 
 
         var logVMs = logs.Select(logLine => {
             var logParts = logLine.Split(" - ", 3);
+
+            // Kiểm tra xem logParts có đủ phần tử không
+            if (logParts.Length < 3)
+            {
+                return null; // Nếu không đủ phần tử, trả về null
+            }
+
             var dateTimePart = logParts[0];
-            var logLevelPart = dateTimePart.Substring(dateTimePart.IndexOf('[') + 1, 4); 
+            var logLevelPart = dateTimePart.Substring(dateTimePart.IndexOf('[') + 1, 4);
+
             return new LogVM
             {
-                Date = dateTimePart.Substring(0, 10), 
-                Hour = dateTimePart.Substring(11, 5), 
-                LogLevel = logLevelPart.Trim('[', ']'), 
-                Message = logParts[2], 
-                Type = GetLogType(logLevelPart.Trim('[', ']')) 
+                Date = dateTimePart.Substring(0, 10),
+                Hour = dateTimePart.Substring(11, 5),
+                LogLevel = logLevelPart.Trim('[', ']'),
+                Message = logParts[2],
+                Type = GetLogType(logLevelPart.Trim('[', ']'))
             };
-        }).ToList();
-
-
+        }).Where(logVM => logVM != null).ToList(); 
 
 
         int totalLogs = logVMs.Count;
         var pagedLogs = logVMs
+            .Where(logVM => logVM != null)
             .Skip((request.Page?.PageNumber - 1 ?? 0) * request.Page?.Size ?? 1)
             .Take(request.Page?.Size ?? 10)
+            .Cast<LogVM>()
             .ToList();
 
         // Trả về LogList đã phân trang

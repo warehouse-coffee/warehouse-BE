@@ -48,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IExternalHttpService, ExternalHttpService>();
         services.AddSingleton<ILoggerService, LoggerService>();
+        services.AddSingleton<System.Random>();
 
         return services;
     }

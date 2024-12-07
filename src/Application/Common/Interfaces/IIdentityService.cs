@@ -52,4 +52,5 @@ public interface IIdentityService
     Task<int> GetCompanyIDInt(string userID);
     Task<Result> ActivateAsync(string userId, bool isActive);
     Task<string> GetUserIdByEmail(string email);
+    Task<bool> SetNewPasswordAsync(string userId, string newPassword);
 }

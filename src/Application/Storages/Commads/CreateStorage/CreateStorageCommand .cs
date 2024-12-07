@@ -47,7 +47,7 @@ public class CreateStorageCommandHandler : IRequestHandler<CreateStorageCommand,
 
             var areas = request.Areas != null && request.Areas.Any()
                 ? _mapper.Map<List<Area>>(request.Areas)
-                : new List<Area>();
+                : new List<Area> { new Area { Name = "Temporary Area" } };
 
             foreach (var area in areas)
             {
